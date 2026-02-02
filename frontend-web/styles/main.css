@@ -23,7 +23,8 @@
 
 body {
   font-family: "Space Grotesk", "DM Sans", "Segoe UI", sans-serif;
-  background: url('/assets/bg.jpg') center/cover no-repeat fixed;
+  /* Match the public asset filename casing to avoid 404s on case-sensitive hosts */
+  background: url('/assets/bg.JPG') center/cover no-repeat fixed;
   background-color: #0f1718;
   color: #f3f7f6;
   min-height: 100vh;
