@@ -470,12 +470,12 @@ h1 {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
-    border-bottom: 1px solid transparent;
+    border-bottom: none;
   }
 
   .nav--open {
     max-height: 400px;
-    border-bottom: 1px solid var(--edge);
+    border-bottom: none;
   }
 
   .nav a {
