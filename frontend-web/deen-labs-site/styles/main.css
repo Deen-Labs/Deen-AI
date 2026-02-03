@@ -102,6 +102,30 @@ a {
   color: #fffaf0;
 }
 
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 10;
+}
+
+.mobile-menu-toggle span {
+  width: 24px;
+  height: 2px;
+  background: #dce5e3;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover span {
+  background: #e2a23b;
+}
+
 .button {
   background: linear-gradient(135deg, #e2a23b, #ffbb54);
   color: #0c0f12;
@@ -423,12 +447,46 @@ h1 {
   }
 
   .top-bar__inner {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 0;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
   }
 
   .nav {
-    flex-wrap: wrap;
+    position: fixed;
+    top: 61px;
+    left: 0;
+    right: 0;
+    background: rgba(12, 17, 18, 0.98);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    border-bottom: 1px solid transparent;
+  }
+
+  .nav--open {
+    max-height: 400px;
+    border-bottom: 1px solid var(--edge);
+  }
+
+  .nav a {
+    padding: 16px 5vw;
+    border-radius: 0;
+    border-bottom: 1px solid var(--edge);
+  }
+
+  .nav .button {
+    margin: 16px 5vw;
+    text-align: center;
   }
 }
 
