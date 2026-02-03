@@ -1,7 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 export default function TopBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navRef = useRef(null);
+  const toggleRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMenuOpen && 
+          navRef.current && 
+          toggleRef.current &&
+          !navRef.current.contains(event.target) && 
+          !toggleRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   return (
     <header className="top-bar">
@@ -18,6 +40,7 @@ export default function TopBar() {
         </div>
         
         <button 
+          ref={toggleRef}
           className="mobile-menu-toggle"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle menu"
@@ -28,7 +51,7 @@ export default function TopBar() {
           <span></span>
         </button>
 
-        <nav className={`nav ${isMenuOpen ? 'nav--open' : ''}`} aria-label="Primary">
+        <nav ref={navRef} className={`nav ${isMenuOpen ? 'nav--open' : ''}`} aria-label="Primary">
           <a href="#mission" onClick={() => setIsMenuOpen(false)}>Mission</a>
           <a href="#features" onClick={() => setIsMenuOpen(false)}>Features</a>
           <a href="#team" onClick={() => setIsMenuOpen(false)}>Team</a>
