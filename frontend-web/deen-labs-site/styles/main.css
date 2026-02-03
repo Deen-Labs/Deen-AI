@@ -406,8 +406,8 @@ h1 {
 
 .loader__orb {
   position: relative;
-  width: 250px;
-  height: 250px;
+  width: 300px;
+  height: 300px;
   display: grid;
   place-items: center;
 }
