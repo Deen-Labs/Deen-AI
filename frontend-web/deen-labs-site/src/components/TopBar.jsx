@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function TopBar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <header className="top-bar">
       <div className="wrapper top-bar__inner">
@@ -9,20 +11,33 @@ export default function TopBar() {
             <img
               src="/assets/logo.PNG"
               alt="DEEN LABS Logo"
-              className="w-32 h-32"
+              className="h-6"
+              style={{ imageRendering: 'auto' }}
             />
           </span>
           <span>DEEN LABS</span>
         </div>
-        <nav className="nav" aria-label="Primary">
-          <a href="#mission">Mission</a>
-          <a href="#features">Features</a>
-          <a href="#team">Team</a>
-          <a href="#contact">Contact</a>
+        
+        <button 
+          className="mobile-menu-toggle"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle menu"
+          aria-expanded={isMenuOpen}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav className={`nav ${isMenuOpen ? 'nav--open' : ''}`} aria-label="Primary">
+          <a href="#mission" onClick={() => setIsMenuOpen(false)}>Mission</a>
+          <a href="#features" onClick={() => setIsMenuOpen(false)}>Features</a>
+          <a href="#team" onClick={() => setIsMenuOpen(false)}>Team</a>
+          <a href="#contact" onClick={() => setIsMenuOpen(false)}>Contact</a>
+          <a className="button" href="#contact" onClick={() => setIsMenuOpen(false)}>
+            Connect with us
+          </a>
         </nav>
-        <a className="button" href="#contact">
-          Connect with us
-        </a>
       </div>
     </header>
   );
