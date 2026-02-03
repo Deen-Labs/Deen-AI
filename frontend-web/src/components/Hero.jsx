@@ -21,7 +21,7 @@ export default function Hero({ tags, badges }) {
                 marginTop: "32px",
                 alignSelf: "flex-start",
               }}>
-              Download App
+              App coming soon
             </a>
           </div>
           <div className="hero__image-wrapper">
