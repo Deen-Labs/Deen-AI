@@ -27,16 +27,16 @@ export default function PrayerTimesScreen() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Load settings to get calculation method
       const settings = await loadSettings();
       setCalculationMethod(settings.calculationMethodValue);
-      
+
       const location = await getCurrentLocation();
-      
+
       if (!location) {
         // Use default location (e.g., New York) if permission denied
-        const { timings, source } = await getPrayerTimes(40.7128, -74.0060, settings.calculationMethodValue);
+        const { timings, source } = await getPrayerTimes(40.7128, -74.0060, String(settings.calculationMethodValue));
         setPrayerTimes(timings);
         setSource(source.type);
         setError("Using default location. Enable location for accurate times.");
@@ -44,7 +44,7 @@ export default function PrayerTimesScreen() {
         const { timings, source } = await getPrayerTimes(
           location.latitude,
           location.longitude,
-          settings.calculationMethodValue
+          String(settings.calculationMethodValue)
         );
         setPrayerTimes(timings);
         setSource(source.type);
@@ -120,29 +120,37 @@ export default function PrayerTimesScreen() {
           <Text style={styles.sectionTitle}>Today's Schedule</Text>
           {Object.entries(prayerTimes)
             .filter(([name]) => name !== 'Sunrise')
-            .map(([name, time]) => (
-              <View
-                key={name}
-                style={[
-                  styles.prayerItem,
-                  nextPrayer && name === nextPrayer.name && styles.prayerItemActive,
-                ]}>
-                <Text
+            .map(([name, time]) => {
+              const displayName: Record<string, string> = {
+                Firstthird: 'First Third',
+                Lastthird: 'Last Third',
+                Midnight: 'Midnight',
+              };
+              const label = displayName[name] ?? name;
+              return (
+                <View
+                  key={name}
                   style={[
-                    styles.prayerName,
-                    nextPrayer && name === nextPrayer.name && styles.prayerNameActive,
+                    styles.prayerItem,
+                    nextPrayer && name === nextPrayer.name && styles.prayerItemActive,
                   ]}>
-                  {name}
-                </Text>
-                <Text
-                  style={[
-                    styles.prayerTime,
-                    nextPrayer && name === nextPrayer.name && styles.prayerTimeActive,
-                  ]}>
-                  {formatTime(time)}
-                </Text>
-              </View>
-            ))}
+                  <Text
+                    style={[
+                      styles.prayerName,
+                      nextPrayer && name === nextPrayer.name && styles.prayerNameActive,
+                    ]}>
+                    {label}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.prayerTime,
+                      nextPrayer && name === nextPrayer.name && styles.prayerTimeActive,
+                    ]}>
+                    {formatTime(time)}
+                  </Text>
+                </View>
+              );
+            })}
         </View>
 
         {/* Source Info */}
@@ -151,8 +159,8 @@ export default function PrayerTimesScreen() {
             {source === 'api' ? 'Calculated Times' : 'Masjid Times'}
           </Text>
           <Text style={styles.sourceSubtext}>
-            {source === 'api' 
-              ? 'Based on your location' 
+            {source === 'api'
+              ? 'Based on your location'
               : 'Updated 2 hours ago'}
           </Text>
         </View>
