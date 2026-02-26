@@ -1,5 +1,17 @@
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { Image, ImageSourcePropType } from "react-native";
+
+function TabBarIcon({ source, color }: { source: ImageSourcePropType; color: string }) {
+  return (
+    <Image
+      source={source}
+      style={{ width: 24, height: 24 }}
+      tintColor={color}
+      resizeMode="contain"
+    />
+  );
+}
 
 export default function TabsLayout() {
   return (
@@ -20,36 +32,48 @@ export default function TabsLayout() {
           name="index"
           options={{
             title: "Prayer Times",
-            tabBarIcon: ({ color }) => <TabBarIcon name="clock" color={color} />,
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon source={require("../../assets/tab-prayer.png")} color={color} />
+            ),
           }}
         />
         <Tabs.Screen
           name="masjid"
           options={{
             title: "Masjid",
-            tabBarIcon: ({ color }) => <TabBarIcon name="map-marker" color={color} />,
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon source={require("../../assets/tab-masjid.png")} color={color} />
+            ),
           }}
         />
         <Tabs.Screen
           name="focus"
           options={{
             title: "Focus",
-            tabBarIcon: ({ color }) => <TabBarIcon name="block-helper" color={color} />,
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon source={require("../../assets/tab-focus.png")} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="browser"
+          options={{
+            title: "Browser",
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon source={require("../../assets/tab-browser.png")} color={color} />
+            ),
           }}
         />
         <Tabs.Screen
           name="settings"
           options={{
             title: "Settings",
-            tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon source={require("../../assets/tab-settings.png")} color={color} />
+            ),
           }}
         />
       </Tabs>
     </>
   );
-}
-
-function TabBarIcon({ name, color }: { name: string; color: string }) {
-  // Placeholder for icons - we'll add proper icons later
-  return null;
 }

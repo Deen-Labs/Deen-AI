@@ -20,3 +20,7 @@ export const radius = {
   md: 14,
   sm: 10,
 } as const;
+
+// Google Maps API Key
+// Get your key from: https://console.cloud.google.com/google/maps-apis
+export const GOOGLE_MAPS_API_KEY = 'YOUR_API_KEY_HERE';

@@ -1,7 +1,20 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
-import { saveFocusSession, getFocusStats, getTodayFocusTime, FocusStats } from "../../lib/focus";
+import { 
+  saveFocusSession, 
+  getFocusStats, 
+  getTodayFocusTime, 
+  FocusStats,
+  setFocusModeActive,
+  getBlockingSettings,
+  saveBlockingSettings,
+  updateBlockedApp,
+  BlockingSettings,
+  BlockedApp,
+  getSampleApps,
+} from "../../lib/focus";
+import { nativeContentProtection } from "../../lib/nativeContentProtection";
 
 export default function FocusScreen() {
   const [isActive, setIsActive] = useState(false);
@@ -15,16 +28,45 @@ export default function FocusScreen() {
     currentStreak: 0,
   });
   const [todayMinutes, setTodayMinutes] = useState(0);
+  const [blockingSettings, setBlockingSettings] = useState<BlockingSettings>({
+    enableAppBlocking: false,
+    enableNSFWBlocking: true,
+    blockedApps: [],
+  });
+  const [showAppSettings, setShowAppSettings] = useState(false);
+  const [systemWideActive, setSystemWideActive] = useState(false);
+  const [systemWideAvailable, setSystemWideAvailable] = useState(false);
 
   useEffect(() => {
     loadStats();
+    loadBlockingSettings();
+    checkSystemWideProtection();
   }, []);
+
+  const checkSystemWideProtection = async () => {
+    const available = nativeContentProtection.isAvailable();
+    setSystemWideAvailable(available);
+    
+    if (available) {
+      const status = await nativeContentProtection.getStatus();
+      setSystemWideActive(status.active);
+    }
+  };
 
   const loadStats = async () => {
     const loadedStats = await getFocusStats();
     const todayTime = await getTodayFocusTime();
     setStats(loadedStats);
     setTodayMinutes(todayTime);
+  };
+
+  const loadBlockingSettings = async () => {
+    const settings = await getBlockingSettings();
+    // Merge with sample apps if no apps are configured yet
+    if (settings.blockedApps.length === 0) {
+      settings.blockedApps = getSampleApps();
+    }
+    setBlockingSettings(settings);
   };
 
   useEffect(() => {
@@ -56,6 +98,7 @@ export default function FocusScreen() {
       
       await loadStats();
       setIsActive(false);
+      await setFocusModeActive(false);
       setSessionStartTime(null);
     }
   };
@@ -73,13 +116,15 @@ export default function FocusScreen() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const startFocus = () => {
+  const startFocus = async () => {
     setIsActive(true);
     setSessionStartTime(new Date());
+    await setFocusModeActive(true);
   };
 
   const pauseFocus = async () => {
     setIsActive(false);
+    await setFocusModeActive(false);
     // Save as incomplete session
     await completeSession(false);
   };
@@ -89,8 +134,44 @@ export default function FocusScreen() {
       await completeSession(false);
     }
     setIsActive(false);
+    await setFocusModeActive(false);
     setTimeRemaining(selectedDuration * 60);
     setSessionStartTime(null);
+  };
+
+  const toggleAppBlocking = async (enabled: boolean) => {
+    const updatedSettings = { ...blockingSettings, enableAppBlocking: enabled };
+    setBlockingSettings(updatedSettings);
+    await saveBlockingSettings(updatedSettings);
+  };
+
+  const toggleNSFWBlocking = async (enabled: boolean) => {
+    const updatedSettings = { ...blockingSettings, enableNSFWBlocking: enabled };
+    setBlockingSettings(updatedSettings);
+    await saveBlockingSettings(updatedSettings);
+  };
+
+  const toggleAppEnabled = async (appId: string, enabled: boolean) => {
+    const updatedApps = blockingSettings.blockedApps.map(app =>
+      app.id === appId ? { ...app, enabled } : app
+    );
+    const updatedSettings = { ...blockingSettings, blockedApps: updatedApps };
+    setBlockingSettings(updatedSettings);
+    
+    const app = updatedApps.find(a => a.id === appId);
+    if (app) {
+      await updateBlockedApp(app);
+    }
+  };
+
+  const toggleSystemWideProtection = async (enabled: boolean) => {
+    if (enabled) {
+      const started = await nativeContentProtection.start();
+      setSystemWideActive(started);
+    } else {
+      const stopped = await nativeContentProtection.stop();
+      setSystemWideActive(!stopped);
+    }
   };
 
   const selectDuration = (minutes: number) => {
@@ -99,7 +180,7 @@ export default function FocusScreen() {
     setIsActive(false);
   };
 
-  const progress = 1 - timeRemaining / (selectedDuration * 60);
+  const progress = timeRemaining / (selectedDuration * 60);
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -136,9 +217,10 @@ export default function FocusScreen() {
             {/* Background ring */}
             <View style={styles.progressRing} />
             
-            {/* Progress arc (left half) */}
+            {/* Progress arc - starts full and degrades */}
             {progress > 0 && (
               <View style={styles.progressContainer}>
+                {/* Left half - always shows when progress > 0 */}
                 <View
                   style={[
                     styles.progressLeft,
@@ -149,7 +231,7 @@ export default function FocusScreen() {
                     },
                   ]}
                 />
-                {/* Progress arc (right half) */}
+                {/* Right half - shows when progress > 0.5 (more than half time remaining) */}
                 {progress > 0.5 && (
                   <View
                     style={[
@@ -257,6 +339,120 @@ export default function FocusScreen() {
               </Text>
             </View>
           </View>
+        </View>
+
+        {/* Content Protection Settings */}
+        <View style={styles.settingsSection}>
+          <Text style={styles.sectionTitle}>Content Protection</Text>
+          
+          {/* System-Wide Protection Toggle (Android Only) */}
+          {systemWideAvailable && (
+            <View style={styles.settingCard}>
+              <View style={styles.settingIconContainer}>
+                <Text style={styles.settingIcon}>🌐</Text>
+              </View>
+              <View style={styles.settingContent}>
+                <Text style={styles.settingTitle}>System-Wide Protection (VPN)</Text>
+                <Text style={styles.settingDescription}>
+                  Block NSFW content in ALL apps - Chrome, Safari, any browser. Uses VPN for device-wide filtering.
+                </Text>
+                <Text style={[styles.settingNote, systemWideActive && styles.settingNoteSuccess]}>
+                  {systemWideActive 
+                    ? '✅ Active - Your entire device is protected' 
+                    : '⚠️ Requires VPN permission'}
+                </Text>
+              </View>
+              <Switch
+                value={systemWideActive}
+                onValueChange={async (enabled) => {
+                  if (enabled) {
+                    const started = await nativeContentProtection.start();
+                    setSystemWideActive(started);
+                  } else {
+                    const stopped = await nativeContentProtection.stop();
+                    setSystemWideActive(!stopped);
+                  }
+                }}
+                trackColor={{ false: "#3e4a48", true: "rgba(76, 175, 80, 0.5)" }}
+                thumbColor={systemWideActive ? "#4caf50" : "#94a4a2"}
+              />
+            </View>
+          )}
+          
+          {/* NSFW Blocking Toggle */}
+          <View style={styles.settingCard}>
+            <View style={styles.settingIconContainer}>
+              <Text style={styles.settingIcon}>🛡️</Text>
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>Block NSFW Content</Text>
+              <Text style={styles.settingDescription}>
+                Automatically detect and block inappropriate content. Protected by DEEN AI.
+              </Text>
+              <Text style={styles.settingNote}>
+                Note: Requires device permissions for full protection
+              </Text>
+            </View>
+            <Switch
+              value={blockingSettings.enableNSFWBlocking}
+              onValueChange={toggleNSFWBlocking}
+              trackColor={{ false: "#3e4a48", true: "rgba(226, 162, 59, 0.5)" }}
+              thumbColor={blockingSettings.enableNSFWBlocking ? "#e2a23b" : "#94a4a2"}
+            />
+          </View>
+
+          {/* App Blocking Toggle */}
+          <View style={styles.settingCard}>
+            <View style={styles.settingIconContainer}>
+              <Text style={styles.settingIcon}>📱</Text>
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>Block Distracting Apps</Text>
+              <Text style={styles.settingDescription}>
+                Temporarily block selected apps during Focus Mode
+              </Text>
+            </View>
+            <Switch
+              value={blockingSettings.enableAppBlocking}
+              onValueChange={toggleAppBlocking}
+              trackColor={{ false: "#3e4a48", true: "rgba(226, 162, 59, 0.5)" }}
+              thumbColor={blockingSettings.enableAppBlocking ? "#e2a23b" : "#94a4a2"}
+            />
+          </View>
+
+          {/* Configure Apps Button */}
+          {blockingSettings.enableAppBlocking && (
+            <TouchableOpacity 
+              style={styles.configureButton}
+              onPress={() => setShowAppSettings(!showAppSettings)}
+            >
+              <Text style={styles.configureButtonText}>
+                {showAppSettings ? "Hide" : "Configure"} Blocked Apps
+              </Text>
+              <Text style={styles.configureButtonIcon}>
+                {showAppSettings ? "▲" : "▼"}
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {/* App Selection List */}
+          {showAppSettings && blockingSettings.enableAppBlocking && (
+            <View style={styles.appListContainer}>
+              <Text style={styles.appListTitle}>Select apps to block:</Text>
+              {blockingSettings.blockedApps.map((app) => (
+                <View key={app.id} style={styles.appItem}>
+                  <Text style={styles.appIcon}>📱</Text>
+                  <Text style={styles.appName}>{app.name}</Text>
+                  <Switch
+                    value={app.enabled}
+                    onValueChange={(enabled) => toggleAppEnabled(app.id, enabled)}
+                    trackColor={{ false: "#3e4a48", true: "rgba(226, 162, 59, 0.5)" }}
+                    thumbColor={app.enabled ? "#e2a23b" : "#94a4a2"}
+                  />
+                </View>
+              ))}
+            </View>
+          )}
         </View>
 
         <View style={{ height: 30 }} />
@@ -510,5 +706,108 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#94a4a2",
     lineHeight: 18,
+  },
+  settingsSection: {
+    paddingHorizontal: 20,
+    marginTop: 20,
+  },
+  settingCard: {
+    flexDirection: "row",
+    backgroundColor: "#0b2527",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    alignItems: "flex-start",
+  },
+  settingIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(226, 162, 59, 0.16)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  settingIcon: {
+    fontSize: 20,
+  },
+  settingContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+  settingTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#f3f7f6",
+    marginBottom: 4,
+  },
+  settingDescription: {
+    fontSize: 13,
+    color: "#94a4a2",
+    lineHeight: 18,
+    marginBottom: 4,
+  },
+  settingNote: {
+    fontSize: 11,
+    color: "#e2a23b",
+    fontStyle: "italic",
+    marginTop: 4,
+  },
+  settingNoteSuccess: {
+    color: "#4caf50",
+  },
+  configureButton: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#0c3033",
+    borderWidth: 1,
+    borderColor: "rgba(226, 162, 59, 0.3)",
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 8,
+  },
+  configureButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#ffdda8",
+  },
+  configureButtonIcon: {
+    fontSize: 12,
+    color: "#ffdda8",
+  },
+  appListContainer: {
+    backgroundColor: "#0c3033",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 8,
+  },
+  appListTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#94a4a2",
+    marginBottom: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  appItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.05)",
+  },
+  appIcon: {
+    fontSize: 18,
+    marginRight: 12,
+  },
+  appName: {
+    flex: 1,
+    fontSize: 15,
+    color: "#d6e2e0",
   },
 });

@@ -16,13 +16,13 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
         <View style={styles.logoContainer}>
           {Platform.OS === 'web' ? (
             <img 
-              src={require("../assets/logo.png")} 
+              src={require("../assets/splash-icon.png")} 
               alt="Deen AI Logo"
               style={{ width: 240, height: 240, objectFit: 'contain' }}
             />
           ) : (
             <Image
-              source={require("../assets/logo.png")}
+              source={require("../assets/splash-icon.png")}
               style={styles.logo}
               resizeMode="contain"
             />
