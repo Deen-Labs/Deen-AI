@@ -48,20 +48,6 @@ const team = [
     bio: "Architecting reliable infrastructure and shipping secure AI ops.",
     github: "https://github.com/GOLDSTEALTH",
   },
-  {
-    initials: "SK",
-    name: "Sadiq Khan",
-    role: "Co-founder · Web",
-    bio: "Designs and builds the product experiences for web and mobile.",
-    github: "https://github.com/mr-sf-khan",
-  },
-  {
-    initials: "IS",
-    name: "Ibrahim Shareef",
-    role: "Co-founder · Data",
-    bio: "Models data pipelines and keeps your schedules accurate.",
-    github: "https://github.com/mdibrahimshareef",
-  },
 ];
 
 const contact = {
@@ -85,24 +71,21 @@ export default function App() {
               it—combining respectful content filtering, masjid connectivity,
               and fast, source-backed answers.
             </p>
-            <div className="page-indicator">page 3</div>
           </section>
           <section className="section" id="features">
             <SectionTitle text="Core capabilities" />
             <Features items={features} />
-            <div className="page-indicator">page 4</div>
+
           </section>
 
           <section className="section team" id="team">
             <SectionTitle text="Founding team" />
             <Team members={team} />
-            <div className="page-indicator">page 5</div>
           </section>
 
           <section className="section" id="contact">
             <SectionTitle text="Contact" />
             <Contact {...contact} />
-            <div className="page-indicator">page 6</div>
           </section>
         </main>
 
