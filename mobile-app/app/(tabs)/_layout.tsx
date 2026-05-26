@@ -56,6 +56,15 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+          name="chat"
+          options={{
+            title: "ImamAI",
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon source={require("../../assets/tab-chat.png")} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="browser"
           options={{
             title: "Browser",
