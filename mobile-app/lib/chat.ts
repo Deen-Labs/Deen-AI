@@ -15,7 +15,7 @@ export interface ChatMessage {
 }
 
 // ─── API Keys ────────────────────────────────────────────────────────
-const GEMINI_API_KEY = 'AIzaSyAgm_ANo9C7kk5NoFwbm1Tmd0qdGJP7GiQ';
+const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 

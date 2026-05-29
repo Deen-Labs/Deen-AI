@@ -66,15 +66,6 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="browser"
-          options={{
-            title: "Browser",
-            tabBarIcon: ({ color }) => (
-              <TabBarIcon source={require("../../assets/tab-browser.png")} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
           name="settings"
           options={{
             title: "Settings",
