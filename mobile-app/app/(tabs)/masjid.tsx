@@ -291,6 +291,27 @@ export default function MasjidScreen() {
               </View>
             </View>
 
+            {/* Sadaqah Jariyah Update Timings Prompt */}
+            <TouchableOpacity
+              style={styles.updatePromptContainer}
+              onPress={() => {
+                const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSfD_YOUR_FORM_ID_HERE/viewform?usp=pp_url&entry.1000001=${encodeURIComponent(item.id)}&entry.1000002=${encodeURIComponent(item.name)}&entry.1000003=${encodeURIComponent(item.address)}`;
+                Linking.openURL(formUrl).catch((err) => {
+                  Alert.alert("Error", "Could not open the update form");
+                  console.error(err);
+                });
+              }}
+              activeOpacity={0.8}
+            >
+              <View style={styles.updatePromptHeader}>
+                <Text style={styles.updatePromptTitle}>Timings incorrect or unverified?</Text>
+                <Text style={styles.updatePromptBadge}>Earn Sadaqah Jariyah ✨</Text>
+              </View>
+              <Text style={styles.updatePromptText}>
+                Help your local community pray on time! Tap here to submit the correct timing sheet for this masjid and earn continuous reward.
+              </Text>
+            </TouchableOpacity>
+
             {/* Google Maps Direction Router Button */}
             <TouchableOpacity
               style={styles.googleMapsButton}
@@ -692,5 +713,40 @@ const styles = StyleSheet.create({
     color: "#0d1a1b",
     fontSize: 14,
     fontWeight: "700",
+  },
+  updatePromptContainer: {
+    backgroundColor: "rgba(226, 162, 59, 0.04)",
+    borderColor: "rgba(226, 162, 59, 0.15)",
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 14,
+  },
+  updatePromptHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  updatePromptTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#ffdda8",
+  },
+  updatePromptBadge: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: "#e2a23b",
+    backgroundColor: "rgba(226, 162, 59, 0.12)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  updatePromptText: {
+    fontSize: 12,
+    color: "#94a4a2",
+    lineHeight: 16,
   },
 });

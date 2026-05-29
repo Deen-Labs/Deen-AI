@@ -29,7 +29,7 @@ export default function Loader() {
             />
           </div>
         </div>
-        <div className="loader__text">initializing deen a.i.</div>
+        <div className="loader__text">initializing Deen AI</div>
       </div>
     </div>
   );
