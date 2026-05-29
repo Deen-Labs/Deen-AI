@@ -15,8 +15,8 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
       <View style={styles.content}>
         <View style={styles.logoContainer}>
           {Platform.OS === 'web' ? (
-            <img 
-              src={require("../assets/splash-icon.png")} 
+            <img
+              src={require("../assets/splash-icon.png")}
               alt="Deen AI Logo"
               style={{ width: 240, height: 240, objectFit: 'contain' }}
             />
@@ -28,7 +28,7 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
             />
           )}
         </View>
-        <Text style={styles.loadingText}>initializing deen a.i.</Text>
+        <Text style={styles.loadingText}>initializing Deen AI</Text>
       </View>
     </View>
   );

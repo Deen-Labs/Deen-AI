@@ -76,26 +76,12 @@ export default function BrowserScreen() {
       <ScrollView style={styles.scrollView}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Protected Browser</Text>
+          <Text style={styles.title}>Site Tester</Text>
           <Text style={styles.subtitle}>
-            Browse safely with DEEN AI protection
+            Enter the URL and test DEEN AI's content protection
           </Text>
         </View>
 
-        {/* Protection Status */}
-        <View style={styles.statusBanner}>
-          <Text style={styles.statusIcon}>🛡️</Text>
-          <View style={styles.statusContent}>
-            <Text style={styles.statusTitle}>
-              {protectionEnabled ? 'Protection Active' : 'Protection Disabled'}
-            </Text>
-            <Text style={styles.statusText}>
-              {protectionEnabled
-                ? 'DEEN AI is monitoring and blocking inappropriate content'
-                : 'Enable NSFW blocking in Focus tab to activate protection'}
-            </Text>
-          </View>
-        </View>
 
         {/* Address Bar */}
         <View style={styles.addressBar}>
@@ -176,7 +162,7 @@ export default function BrowserScreen() {
         <View style={styles.noteSection}>
           <Text style={styles.noteTitle}>⚠️ Important Note</Text>
           <Text style={styles.noteText}>
-            This is a demonstration browser within the DEEN AI app. For system-wide protection (blocking content in Chrome, Safari, etc.), native VPN or Network Extension implementation is required.
+            This is a demonstration Site check toolwithin the DEEN AI app. For system-wide protection (blocking content in Chrome, Safari, etc.), native VPN or Network Extension implementation is required.
           </Text>
         </View>
 

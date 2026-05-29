@@ -1,6 +1,6 @@
 {
   "name": "mobile-app",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
@@ -16,9 +16,9 @@
     "@react-navigation/native": "^7.1.33",
     "@react-navigation/stack": "^7.8.4",
     "date-fns": "^4.1.0",
-    "expo": "~54.0.33",
+    "expo": "~54.0.34",
     "expo-constants": "~18.0.13",
-    "expo-linking": "~8.0.11",
+    "expo-linking": "~8.0.12",
     "expo-location": "^19.0.8",
     "expo-router": "~6.0.23",
     "expo-status-bar": "~3.0.9",
