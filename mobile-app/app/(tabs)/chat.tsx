@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
     Text,
@@ -8,15 +8,29 @@ import {
     FlatList,
     KeyboardAvoidingView,
     Platform,
-    ActivityIndicator
+    ActivityIndicator,
+    Linking
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useChat, ChatMessage } from '../../lib/chat';
 
 export default function ChatScreen() {
     const [inputText, setInputText] = useState('');
     const { messages, isTyping, sendMessage } = useChat();
     const flatListRef = useRef<FlatList>(null);
+    const [expandedMessages, setExpandedMessages] = useState<Record<string, boolean>>({});
+    const tabBarHeight = useBottomTabBarHeight();
+
+    // Automatically scroll to the end when messages or typing status updates
+    useEffect(() => {
+        if (messages.length > 0) {
+            const timer = setTimeout(() => {
+                flatListRef.current?.scrollToEnd({ animated: true });
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [messages, isTyping]);
 
     const handleSend = () => {
         if (inputText.trim()) {
@@ -25,18 +39,80 @@ export default function ChatScreen() {
         }
     };
 
+    const toggleExpand = (id: string) => {
+        setExpandedMessages(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    const handleOpenLink = (url: string) => {
+        Linking.openURL(url).catch(err => {
+            console.error("Failed to open source URL:", err);
+        });
+    };
+
     const renderMessage = ({ item }: { item: ChatMessage }) => {
         const isUser = item.sender === 'user';
+        const hasSources = item.sources && item.sources.length > 0;
+        const isExpanded = !!expandedMessages[item.id];
 
         return (
             <View style={[
-                styles.messageBubble,
-                isUser ? styles.userBubble : styles.aiBubble
+                styles.messageContainer,
+                isUser ? styles.userContainer : styles.aiContainer
             ]}>
-                <Text style={styles.messageText}>{item.text}</Text>
-                <Text style={styles.timestampText}>
-                    {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
+                <View style={[
+                    styles.messageBubble,
+                    isUser ? styles.userBubble : styles.aiBubble
+                ]}>
+                    <Text selectable={true} style={styles.messageText}>{item.text}</Text>
+
+                    {/* Collapsible Sources Section */}
+                    {hasSources && (
+                        <View style={styles.sourcesWrapper}>
+                            <TouchableOpacity
+                                style={styles.sourcesHeader}
+                                onPress={() => toggleExpand(item.id)}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={styles.sourcesTitle}>
+                                    📚 Verified Sources ({item.sources!.length})
+                                </Text>
+                                <Text style={styles.dropdownArrow}>
+                                    {isExpanded ? '▲' : '▼'}
+                                </Text>
+                            </TouchableOpacity>
+
+                            {isExpanded && (
+                                <View style={styles.sourcesList}>
+                                    {item.sources!.map((source, index) => (
+                                        <TouchableOpacity
+                                            key={index}
+                                            style={styles.sourceCard}
+                                            onPress={() => handleOpenLink(source.url)}
+                                            activeOpacity={0.8}
+                                        >
+                                            <Text style={styles.sourceBookTitle} numberOfLines={1}>
+                                                {source.title}
+                                            </Text>
+                                            <Text style={styles.sourceBookAuthor} numberOfLines={1}>
+                                                By {source.author}
+                                            </Text>
+                                            <Text style={styles.tapToOpenText}>
+                                                Tap to read on Internet Archive →
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            )}
+                        </View>
+                    )}
+
+                    <Text style={styles.timestampText}>
+                        {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                </View>
             </View>
         );
     };
@@ -45,12 +121,12 @@ export default function ChatScreen() {
         <SafeAreaView style={styles.container} edges={["top"]}>
             <KeyboardAvoidingView
                 style={styles.keyboardAvoid}
-                behavior={Platform.OS === "ios" ? "padding" : undefined}
-                keyboardVerticalOffset={90}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={Platform.OS === "ios" ? tabBarHeight : 0}
             >
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Deen AI</Text>
-                    <Text style={styles.headerSubtitle}>Powered by Maktaba Shamila & Scholar verified sources</Text>
+                    <Text style={styles.headerTitle}>Imam-AI</Text>
+                    <Text style={styles.headerSubtitle}>Your companion in Islam, Ask Away !</Text>
                 </View>
 
                 <FlatList
@@ -59,6 +135,7 @@ export default function ChatScreen() {
                     keyExtractor={(item) => item.id}
                     renderItem={renderMessage}
                     contentContainerStyle={styles.listContent}
+                    keyboardShouldPersistTaps="handled"
                     onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
                     onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
                 />
@@ -121,19 +198,27 @@ const styles = StyleSheet.create({
         padding: 16,
         paddingBottom: 32,
     },
+    messageContainer: {
+        marginBottom: 12,
+        width: '100%',
+        display: 'flex',
+    },
+    userContainer: {
+        alignItems: 'flex-end',
+    },
+    aiContainer: {
+        alignItems: 'flex-start',
+    },
     messageBubble: {
         maxWidth: '85%',
         padding: 14,
         borderRadius: 20,
-        marginBottom: 12,
     },
     userBubble: {
-        alignSelf: 'flex-end',
         backgroundColor: '#0c3033',
         borderBottomRightRadius: 4,
     },
     aiBubble: {
-        alignSelf: 'flex-start',
         backgroundColor: '#1b2a2b',
         borderBottomLeftRadius: 4,
         borderWidth: 1,
@@ -144,11 +229,63 @@ const styles = StyleSheet.create({
         color: '#f3f7f6',
         lineHeight: 22,
     },
+    sourcesWrapper: {
+        marginTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255, 255, 255, 0.08)',
+        paddingTop: 10,
+    },
+    sourcesHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 6,
+        paddingHorizontal: 8,
+        backgroundColor: 'rgba(226, 162, 59, 0.08)',
+        borderRadius: 8,
+    },
+    sourcesTitle: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#e2a23b',
+    },
+    dropdownArrow: {
+        fontSize: 12,
+        color: '#e2a23b',
+    },
+    sourcesList: {
+        marginTop: 8,
+        gap: 6,
+    },
+    sourceCard: {
+        backgroundColor: '#111d1e',
+        borderRadius: 8,
+        padding: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(226, 162, 59, 0.15)',
+    },
+    sourceBookTitle: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#ffffff',
+    },
+    sourceBookAuthor: {
+        fontSize: 11,
+        color: '#94a4a2',
+        marginTop: 2,
+    },
+    tapToOpenText: {
+        fontSize: 10,
+        color: '#e2a23b',
+        fontWeight: '600',
+        marginTop: 6,
+        textDecorationLine: 'underline',
+    },
     timestampText: {
         fontSize: 10,
         color: '#4b6465',
         alignSelf: 'flex-end',
-        marginTop: 4,
+        marginTop: 6,
     },
     typingIndicator: {
         flexDirection: 'row',
