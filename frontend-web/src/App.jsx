@@ -1,4 +1,5 @@
 import React from "react";
+import { Analytics } from "@vercel/analytics/react";
 import Loader from "./components/Loader.jsx";
 import TopBar from "./components/TopBar.jsx";
 import Hero from "./components/Hero.jsx";
@@ -93,6 +94,7 @@ export default function App() {
           <div>DEEN LABS — building tools for mindful, connected worship.</div>
         </footer>
       </div>
+      <Analytics />
     </>
   );
 }
