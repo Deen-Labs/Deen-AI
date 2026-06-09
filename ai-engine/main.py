@@ -24,7 +24,7 @@ async def chat_endpoint(request: ChatRequest):
     elif "fasting" in msg or "ramadan" in msg:
         response_text = "Fasting in Ramadan is an obligation upon every capable adult Muslim. It is a month of mercy, forgiveness, and salvation."
     else:
-        response_text = "That is a very good question. Masha'Allah. I am still learning from the books of knowledge (Maktaba Shamila & others), so my answers are limited right now. Please ask me about prayer or greeting someone."
+        response_text = "That is a very good question. Masha'Allah. I am still learning from verified Quran and Hadith sources, so my answers are limited right now. Please ask me about prayer or greeting someone."
         
     return ChatResponse(response=response_text)
 

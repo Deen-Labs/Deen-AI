@@ -51,7 +51,7 @@ const team = [
 ];
 
 const contact = {
-  email: "deenlabs.AI@gmail.com",
+  email: "syedaamairshareef@gmail.com",
   location: "Hyderabad, Telangana, India",
   github: "https://github.com",
 };
