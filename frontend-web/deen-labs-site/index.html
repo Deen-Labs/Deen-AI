@@ -3,123 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Deen-Labs — Enterprise Technology Lab, Domain AI & Cloud DevOps Consulting</title>
+  <title>Deen AI — Mindful Islamic App & Dynamic Hyderabad Masjid Finder</title>
   
   <!-- Primary Meta Tags -->
-  <meta name="title" content="Deen-Labs — Enterprise Technology Lab, Domain AI & Cloud DevOps Consulting" />
-  <meta name="description" content="Deen-Labs is a premium technology lab and consulting agency specializing in physical-to-cloud DevOps, server commissioning, and intelligent domain-specific AI engines (Deen-AI and ResumeLabs)." />
-  <meta name="keywords" content="deen labs, deen ai, resumelabs, cloud devops consulting, server commissioning, rag pipeline, ats resume optimizer, pgvector, tailwind css, fastapi, streamlit" />
+  <meta name="title" content="Deen AI — Mindful Islamic App & Dynamic Hyderabad Masjid Finder" />
+  <meta name="description" content="Deen AI is a context-aware Islamic mobile application featuring a Hyderabad Masjid Finder, glowing digital LED timing displays, offline-ready astronomical prayer calculators, and source-backed Quran & Hadith AI responses." />
+  <meta name="keywords" content="deen ai, deen labs, masjid finder hyderabad, prayer times hyderabad, islamic mobile app, offline prayer times, mahmood watch co digital board, verified hadith AI, salat times hyderabad, ahle sunnah timing, ahle hadees timing" />
   <meta name="author" content="Deen Labs" />
   <meta name="robots" content="index, follow" />
 
   <!-- Open Graph / Facebook / LinkedIn -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://deen-labs.tech/" />
-  <meta property="og:title" content="Deen-Labs — Enterprise Technology Lab & Consulting" />
-  <meta property="og:description" content="We architect next-gen cloud systems and custom domain AI pipelines. Home of Deen-AI (hadith RAG verification) and ResumeLabs (LaTeX ATS resume architect)." />
-  <meta property="og:image" content="/assets/hero.png" />
+  <meta property="og:url" content="https://deenai.com/" />
+  <meta property="og:title" content="Deen AI — Mindful Islamic App & Dynamic Hyderabad Masjid Finder" />
+  <meta property="og:description" content="Connect with nearby Hyderabad masajid in real-time. Displays bilingual digital LED boards, Hanafi & Ahle Hadees prayer offsets, and deep-linked navigation routing." />
+  <meta property="og:image" content="https://deenai.com/assets/og_banner.jpg" />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://deen-labs.tech/" />
-  <meta property="twitter:title" content="Deen-Labs — Enterprise Technology Lab & Consulting" />
-  <meta property="twitter:description" content="Domain-Specific AI Products, DevOps, and Enterprise Infrastructure." />
-  <meta property="twitter:image" content="/assets/hero.png" />
+  <meta property="twitter:url" content="https://deenai.com/" />
+  <meta property="twitter:title" content="Deen AI — Mindful Islamic App & Dynamic Hyderabad Masjid Finder" />
+  <meta property="twitter:description" content="Dynamic Hyderabad Masjid Finder & Fiqh-Aware Offline Prayer Calculations." />
+  <meta property="twitter:image" content="https://deenai.com/assets/og_banner.jpg" />
 
-  <!-- Favicons matching existing layout -->
-  <link rel="icon" type="image/png" href="/assets/favicon.PNG" sizes="32x32" />
-  <link rel="icon" type="image/png" href="/assets/favicon.PNG" sizes="16x16" />
-  <link rel="apple-touch-icon" href="/assets/favicon.PNG" sizes="180x180" />
+  <!-- Canonical link to avoid duplicate content indexing issues -->
+  <link rel="canonical" href="https://deenai.com/" />
 
-  <!-- Google Fonts: Inter and Space Grotesk -->
+  <!-- Fonts & Styles -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
 
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Tailwind Configuration -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['Space Grotesk', 'sans-serif'],
-          },
-          colors: {
-            slate: {
-              950: '#070a13',
-            },
-            zinc: {
-              900: '#12131a',
-              950: '#0b0c10',
-            },
-            brand: {
-              gold: '#e2a23b',
-              goldsoft: '#ffdda8',
-              accent: '#1e8f82',
-            }
-          },
-          animation: {
-            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'bounce-slow': 'bounce 2.5s infinite',
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- Global Custom Styles for smooth scroll and custom scrollbars -->
-  <style type="text/css">
-    html {
-      font-size: 18px;
-    }
-    body {
-      background-color: #070a13;
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(30, 143, 130, 0.05) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(226, 162, 59, 0.04) 0%, transparent 45%);
-    }
-    
-    /* Custom Scrollbar Styles */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #070a13;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1e293b;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #334155;
-    }
-
-    /* Selection Highlight color */
-    ::selection {
-      background-color: rgba(30, 143, 130, 0.3);
-      color: #ffffff;
-    }
-  </style>
-
-  <!-- JSON-LD Structured Data Schema -->
+  <!-- Structured Rich Snippet Schema (JSON-LD) for SoftwareApplication -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareSourceCode",
-    "name": "Deen-Labs Platform",
-    "description": "Enterprise consulting lab and multi-product hub, specializing in high-performance cloud DevOps engineering and robust religious and optimization AI pipelines.",
-    "url": "https://deen-labs.tech/",
-    "creator": {
+    "@type": "SoftwareApplication",
+    "name": "Deen AI",
+    "operatingSystem": "Android, iOS",
+    "applicationCategory": "LifestyleApplication, ReferenceApplication",
+    "description": "Mindful, context-aware Islamic application with a dynamic Hyderabad Masjid Finder, offline prayer calculators, and Quran & Hadith source-backed AI responses.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "INR"
+    },
+    "publisher": {
       "@type": "Organization",
       "name": "Deen Labs",
-      "logo": "https://deen-labs.tech/assets/logo.PNG"
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://deenai.com/assets/og_banner.jpg"
+      }
     }
   }
   </script>
