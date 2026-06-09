@@ -8,7 +8,7 @@ export default function TopBar() {
       <div className="wrapper top-bar__inner">
         <div className="brand flex flex-col items-start">
           <img
-            src="/assets/logo.PNG"
+            src="/assets/logo.png"
             alt="DEEN LABS Logo"
             className="h-14 w-auto object-contain"
             style={{ imageRendering: 'auto' }}
