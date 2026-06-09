@@ -28,15 +28,14 @@ export default function TopBar() {
   return (
     <header className="top-bar">
       <div className="wrapper top-bar__inner">
-        <div className="brand">
-          <span>
-            <img
-              src="/assets/logo.PNG"
-              alt="DEEN LABS Logo"
-              className="h-6"
-              style={{ imageRendering: 'auto' }}
-            />
-          </span>
+        <div className="brand flex flex-col items-start">
+          <img
+            src="/assets/logo.PNG"
+            alt="DEEN LABS Logo"
+            className="h-14 w-auto object-contain"
+            style={{ imageRendering: 'auto' }}
+          />
+          <span className="text-[10px] uppercase tracking-[0.15em] text-slate-400 font-semibold mt-1.5 ml-1 select-none">Technology Lab</span>
         </div>
         
         <button 
