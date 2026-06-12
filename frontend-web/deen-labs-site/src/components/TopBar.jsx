@@ -33,7 +33,7 @@ export default function TopBar() {
           <a href="#team" onClick={() => setIsMenuOpen(false)}>Team</a>
           <a href="#contact" onClick={() => setIsMenuOpen(false)}>Contact</a>
           <a className="button" href="#contact" onClick={() => setIsMenuOpen(false)}>
-            Connect with us
+            Connect With Us
           </a>
         </nav>
       </div>
