@@ -11,8 +11,7 @@ import {
     ActivityIndicator,
     Linking
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useChat, ChatMessage } from '../../lib/chat';
 
 export default function ChatScreen() {
@@ -20,7 +19,8 @@ export default function ChatScreen() {
     const { messages, isTyping, sendMessage } = useChat();
     const flatListRef = useRef<FlatList>(null);
     const [expandedMessages, setExpandedMessages] = useState<Record<string, boolean>>({});
-    const tabBarHeight = useBottomTabBarHeight();
+    const insets = useSafeAreaInsets();
+    const tabBarHeight = 49 + insets.bottom;
 
     // Automatically scroll to the end when messages or typing status updates
     useEffect(() => {
