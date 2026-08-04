@@ -47,7 +47,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Deen AI needs your location to calculate accurate prayer times based on your current position."
         }
-      ]
+      ],
+      "expo-status-bar"
     ]
   }
 }
