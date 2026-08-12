@@ -15,7 +15,7 @@
 An Islamic-focused AI assistant (by Deen Labs) that provides proactive prayer reminders, dhikr prompts, and safe Q&A via Retrieval Augmented Generation (RAG).
 
 ## Monorepo Layout
-- `ai-engine/` — RAG pipeline, LLM connectors, Docker
+- `ai-engine/` — RAG pipeline, LLM connectors
 - `backend-data/` — DB schemas, ETL for Quran/Hadith, API (FastAPI)
 - `frontend-web/` — Web/Next.js UI (chat, prayer timeline)
 
@@ -25,18 +25,10 @@ An Islamic-focused AI assistant (by Deen Labs) that provides proactive prayer re
 - **Native Android Security**: Custom AccessibilityService and VPNService for system-wide content protection
 - **Data/State**: AsyncStorage, Local JSON caches (Prayer times, Hadith data)
 
-## Team Roles (suggested)
-- AI/DevOps (you): AI pipeline, Docker, CI/CD
-- Data (Friend 1): Quran/Hadith datasets, ETL, DB schemas
-- Web (Friend 2): UI, chat, prayer times card
 
 ## Git Workflow
 - `main`: protected, no direct pushes.
-- `dev`: optional integration branch.
-- Feature branches:
-  - `feature/ai-pipeline`
-  - `feature/db-setup`
-  - `feature/ui-chat`
+- `progress`: optional integration branch.
 - Use PRs with ≥1 review.
 
 ## Next Steps
