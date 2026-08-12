@@ -19,11 +19,11 @@ An Islamic-focused AI assistant (by Deen Labs) that provides proactive prayer re
 - `backend-data/` — DB schemas, ETL for Quran/Hadith, API (FastAPI)
 - `frontend-web/` — Web/Next.js UI (chat, prayer timeline)
 
-## Tech Stack (initial)
-- AI: Python, FastAPI, RAG with embeddings (e.g., OpenAI/Bedrock + pgvector/Pinecone)
-- Data: Postgres/Supabase, ETL scripts for Quran/Hadith datasets
-- Frontend: React/Next.js, Tailwind (optional)
-- DevOps: Docker, GitHub Actions (later)
+## Tech Stack (Current)
+- **Frontend/Mobile**: React Native, Expo (SDK 57)
+- **AI**: Google Gemini API (integrated directly in client)
+- **Native Android Security**: Custom AccessibilityService and VPNService for system-wide content protection
+- **Data/State**: AsyncStorage, Local JSON caches (Prayer times, Hadith data)
 
 ## Team Roles (suggested)
 - AI/DevOps (you): AI pipeline, Docker, CI/CD
@@ -39,12 +39,12 @@ An Islamic-focused AI assistant (by Deen Labs) that provides proactive prayer re
   - `feature/ui-chat`
 - Use PRs with ≥1 review.
 
-## Next Steps (Sprint 0)
-- AI/DevOps: Add Dockerfile + simple FastAPI stub in `ai-engine/`.
-- Data: Add initial Quran JSON sample + ETL stub in `backend-data/etl_scripts/`.
-- Web: Scaffold Next.js app in `frontend-web/` with a chat box and dummy prayer times card.
+## Next Steps
+- Continue refining native Android blocking capabilities.
+- Implement comprehensive offline prayer time scheduling (notifications).
+- Release on app stores.
 
-## Local Setup (high-level)
-- Python ≥3.10, Node ≥18, Docker.
-- Create a `.env` per service (API keys, DB URLs).
-- Run services via Docker (compose file to be added).
+## Local Setup
+- Requires Node ≥18.
+- Navigate to `mobile-app/` and run `npm install`.
+- Run `npx expo start` or build via `./gradlew assembleRelease` in the `android/` directory for testing native modules.
