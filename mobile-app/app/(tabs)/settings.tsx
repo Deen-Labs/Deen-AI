@@ -69,19 +69,6 @@ export default function SettingsScreen() {
     await saveSettings(newSettings);
   };
 
-  const selectCalculationMethod = async (methodId: string) => {
-    const method = CALCULATION_METHODS.find(m => m.id === methodId);
-    if (method) {
-      const newSettings = {
-        ...settings,
-        calculationMethod: method.id,
-        calculationMethodValue: method.value,
-      };
-      setSettings(newSettings);
-      await saveSettings(newSettings);
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView style={styles.scrollView}>
@@ -114,36 +101,6 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          <View style={styles.settingCard}>
-            <Text style={styles.settingLabel}>Calculation Method</Text>
-            <Text style={styles.settingDescription}>
-              Currently using: {CALCULATION_METHODS.find(m => m.id === settings.calculationMethod)?.name}
-            </Text>
-            <View style={styles.methodList}>
-              {CALCULATION_METHODS.map((method) => (
-                <TouchableOpacity
-                  key={method.id}
-                  style={[
-                    styles.methodOption,
-                    settings.calculationMethod === method.id && styles.methodOptionActive,
-                  ]}
-                  onPress={() => selectCalculationMethod(method.id)}>
-                  <View style={styles.radioOuter}>
-                    {settings.calculationMethod === method.id && (
-                      <View style={styles.radioInner} />
-                    )}
-                  </View>
-                  <Text
-                    style={[
-                      styles.methodText,
-                      settings.calculationMethod === method.id && styles.methodTextActive,
-                    ]}>
-                    {method.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
         </View>
 
         {/* Location Section */}

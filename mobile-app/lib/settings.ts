@@ -12,8 +12,8 @@ const SETTINGS_KEY = '@deen_ai_settings';
 const DEFAULT_SETTINGS: AppSettings = {
   notificationsEnabled: true,
   autoLocation: true,
-  calculationMethod: 'ISNA',
-  calculationMethodValue: 2,
+  calculationMethod: 'MAKKAH',
+  calculationMethodValue: 4,
 };
 
 export const CALCULATION_METHODS = [

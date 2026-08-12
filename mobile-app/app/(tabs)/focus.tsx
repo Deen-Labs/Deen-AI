@@ -15,6 +15,7 @@ import {
   getSampleApps,
 } from "../../lib/focus";
 import { nativeContentProtection } from "../../lib/nativeContentProtection";
+import { useLocalSearchParams } from "expo-router";
 
 export default function FocusScreen() {
   const [isActive, setIsActive] = useState(false);
@@ -37,11 +38,26 @@ export default function FocusScreen() {
   const [systemWideActive, setSystemWideActive] = useState(false);
   const [systemWideAvailable, setSystemWideAvailable] = useState(false);
 
+  const params = useLocalSearchParams();
+
   useEffect(() => {
     loadStats();
     loadBlockingSettings();
     checkSystemWideProtection();
-  }, []);
+
+    if (params.autoStart === 'true') {
+      if (params.duration) {
+        const mins = parseInt(params.duration as string);
+        if (!isNaN(mins) && mins > 0) {
+          selectDuration(mins);
+        }
+      }
+      // slight delay to allow state to settle
+      setTimeout(() => {
+        startFocus();
+      }, 300);
+    }
+  }, [params.autoStart, params.duration]);
 
   const checkSystemWideProtection = async () => {
     const available = nativeContentProtection.isAvailable();
