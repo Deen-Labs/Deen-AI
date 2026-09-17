@@ -175,7 +175,7 @@ export default function App() {
                 <div className="flex items-center space-x-3">
                   <i className="fa-solid fa-file-pdf text-indigo-400 text-sm"></i>
                   <div>
-                    <p className="font-bold text-white">RESUMELABS-CORE-02</p>
+                    <p className="font-bold text-white">IHATEATS-CORE-02</p>
                     <p className="text-[10px] text-slate-500">Streamlit + pdflatex compiler</p>
                   </div>
                 </div>
@@ -361,14 +361,15 @@ export default function App() {
               </div>
 
               {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="https://hub.docker.com/r/goldstealth/shadowplane" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 rounded-xl shadow-lg shadow-blue-950/20 transition-all duration-200">
-                  <i className="fa-brands fa-docker mr-2"></i> View on Docker Hub
-                </MagneticButton>
-                <MagneticButton as="a" href="https://github.com/GOLDSTEALTH/ShadowPlane" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
-                  <i className="fa-brands fa-github mr-2"></i> Explore Codebase
-                </MagneticButton>
-              </div>
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <MagneticButton as="a" href="https://hub.docker.com/r/goldsteatlh/shadowplane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 rounded-xl shadow-lg shadow-blue-950/20 transition-all duration-200">
+                    <i className="fa-brands fa-docker mr-2"></i> View on Docker Hub
+                  </MagneticButton>
+                  <MagneticButton as="a" href="https://github.com/GOLDSTEALTH/ShadowPlane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
+                    <i className="fa-brands fa-github mr-2"></i> Explore Codebase
+                  </MagneticButton>
+                </div>
+
             </div>
 
             {/* Right Column: Interactive Mockup */}
@@ -399,7 +400,7 @@ export default function App() {
         </InteractiveProjectCard>
 
         {/* ==========================================
-             RESUMELABS PRODUCT SHOWCASE (Row 2)
+             IHATEATS PRODUCT SHOWCASE (Row 2)
              ========================================== */}
                 <InteractiveProjectCard id="ihateats"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 sm:p-8 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-950/10 group relative overflow-hidden">
           {/* Top subtle glow line */}
