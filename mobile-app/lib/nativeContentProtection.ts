@@ -10,6 +10,9 @@ interface ContentProtectionNative {
   stopVPNService(): Promise<boolean>;
   isVPNRunning(): Promise<boolean>;
   hasVPNPermission(): Promise<boolean>;
+  getLastBlockTimestamp(): Promise<number>;
+  getTotalBlockCount(): Promise<number>;
+  setLockEnabled(enabled: boolean): Promise<boolean>;
 }
 
 const LINKING_ERROR =
@@ -27,6 +30,9 @@ const ContentProtectionNative: ContentProtectionNative = NativeModules.ContentPr
       stopVPNService: () => Promise.reject(new Error(LINKING_ERROR)),
       isVPNRunning: () => Promise.reject(new Error(LINKING_ERROR)),
       hasVPNPermission: () => Promise.reject(new Error(LINKING_ERROR)),
+      getLastBlockTimestamp: () => Promise.resolve(0),
+      getTotalBlockCount: () => Promise.resolve(0),
+      setLockEnabled: () => Promise.resolve(false),
     };
 
 /**
@@ -231,6 +237,47 @@ class NativeContentProtection {
         active: false,
         hasPermission: false,
       };
+    }
+  }
+
+  /**
+   * Get the timestamp of the last blocked content event.
+   * Returns 0 if no block event has ever occurred.
+   */
+  async getLastBlockTimestamp(): Promise<number> {
+    if (!this.isAvailable()) return 0;
+    try {
+      return await ContentProtectionNative.getLastBlockTimestamp();
+    } catch (error) {
+      console.error('Failed to get last block timestamp:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get the total number of blocked content events.
+   */
+  async getTotalBlockCount(): Promise<number> {
+    if (!this.isAvailable()) return 0;
+    try {
+      return await ContentProtectionNative.getTotalBlockCount();
+    } catch (error) {
+      console.error('Failed to get total block count:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Sync the JS lock state to Android SharedPreferences
+   * so the Accessibility Service can read it for uninstall protection.
+   */
+  async syncLockState(enabled: boolean): Promise<boolean> {
+    if (!this.isAvailable()) return false;
+    try {
+      return await ContentProtectionNative.setLockEnabled(enabled);
+    } catch (error) {
+      console.error('Failed to sync lock state:', error);
+      return false;
     }
   }
 }

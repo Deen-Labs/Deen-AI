@@ -9,10 +9,17 @@ import {
     KeyboardAvoidingView,
     Platform,
     ActivityIndicator,
-    Linking
+    Linking,
+    Alert
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useChat, ChatMessage } from '../../lib/chat';
+import { isLocked, verifyPIN } from '../../lib/lock';
+import { setFocusModeActive } from '../../lib/focus';
+import { nativeContentProtection } from '../../lib/nativeContentProtection';
+import { getStreak, recordVPNDisabled } from '../../lib/streak';
+import PINModal from '../../components/PINModal';
 
 export default function ChatScreen() {
     const [inputText, setInputText] = useState('');
@@ -21,6 +28,12 @@ export default function ChatScreen() {
     const [expandedMessages, setExpandedMessages] = useState<Record<string, boolean>>({});
     const insets = useSafeAreaInsets();
     const tabBarHeight = 49 + insets.bottom;
+
+    const [pinModalVisible, setPinModalVisible] = useState(false);
+    const [pinError, setPinError] = useState<string | null>(null);
+    const [pendingCommand, setPendingCommand] = useState<any>(null);
+    const processedCommands = useRef(new Set<string>());
+    const router = useRouter();
 
     // Automatically scroll to the end when messages or typing status updates
     useEffect(() => {
@@ -38,6 +51,96 @@ export default function ChatScreen() {
             setInputText('');
         }
     };
+
+    const parseAndExecuteCommands = (text: string) => {
+        if (!text.includes('---COMMAND---')) {
+            return { displayText: text, commands: [] };
+        }
+        const parts = text.split('---COMMAND---');
+        const displayText = parts[0].trim();
+        const commands = [];
+        for (let i = 1; i < parts.length; i++) {
+            try {
+                const jsonStr = parts[i].trim();
+                if (jsonStr) {
+                    commands.push(JSON.parse(jsonStr));
+                }
+            } catch (e) {
+                console.error("Failed to parse command:", e);
+            }
+        }
+        return { displayText, commands };
+    };
+
+    const executeCommand = async (command: any) => {
+        switch (command.action) {
+            case 'toggle_focus':
+                if (command.value) {
+                    router.push({
+                        pathname: '/(tabs)/focus',
+                        params: { autoStart: 'true' }
+                    });
+                } else {
+                    setFocusModeActive(false);
+                }
+                break;
+            case 'toggle_swp':
+                const locked = await isLocked();
+                if (locked) {
+                    setPendingCommand(command);
+                    setPinModalVisible(true);
+                } else {
+                    if (command.value) {
+                        nativeContentProtection.start();
+                    } else {
+                        nativeContentProtection.stop();
+                        await recordVPNDisabled();
+                    }
+                }
+                break;
+            case 'set_duration':
+                router.push({
+                    pathname: '/(tabs)/focus',
+                    params: { duration: command.minutes?.toString() || '15', autoStart: 'true' }
+                });
+                break;
+            case 'get_streak':
+                const streak = await getStreak();
+                Alert.alert("Streak", `Your current streak is ${streak.currentStreak} days!`);
+                break;
+            case 'get_prayer_times':
+                Alert.alert("Prayer Times", "Fajr: 5:00 AM\nDhuhr: 1:30 PM\nAsr: 5:00 PM\nMaghrib: 8:00 PM\nIsha: 9:30 PM");
+                break;
+        }
+    };
+
+    const handlePINSubmit = async (pin: string) => {
+        setPinError(null);
+        const valid = await verifyPIN(pin);
+        if (valid) {
+            setPinModalVisible(false);
+            if (pendingCommand && pendingCommand.action === 'toggle_swp') {
+                if (pendingCommand.value) {
+                    nativeContentProtection.start();
+                } else {
+                    nativeContentProtection.stop();
+                    await recordVPNDisabled();
+                }
+            }
+            setPendingCommand(null);
+        } else {
+            setPinError('Invalid PIN');
+        }
+    };
+
+    useEffect(() => {
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg && lastMsg.sender === 'ai' && !processedCommands.current.has(lastMsg.id)) {
+            processedCommands.current.add(lastMsg.id);
+            const { commands } = parseAndExecuteCommands(lastMsg.text);
+            commands.forEach(executeCommand);
+        }
+    }, [messages]);
 
     const toggleExpand = (id: string) => {
         setExpandedMessages(prev => ({
@@ -57,6 +160,12 @@ export default function ChatScreen() {
         const hasSources = item.sources && item.sources.length > 0;
         const isExpanded = !!expandedMessages[item.id];
 
+        let displayText = item.text;
+        if (!isUser) {
+            const parsed = parseAndExecuteCommands(item.text);
+            displayText = parsed.displayText;
+        }
+
         return (
             <View style={[
                 styles.messageContainer,
@@ -66,7 +175,7 @@ export default function ChatScreen() {
                     styles.messageBubble,
                     isUser ? styles.userBubble : styles.aiBubble
                 ]}>
-                    <Text selectable={true} style={styles.messageText}>{item.text}</Text>
+                    <Text selectable={true} style={styles.messageText}>{displayText}</Text>
 
                     {/* Collapsible Sources Section */}
                     {hasSources && (
@@ -166,6 +275,18 @@ export default function ChatScreen() {
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
+            <PINModal
+                visible={pinModalVisible}
+                onClose={() => {
+                    setPinModalVisible(false);
+                    setPendingCommand(null);
+                    setPinError(null);
+                }}
+                onSubmit={handlePINSubmit}
+                error={pinError || undefined}
+                title="PIN Required"
+                subtitle="Please enter your PIN to change this setting."
+            />
         </SafeAreaView>
     );
 }

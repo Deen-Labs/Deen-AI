@@ -39,12 +39,12 @@ export interface PrayerSource {
  * Fetch prayer times from Aladhan API
  * @param latitude 
  * @param longitude 
- * @param method Calculation method (default: 2 = Islamic Society of North America)
+ * @param method Calculation method (default: 4 = Umm Al-Qura University, Makkah)
  */
 export async function fetchPrayerTimes(
   latitude: number,
   longitude: number,
-  method: number = 2
+  method: number = 4
 ): Promise<PrayerTimesData> {
   const today = new Date();
   const timestamp = Math.floor(today.getTime() / 1000);

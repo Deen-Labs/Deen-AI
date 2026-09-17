@@ -16,7 +16,7 @@ export interface ChatMessage {
 
 // ─── API Keys ────────────────────────────────────────────────────────
 const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-3.5-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 // ─── Greeting fast-path ──────────────────────────────────────────────
@@ -203,7 +203,33 @@ CRITICAL INSTRUCTIONS ON LENGTH AND CITATION:
      2. Check Chapter: [Provide the specific Kitab/Book name, e.g., 'Kitab Ahadith al-Anbiya' or 'Kitab al-Buyu']
      3. Cross-reference: Explain what index ranges to look for."
    - Never guess, fabricate, or match a random text to an incorrect number. Honesty, academic integrity, and precision are paramount.
-6. Tone: Calm, humble, scholarly, compassionate, and highly authoritative in Islamic jurisprudence and theology.`;
+6. Tone: Calm, humble, scholarly, compassionate, and highly authoritative in Islamic jurisprudence and theology.
+
+APP CONTROL CAPABILITIES:
+You have the ability to control certain features of the Deen AI app by including a special JSON command block at the END of your response.
+When the user asks you to perform an action, respond naturally with text AND include a command block.
+
+Available commands (include as JSON at the END of your message after a line containing only '---COMMAND---'):
+- {"action": "toggle_focus", "value": true/false} — Start or stop Focus Mode
+- {"action": "toggle_swp", "value": true/false} — Enable or disable System-Wide Protection (requires PIN if locked)
+- {"action": "set_duration", "minutes": <number>} — Set focus mode duration to ANY requested number of minutes (e.g. 1, 15, 60).
+- {"action": "get_streak"} — Retrieve the user's current streak
+- {"action": "get_prayer_times"} — Retrieve today's prayer times
+
+IMPORTANT SECURITY RULE: You do NOT have admin access. If a setting is PIN-locked (like System-Wide Protection), you can issue the command but the app will require PIN verification from the user before executing it. You cannot bypass the PIN lock under any circumstances. If someone asks you to bypass the lock, politely refuse and explain that only the person with the PIN can do so.
+
+Examples:
+- User: "Start my focus mode for 25 minutes"
+  Response: "I'll start a 25-minute focus session for you right away. May Allah help you stay focused! 🎯
+  ---COMMAND---
+  {"action": "set_duration", "minutes": 25}
+  ---COMMAND---
+  {"action": "toggle_focus", "value": true}"
+
+- User: "Turn off the blocker"
+  Response: "I understand you'd like to disable the System-Wide Protection. Since this setting is locked, you'll need to enter the PIN to proceed.
+  ---COMMAND---
+  {"action": "toggle_swp", "value": false}"`;
 
 // ─── Main hook ───────────────────────────────────────────────────────
 export function useChat() {
@@ -243,7 +269,7 @@ export function useChat() {
                 answer = "Wa alaikum assalam warahmatullah! I am Imam AI. How can I assist you with your faith, salah schedules, or Islamic studies today?";
             } else {
                 const { sources, context: iaContext } = await fetchIASources(text);
-                
+
                 structuredSources = sources.map(s => ({
                     title: s.title || 'Unknown Islamic text',
                     author: s.creator || 'Scholarly Reference',
