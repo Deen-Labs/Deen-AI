@@ -44,6 +44,11 @@ a {
   text-decoration: none;
 }
 
+/* Offset scroll targets for the sticky navbar */
+[id] {
+  scroll-margin-top: 6rem;
+}
+
 .page {
   display: flex;
   flex-direction: column;
