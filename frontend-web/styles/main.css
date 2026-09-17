@@ -23,9 +23,15 @@
 
 body {
   font-family: "Space Grotesk", "DM Sans", "Segoe UI", sans-serif;
-  /* Match the public asset filename casing to avoid 404s on case-sensitive hosts */
-  background: url('/assets/bg.JPG') center/cover no-repeat fixed;
-  background-color: #0f1718;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 15% 5%, rgba(226, 162, 59, 0.45) 0%, rgba(226, 162, 59, 0) 45%),
+    radial-gradient(ellipse at 85% 35%, rgba(30, 143, 130, 0.45) 0%, rgba(30, 143, 130, 0) 50%),
+    radial-gradient(ellipse at 20% 70%, rgba(79, 70, 229, 0.35) 0%, rgba(79, 70, 229, 0) 50%),
+    linear-gradient(165deg, #05070e 0%, #031215 35%, #050a14 70%, #05070e 100%);
+  background-attachment: fixed, scroll, scroll, scroll, scroll;
+  background-color: #05070e;
+  background-color: #070a13;
   color: #f3f7f6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -654,5 +660,18 @@ h1 {
 
   .team-grid {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+
+@media (max-width: 768px) {
+  body {
+    background-image: 
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E"),
+      radial-gradient(circle at 50% 5%, rgba(226, 162, 59, 0.45) 0%, rgba(226, 162, 59, 0) 55%),
+      radial-gradient(circle at 50% 35%, rgba(30, 143, 130, 0.45) 0%, rgba(30, 143, 130, 0) 55%),
+      radial-gradient(circle at 50% 70%, rgba(79, 70, 229, 0.35) 0%, rgba(79, 70, 229, 0) 55%),
+      linear-gradient(180deg, #05070e 0%, #031215 35%, #050a14 70%, #05070e 100%);
+    background-attachment: fixed, scroll, scroll, scroll, scroll;
   }
 }
