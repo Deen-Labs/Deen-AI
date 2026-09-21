@@ -96,7 +96,7 @@ export default function App() {
   {/* ==========================================
        THE HERO SECTION
        ========================================== */}
-  <section id="hero" className="relative pt-16 sm:pt-24 lg:pt-32 pb-20 lg:pb-32 overflow-hidden flex items-center">
+  <section id="hero" className="relative pt-28 sm:pt-24 lg:pt-32 pb-20 lg:pb-32 overflow-hidden flex items-center">
     {/* Grid Overlay Graphics */}
     <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30"></div>
     
