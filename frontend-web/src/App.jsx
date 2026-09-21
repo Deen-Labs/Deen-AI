@@ -101,7 +101,7 @@ export default function App() {
     <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30"></div>
     
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
         {/* Hero Information Column */}
         <div className="lg:col-span-7 flex flex-col text-left space-y-8">
@@ -244,7 +244,7 @@ export default function App() {
         {/* ==========================================
              DEEN-AI PRODUCT SHOWCASE (Row 1)
              ========================================== */}
-        <InteractiveProjectCard id="deen-ai"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 sm:p-8 hover:border-teal-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-950/10 group relative overflow-hidden">
+        <InteractiveProjectCard id="deen-ai"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-8 hover:border-teal-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-950/10 group relative overflow-hidden">
 
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-brand-accent to-emerald-500"></div>
@@ -329,7 +329,7 @@ export default function App() {
         {/* ==========================================
              SHADOWPLANE PRODUCT SHOWCASE (Row 3)
              ========================================== */}
-                <InteractiveProjectCard id="shadowplane" className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 sm:p-8 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-950/10 group relative overflow-hidden">
+                <InteractiveProjectCard id="shadowplane" className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-8 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-950/10 group relative overflow-hidden">
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-400"></div>
           
@@ -402,7 +402,7 @@ export default function App() {
         {/* ==========================================
              IHATEATS PRODUCT SHOWCASE (Row 2)
              ========================================== */}
-                <InteractiveProjectCard id="ihateats"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 sm:p-8 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-950/10 group relative overflow-hidden">
+                <InteractiveProjectCard id="ihateats"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-8 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-950/10 group relative overflow-hidden">
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-indigo-500 to-violet-500"></div>
 
@@ -490,8 +490,8 @@ export default function App() {
        ========================================== */}
   <section id="consulting" className="py-24 border-t border-slate-900 relative">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="bg-slate-950/60 backdrop-blur-xl border border-slate-800/50 rounded-[2.5rem] p-8 sm:p-12 shadow-2xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <div className="bg-slate-950/60 backdrop-blur-xl border border-slate-800/50 rounded-3xl sm:rounded-[2.5rem] p-4 sm:p-8 md:p-12 shadow-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
         {/* Left Side: Copy details */}
             <div className="lg:col-span-7 flex flex-col space-y-6">
@@ -565,7 +565,7 @@ export default function App() {
             
             {/* Right Side: Structured Team Info */}
         <div className="lg:col-span-5 flex justify-center items-center">
-          <div className="w-full max-w-[420px] bg-slate-950/60 border border-slate-800/80 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+          <div className="w-full max-w-[420px] bg-slate-950/60 border border-slate-800/80 rounded-3xl p-3 sm:p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
             {/* Glow background decoration */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-b from-brand-gold/10 to-transparent blur-[60px] rounded-full pointer-events-none -z-10"></div>
             
@@ -577,7 +577,7 @@ export default function App() {
             <div className="space-y-4">
               
               {/* Team Member 1 */}
-              <div className="group relative p-6 sm:p-8 bg-slate-900/40 hover:bg-slate-800/60 border border-slate-800 hover:border-amber-500/40 rounded-2xl transition-all duration-300 overflow-hidden cursor-none">
+              <div className="group relative p-4 sm:p-8 bg-slate-900/40 hover:bg-slate-800/60 border border-slate-800 hover:border-amber-500/40 rounded-2xl transition-all duration-300 overflow-hidden cursor-none">
                   {/* Background Hover Glow */}
                   <div className="absolute inset-0 bg-gradient-to-b from-amber-500/0 via-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-in-out pointer-events-none"></div>
                   
@@ -628,7 +628,7 @@ export default function App() {
        ========================================== */}
   <section id="contact" className="py-20 bg-slate-950 border-t border-slate-900 mt-auto relative">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
         
         {/* Left: Quick Contact Info */}
         <div className="md:col-span-6 flex flex-col space-y-6">
@@ -652,7 +652,7 @@ export default function App() {
 
         {/* Right: Professional Contact Form Panel */}
         <div className="md:col-span-6">
-          <div className="bg-slate-900/30 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+          <div className="bg-slate-900/30 border border-slate-800 rounded-2xl p-4 sm:p-8 shadow-xl">
             <form id="contact-form" className="space-y-4" onSubmit={handleFormSubmit}>
               <div>
                 <label htmlFor="contact-name" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Your Name</label>
