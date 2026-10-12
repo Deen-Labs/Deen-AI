@@ -24,6 +24,7 @@ export default function InteractiveProjectCard({ children, className = '', id, .
   const glareBackground = useMotionTemplate`radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.06) 0%, transparent 60%)`;
 
   const handlePointerMove = (e) => {
+    if (e.pointerType === 'touch') return;
     if (!ref.current) return;
     const { width, height, left, top } = ref.current.getBoundingClientRect();
     const localX = (e.clientX - left) / width - 0.5;
@@ -33,7 +34,8 @@ export default function InteractiveProjectCard({ children, className = '', id, .
     y.set(localY);
   };
 
-  const handlePointerEnter = () => {
+  const handlePointerEnter = (e) => {
+    if (e && e.pointerType === 'touch') return;
     setCursorState('card');
   };
 
@@ -50,7 +52,7 @@ export default function InteractiveProjectCard({ children, className = '', id, .
       onPointerMove={handlePointerMove}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
-      className={`relative cursor-none ${className}`}
+      className={`relative ${className}`}
       style={{ perspective: 1500 }}
       {...props}
     >

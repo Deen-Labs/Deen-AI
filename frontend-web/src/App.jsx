@@ -7,6 +7,22 @@ import InteractiveProjectCard from "./components/InteractiveProjectCard";
 
 export default function App() {
   const [formState, setFormState] = useState({ status: 'idle' });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const scrollToSection = (e, id) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      const navOffset = 88;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +56,8 @@ export default function App() {
   return (
     <CursorProvider>
       <RotatedSquareCursor />
-      <div className="font-sans text-slate-100 antialiased min-h-screen flex flex-col">
+      <div className="ambient-bg" aria-hidden="true" />
+      <div className="font-sans text-slate-100 antialiased min-h-screen flex flex-col relative z-0">
         {/* We wrap the generated JSX in a fragment just in case it returned multiple siblings */}
         <>
 <div>
@@ -53,42 +70,58 @@ export default function App() {
       <div className="flex items-center justify-between min-h-[5rem] py-3">
         
         {/* Branding Logo / Title */}
-        <a href="#" className="flex flex-col items-start group">
+        <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex flex-col items-start group">
           <img src="/assets/logo.png" alt="DEEN LABS Logo" className="h-14 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
           <span className="text-[10px] uppercase tracking-[0.15em] text-slate-400 font-semibold font-display mt-1.5 ml-1 select-none">Technology Lab</span>
         </a>
 
         {/* Desktop Navigation Items */}
         <nav className="hidden md:flex items-center space-x-1" aria-label="Main Navigation">
-          <a href="#deen-ai" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">Deen-AI</a>
-          <a href="#shadowplane" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
-          <a href="#ihateats" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
+          <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">Deen-AI</a>
+          <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
+          <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
           
-          <MagneticButton as="a" href="#contact" className="ml-4 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
+          <MagneticButton as="a" href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="ml-4 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
             Connect With Me
           </MagneticButton>
         </nav>
 
         {/* Mobile Menu Toggle Button */}
-        <button id="mobile-menu-btn" className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all duration-200" aria-label="Toggle Navigation Menu" aria-expanded="false">
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path id="menu-icon" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+        <button 
+          id="mobile-menu-btn" 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+          className="md:hidden p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all duration-200" 
+          aria-label="Toggle Navigation Menu" 
+          aria-expanded={isMobileMenuOpen}
+        >
+          {isMobileMenuOpen ? (
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
         </button>
 
       </div>
     </div>
 
     {/* Mobile Drawer Overlay Menu */}
-    <div id="mobile-menu" className="hidden md:hidden bg-slate-950/98 border-b border-slate-900 backdrop-blur-xl transition-all duration-300 ease-in-out">
-      <div className="px-2 pt-2 pb-4 space-y-1 sm:px-3">
-        <a href="#deen-ai" className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900">Deen-AI</a>
-        <a href="#shadowplane" className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900">ShadowPlane</a>
-        <a href="#ihateats" className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900">ihateATS</a>
+    <div id="mobile-menu" className={`md:hidden bg-slate-950/98 border-b border-slate-900 backdrop-blur-xl transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+      <div className="px-3 pt-2 pb-5 space-y-1 sm:px-4">
+        <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">Deen-AI</a>
+        <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadowPlane</a>
+        <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>
         
-        <MagneticButton as="a" href="#contact" className="block text-center mt-4 mx-4 py-3 text-sm font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] rounded-lg shadow-lg">
-            Connect With Me
-          </MagneticButton>
+        <a 
+          href="#contact" 
+          onClick={(e) => scrollToSection(e, 'contact')} 
+          className="block text-center mt-4 mx-2 py-3 text-sm font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] active:from-[#c28424] active:to-brand-gold rounded-lg shadow-lg active:scale-95 transition-transform"
+        >
+          Connect With Me
+        </a>
       </div>
     </div>
   </header>
@@ -112,7 +145,7 @@ export default function App() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-accent"></span>
             </span>
-            <span className="text-xs font-semibold tracking-wider uppercase text-teal-400 font-display">Enterprise Technology Lab</span>
+            <span className="text-xs font-semibold tracking-wider uppercase text-teal-400 font-display">Multi-Cloud & DevOps Engineering</span>
           </div>
 
           {/* Bold Display Heading */}
@@ -122,13 +155,13 @@ export default function App() {
 
           {/* Descriptive Subtitle copy */}
           <p className="text-base sm:text-lg text-slate-400 max-w-xl leading-relaxed">
-            I am a Cloud & DevOps Architect bridging physical infrastructures, hybrid deployments, and advanced RAG-based AI applications to build reliable technology for scale.
+            Multi-Cloud & DevOps Engineer specializing in autonomous CI/CD pipelines, Infrastructure-as-Code sandboxing, and scalable systems architecture.
           </p>
 
           {/* Core Call to Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <MagneticButton as="a" href="#consulting" className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-xl shadow-xl shadow-amber-950/20 hover:scale-[1.01] transition-all duration-200">Contact Me</MagneticButton>
-            <a href="#products" className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+            <MagneticButton as="a" href="#consulting" onClick={(e) => scrollToSection(e, 'consulting')} className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-xl shadow-xl shadow-amber-950/20 hover:scale-[1.01] transition-all duration-200">Contact Me</MagneticButton>
+            <a href="#products" onClick={(e) => scrollToSection(e, 'products')} className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
               Explore Our Lab Products
             </a>
           </div>
@@ -510,53 +543,53 @@ export default function App() {
                 
                 <motion.div 
                   whileHover={{ scale: 1.03, boxShadow: "0 0 20px rgba(226, 162, 59, 0.15)" }} 
-                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-amber-500/20 hover:bg-slate-900/50 transition-colors cursor-none"
+                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-amber-500/20 hover:bg-slate-900/50 transition-colors "
                 >
                   <div className="h-10 w-10 shrink-0 bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-brand-gold rounded-lg">
                     <i className="fa-solid fa-code-commit text-sm"></i>
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">Infrastructure as Code</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Using Terraform & CloudFormation to build declarative, version-controlled environments.</p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Using Terraform, Ansible & CloudFormation to build declarative, version-controlled multi-cloud environments.</p>
                   </div>
                 </motion.div>
     
                 <motion.div 
                   whileHover={{ scale: 1.03, boxShadow: "0 0 20px rgba(226, 162, 59, 0.15)" }} 
-                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-amber-500/20 hover:bg-slate-900/50 transition-colors cursor-none"
+                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-amber-500/20 hover:bg-slate-900/50 transition-colors "
                 >
                   <div className="h-10 w-10 shrink-0 bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-brand-gold rounded-lg">
                     <i className="fa-solid fa-rotate text-sm"></i>
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">CI/CD Pipeline Automation</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Engineering GitHub Actions & GitOps pipelines for secure, automated releases.</p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Engineering GitHub Actions, Jenkins, and FastMCP sandboxes for automated testing and secure releases.</p>
                   </div>
                 </motion.div>
     
                 <motion.div 
                   whileHover={{ scale: 1.03, boxShadow: "0 0 20px rgba(30, 143, 130, 0.15)" }} 
-                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-teal-500/20 hover:bg-slate-900/50 transition-colors cursor-none"
+                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-teal-500/20 hover:bg-slate-900/50 transition-colors "
                 >
                   <div className="h-10 w-10 shrink-0 bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 rounded-lg">
                     <i className="fa-solid fa-cubes text-sm"></i>
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">Container Orchestration</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Managing Dockerized microservices and highly available cluster deployments.</p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Managing Docker containers, LocalStack cloud simulations, and Kubernetes cluster foundations.</p>
                   </div>
                 </motion.div>
     
                 <motion.div 
                   whileHover={{ scale: 1.03, boxShadow: "0 0 20px rgba(59, 130, 246, 0.15)" }} 
-                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-blue-500/20 hover:bg-slate-900/50 transition-colors cursor-none"
+                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-blue-500/20 hover:bg-slate-900/50 transition-colors "
                 >
                   <div className="h-10 w-10 shrink-0 bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 rounded-lg">
                     <i className="fa-solid fa-code text-sm"></i>
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">Full-Stack Engineering</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Developing end-to-end applications (Next.js, AI integration) to bridge software and infrastructure.</p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Python, React, Kotlin Android systems, and RAG pipelines bridging software and cloud infrastructure.</p>
                   </div>
                 </motion.div>
     
@@ -577,7 +610,7 @@ export default function App() {
             <div className="space-y-4">
               
               {/* Team Member 1 */}
-              <div className="group relative p-4 sm:p-8 bg-slate-900/40 hover:bg-slate-800/60 border border-slate-800 hover:border-amber-500/40 rounded-2xl transition-all duration-300 overflow-hidden cursor-none">
+              <div className="group relative p-4 sm:p-8 bg-slate-900/40 hover:bg-slate-800/60 border border-slate-800 hover:border-amber-500/40 rounded-2xl transition-all duration-300 overflow-hidden ">
                   {/* Background Hover Glow */}
                   <div className="absolute inset-0 bg-gradient-to-b from-amber-500/0 via-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-in-out pointer-events-none"></div>
                   
@@ -590,7 +623,7 @@ export default function App() {
                     
                     <div className="flex-1 w-full">
                       <h5 className="font-bold text-lg sm:text-xl text-white group-hover:text-amber-300 transition-colors tracking-tight">Syed Aamair Shareef Ahmed</h5>
-                      <p className="text-[11px] sm:text-xs text-brand-gold font-medium mt-1.5 uppercase tracking-wide">DevOps & Platform Engineer</p>
+                      <p className="text-[11px] sm:text-xs text-brand-gold font-medium mt-1.5 uppercase tracking-wide">Multi-Cloud & DevOps Engineer</p>
                         
                         
                       
@@ -598,16 +631,16 @@ export default function App() {
                         <div className="mt-6 flex flex-col gap-3 w-full sm:max-w-[340px] mx-auto">
                           
                           {/* Resume Button */}
-                          <a href="/assets/resume.pdf" download className="inline-flex items-center justify-center w-full px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold border border-amber-500/30 text-sm text-slate-950 font-bold transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(226,162,59,0.5)] cursor-none relative z-20">
+                          <a href="/assets/resume.pdf" download="Syed_Aamair_Resume.pdf" className="inline-flex items-center justify-center w-full px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold border border-amber-500/30 text-sm text-slate-950 font-bold transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(226,162,59,0.5)] relative z-20">
                             <i className="fa-solid fa-file-pdf text-lg mr-2.5"></i> Download Resume
                           </a>
                           
                           {/* Social Row */}
                           <div className="flex flex-wrap items-center justify-center gap-3 w-full">
-                            <a href="https://linkedin.com/in/syed-aamair" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex justify-center items-center px-4 py-2.5 rounded-xl bg-[#0a66c2]/10 hover:bg-[#0a66c2]/20 border border-[#0a66c2]/30 text-sm text-[#0a66c2] font-semibold transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(10,102,194,0.6)] cursor-none relative z-20">
+                            <a href="https://linkedin.com/in/syed-aamair" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex justify-center items-center px-4 py-2.5 rounded-xl bg-[#0a66c2]/10 hover:bg-[#0a66c2]/20 border border-[#0a66c2]/30 text-sm text-[#0a66c2] font-semibold transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(10,102,194,0.6)]  relative z-20">
                               <i className="fa-brands fa-linkedin text-lg mr-2"></i> syed-aamair
                             </a>
-                            <a href="https://github.com/GOLDSTEALTH" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex justify-center items-center px-4 py-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 text-sm text-slate-300 font-semibold transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-none relative z-20">
+                            <a href="https://github.com/GOLDSTEALTH" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex justify-center items-center px-4 py-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 text-sm text-slate-300 font-semibold transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]  relative z-20">
                               <i className="fa-brands fa-github text-lg mr-2"></i> GOLDSTEALTH
                             </a>
                           </div>

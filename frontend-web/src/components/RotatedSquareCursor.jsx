@@ -21,13 +21,18 @@ export default function RotatedSquareCursor() {
       return;
     }
 
+    document.body.classList.add('custom-cursor');
+
     const handleMouseMove = (e) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      document.body.classList.remove('custom-cursor');
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   if (isTouch) return null;
