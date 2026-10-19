@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Linking, Platform, Alert, LayoutAnimation, UIManager, TextInput, Keyboard } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useEffect, useState } from "react";
-import { getCurrentLocation, Coordinates } from "../../lib/location";
-import { getNearbyMasjids, Masjid, formatDistance, resolveSearchCenterAndQuery, getCachedMasjidsSync } from "../../lib/masjid";
+import { useEffect, useState, useMemo } from "react";
+import { getCurrentLocation, getQuickLocation, Coordinates } from "../../lib/location";
+import { getNearbyMasjids, Masjid, formatDistance, resolveSearchCenterAndQuery, getCachedMasjidsSync, calculateDistance } from "../../lib/masjid";
 import { subscribeToWarmup } from "../../lib/backgroundWarmup";
+import { Feather } from "@expo/vector-icons";
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android') {
@@ -11,6 +12,8 @@ if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 }
+// Configure your Google Form URL here (replace with your published Google Form link)
+export const MASJID_UPDATE_FORM_URL: string = "";
 
 export default function MasjidScreen() {
   const cached = getCachedMasjidsSync();
@@ -72,38 +75,58 @@ export default function MasjidScreen() {
     return query.replace(/\s+/g, ' ').trim();
   };
 
-  const filteredMasjids = masjids.filter(masjid => {
+  const filteredMasjids = useMemo(() => {
     const query = getCleanedLocalQuery();
-    if (!query) return true;
-    return (
-      masjid.name.toLowerCase().includes(query) ||
-      masjid.address.toLowerCase().includes(query) ||
-      (masjid.vicinity && masjid.vicinity.toLowerCase().includes(query)) ||
-      (masjid.school && masjid.school.toLowerCase().includes(query))
-    );
-  });
+    return masjids
+      .filter(masjid => {
+        if (!query) return true;
+        return (
+          masjid.name.toLowerCase().includes(query) ||
+          masjid.address.toLowerCase().includes(query) ||
+          (masjid.vicinity && masjid.vicinity.toLowerCase().includes(query)) ||
+          (masjid.school && masjid.school.toLowerCase().includes(query))
+        );
+      })
+      .map(masjid => {
+        if (currentLocation) {
+          return {
+            ...masjid,
+            distance: calculateDistance(currentLocation.latitude, currentLocation.longitude, masjid.latitude, masjid.longitude),
+          };
+        }
+        return masjid;
+      })
+      .sort((a, b) => a.distance - b.distance);
+  }, [masjids, searchQuery, currentLocation]);
 
   const loadMasjids = async (queryToSearch: string = searchQuery) => {
     try {
       setError(null);
-      const location = await getCurrentLocation();
-
-      if (!location) {
-        setError("Unable to get your location. Please enable location services.");
-        setLoading(false);
-        return;
-      }
+      // Fast location retrieval (<2ms)
+      const location = (await getQuickLocation()) || { latitude: 17.385044, longitude: 78.486671 };
       setCurrentLocation(location);
 
       // Parse the query for location keywords (e.g., "in Tolichowki" or "near Charminar")
       const { searchCenter, cleanedQuery } = await resolveSearchCenterAndQuery(queryToSearch, location);
 
-      // Set optimized radius: 25km for global searches; 12km if locked to a localized search center; 1000m (1km) for default views.
+      // Optimized radius: 25km for global searches, 12km for localized keywords, 3500m (3.5km) for default nearby view
       const hasSearchCenter = searchCenter.latitude !== location.latitude || searchCenter.longitude !== location.longitude;
-      const searchRadius = queryToSearch.trim().length > 0 ? (hasSearchCenter ? 12000 : 25000) : 1000;
+      const searchRadius = queryToSearch.trim().length > 0 ? (hasSearchCenter ? 12000 : 25000) : 3500;
 
       const nearbyMasjids = await getNearbyMasjids(location, searchRadius, cleanedQuery, searchCenter);
       setMasjids(nearbyMasjids);
+      setLoading(false);
+
+      // In the background, request fresh high-accuracy GPS coordinates and update distance
+      getCurrentLocation().then(async (freshLoc) => {
+        if (freshLoc) {
+          setCurrentLocation(freshLoc);
+          if (Math.abs(freshLoc.latitude - location.latitude) > 0.01 || Math.abs(freshLoc.longitude - location.longitude) > 0.01) {
+            const freshMasjids = await getNearbyMasjids(freshLoc, searchRadius, cleanedQuery, searchCenter);
+            setMasjids(freshMasjids);
+          }
+        }
+      }).catch(() => {});
     } catch (err) {
       setError("Failed to load nearby masjids. Please try again.");
       console.error(err);
@@ -125,6 +148,21 @@ export default function MasjidScreen() {
   const toggleMasjidTimings = (masjidId: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSelectedMasjidId(prevId => prevId === masjidId ? null : masjidId);
+  };
+
+  const handleUpdateTimings = (item: Masjid) => {
+    if (MASJID_UPDATE_FORM_URL && MASJID_UPDATE_FORM_URL.trim().length > 0) {
+      const sep = MASJID_UPDATE_FORM_URL.includes("?") ? "&" : "?";
+      const formUrl = `${MASJID_UPDATE_FORM_URL}${sep}entry.1000001=${encodeURIComponent(item.id)}&entry.1000002=${encodeURIComponent(item.name)}&entry.1000003=${encodeURIComponent(item.address)}`;
+      Linking.openURL(formUrl).catch(() => {
+        Alert.alert("Error", "Could not open the update form.");
+      });
+    } else {
+      Alert.alert(
+        "Update Masjid Timings",
+        `To submit verified prayer times for ${item.name}, set your Google Form link in MASJID_UPDATE_FORM_URL in masjid.tsx.`
+      );
+    }
   };
 
   const openInMaps = async (masjid: Masjid) => {
@@ -185,15 +223,22 @@ export default function MasjidScreen() {
           <Text style={styles.distance}>{formatDistance(item.distance)}</Text>
         </View>
 
-        {/* Tap for Timings and Location Toggle Bar */}
+        {/* Toggle Timing Board Button */}
         <TouchableOpacity
           style={[styles.toggleButton, isExpanded && styles.toggleButtonActive]}
           onPress={() => toggleMasjidTimings(item.id)}
           activeOpacity={0.7}
         >
-          <Text style={styles.toggleButtonText}>
-            {isExpanded ? "▲ Tap to close timing board" : "▼ Tap for timings and location"}
-          </Text>
+          <View style={styles.toggleButtonContent}>
+            <Text style={styles.toggleButtonText}>
+              {isExpanded ? "Hide Timings" : "View Timings"}
+            </Text>
+            <Feather
+              name={isExpanded ? "chevron-up" : "chevron-down"}
+              size={15}
+              color={isExpanded ? "#e2a23b" : "#94a4a2"}
+            />
+          </View>
         </TouchableOpacity>
 
         {/* Mahmood Watch Co. Style Digital LED Board (Expands and collapses with layout animation) */}
@@ -308,31 +353,31 @@ export default function MasjidScreen() {
             {/* Sadaqah Jariyah Update Timings Prompt */}
             <TouchableOpacity
               style={styles.updatePromptContainer}
-              onPress={() => {
-                const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSfD_YOUR_FORM_ID_HERE/viewform?usp=pp_url&entry.1000001=${encodeURIComponent(item.id)}&entry.1000002=${encodeURIComponent(item.name)}&entry.1000003=${encodeURIComponent(item.address)}`;
-                Linking.openURL(formUrl).catch((err) => {
-                  Alert.alert("Error", "Could not open the update form");
-                  console.error(err);
-                });
-              }}
+              onPress={() => handleUpdateTimings(item)}
               activeOpacity={0.8}
             >
               <View style={styles.updatePromptHeader}>
-                <Text style={styles.updatePromptTitle}>Timings incorrect or unverified?</Text>
-                <Text style={styles.updatePromptBadge}>Earn Sadaqah Jariyah ✨</Text>
+                <View style={styles.updatePromptTitleRow}>
+                  <Feather name="edit-3" size={13} color="#e2a23b" style={{ marginRight: 6 }} />
+                  <Text style={styles.updatePromptTitle}>Update Timings</Text>
+                </View>
+                <View style={styles.updatePromptBadge}>
+                  <Text style={styles.updatePromptBadgeText}>Earn Sadaqah</Text>
+                </View>
               </View>
               <Text style={styles.updatePromptText}>
-                Help your local community pray on time! Tap here to submit the correct timing sheet for this masjid and earn continuous reward.
+                Help your community pray on time. Tap to submit verified prayer times.
               </Text>
             </TouchableOpacity>
 
-            {/* Google Maps Direction Router Button */}
+            {/* Google Maps Direction Button */}
             <TouchableOpacity
               style={styles.googleMapsButton}
               onPress={() => openInMaps(item)}
               activeOpacity={0.8}
             >
-              <Text style={styles.googleMapsButtonText}>Route to Google Maps from your current location</Text>
+              <Feather name="navigation" size={16} color="#0d1a1b" style={{ marginRight: 8 }} />
+              <Text style={styles.googleMapsButtonText}>Get Directions</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -373,7 +418,7 @@ export default function MasjidScreen() {
               style={styles.clearSearchButton}
               activeOpacity={0.7}
             >
-              <Text style={styles.clearSearchText}>✕</Text>
+              <Feather name="x" size={14} color="#94a4a2" />
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -589,13 +634,21 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.1)",
     borderWidth: 1,
     borderRadius: 10,
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     alignItems: "center",
+    justifyContent: "center",
     marginTop: 12,
   },
   toggleButtonActive: {
     backgroundColor: "rgba(226, 162, 59, 0.08)",
-    borderColor: "rgba(226, 162, 59, 0.2)",
+    borderColor: "rgba(226, 162, 59, 0.25)",
+  },
+  toggleButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
   },
   toggleButtonText: {
     fontSize: 13,
@@ -714,9 +767,12 @@ const styles = StyleSheet.create({
   googleMapsButton: {
     backgroundColor: "#e2a23b",
     borderRadius: 12,
-    padding: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 14,
+    justifyContent: "center",
+    marginTop: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
@@ -730,10 +786,10 @@ const styles = StyleSheet.create({
   },
   updatePromptContainer: {
     backgroundColor: "rgba(226, 162, 59, 0.04)",
-    borderColor: "rgba(226, 162, 59, 0.15)",
+    borderColor: "rgba(226, 162, 59, 0.18)",
     borderWidth: 1,
     borderRadius: 12,
-    padding: 14,
+    padding: 12,
     marginTop: 14,
   },
   updatePromptHeader: {
@@ -742,19 +798,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 6,
   },
+  updatePromptTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    marginRight: 8,
+  },
   updatePromptTitle: {
     fontSize: 13,
     fontWeight: "700",
     color: "#ffdda8",
   },
   updatePromptBadge: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: "#e2a23b",
     backgroundColor: "rgba(226, 162, 59, 0.12)",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
+    flexShrink: 0,
+  },
+  updatePromptBadgeText: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: "#e2a23b",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },

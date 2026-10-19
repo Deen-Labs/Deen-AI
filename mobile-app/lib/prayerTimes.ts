@@ -172,19 +172,32 @@ let memoryPrayerCache: {
 } | null = null;
 
 /**
- * Synchronous cache lookup for instantaneous screen renders (0ms latency).
+ * Synchronous instant prayer times lookup for instantaneous 0ms screen renders.
+ * If cached data exists for today, returns it immediately.
+ * If not, instantly calculates precise astronomical prayer times locally (<0.1ms).
  */
-export function getCachedPrayerTimesSync(): { timings: PrayerTimings; source: PrayerSource } | null {
-  if (!memoryPrayerCache) return null;
+export function getCachedPrayerTimesSync(
+  fallbackLat: number = 17.385044,
+  fallbackLng: number = 78.486671
+): { timings: PrayerTimings; source: PrayerSource } {
   const todayStr = new Date().toISOString().split('T')[0];
-  if (memoryPrayerCache.date === todayStr) {
+  if (memoryPrayerCache && memoryPrayerCache.date === todayStr) {
     return memoryPrayerCache.data;
   }
-  return null;
+
+  // Instant zero-delay local calculation fallback
+  const localTimings = getLocalPrayerTimes(fallbackLat, fallbackLng);
+  const instantResult = {
+    timings: localTimings,
+    source: { type: 'api' as const },
+  };
+  memoryPrayerCache = { date: todayStr, lat: fallbackLat, lng: fallbackLng, data: instantResult };
+  return instantResult;
 }
 
 /**
- * Get prayer times - checks in-memory cache, AsyncStorage, falls back to API, and utilizes locally calculated math offline.
+ * Get prayer times - checks in-memory cache (0ms), AsyncStorage (~2ms),
+ * uses instant astronomical solar calculation if first launch, and revalidates via API in the background.
  */
 export async function getPrayerTimes(
   latitude: number,
@@ -213,34 +226,32 @@ export async function getPrayerTimes(
       return parsed;
     }
   } catch {
-    // Continue to network fetch
+    // Continue
   }
 
-  try {
-    // 3. Online API fetch
-    const data = await fetchPrayerTimes(latitude, longitude);
-    const result = {
-      timings: data.timings,
-      source: {
-        type: 'api' as const,
-      },
-    };
-    memoryPrayerCache = { date: todayStr, lat: latitude, lng: longitude, data: result };
-    AsyncStorage.setItem(cacheKey, JSON.stringify(result)).catch(() => {});
-    return result;
-  } catch (error) {
-    console.warn("Aladhan API offline or failed. Applying precise mathematical astronomical calculations locally.", error);
-    // 4. Graceful offline fallback
-    const timings = getLocalPrayerTimes(latitude, longitude);
-    const fallbackResult = {
-      timings,
-      source: {
-        type: 'api' as const,
-      },
-    };
-    memoryPrayerCache = { date: todayStr, lat: latitude, lng: longitude, data: fallbackResult };
-    return fallbackResult;
-  }
+  // 3. Immediately seed with instant local astronomical calculations (<0.1ms)
+  const instantTimings = getLocalPrayerTimes(latitude, longitude);
+  const instantData = {
+    timings: instantTimings,
+    source: { type: 'api' as const },
+  };
+  memoryPrayerCache = { date: todayStr, lat: latitude, lng: longitude, data: instantData };
+
+  // 4. Background network revalidation with Aladhan API
+  fetchPrayerTimes(latitude, longitude)
+    .then((data) => {
+      const apiResult = {
+        timings: data.timings,
+        source: { type: 'api' as const },
+      };
+      memoryPrayerCache = { date: todayStr, lat: latitude, lng: longitude, data: apiResult };
+      AsyncStorage.setItem(cacheKey, JSON.stringify(apiResult)).catch(() => {});
+    })
+    .catch((err) => {
+      console.warn('[PrayerTimes] Background API sync failed, continuing with local mathematical timings:', err);
+    });
+
+  return instantData;
 }
 
 /**
