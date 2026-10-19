@@ -38,19 +38,20 @@ export interface ChatMessage {
     };
 }
 
-// ─── Gemini Model Hierarchy ───────────────────────────────────────────
-// High-quota models (500 RPD) prioritized first, followed by standard Flash fallbacks
-const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
+// ─── AI Proxy & Model Hierarchy ────────────────────────────────────────
+// Production calls route through our serverless proxy endpoint to protect API keys.
+const AI_PROXY_URL = process.env.EXPO_PUBLIC_AI_PROXY_URL || 'https://deenlabs.tech/api/imam-chat';
+const CLIENT_VERSION_HEADER = 'deen-ai-v2.1.5';
+
+// Local development fallback only if __DEV__ is true
+const DEV_GEMINI_API_KEY = typeof __DEV__ !== 'undefined' && __DEV__ ? (process.env.EXPO_PUBLIC_GEMINI_API_KEY || '') : '';
+
 export const CANDIDATE_MODELS = [
     'gemini-3.5-flash-lite', // Primary Default: 500 RPD, 15 RPM, high speed
     'gemini-3.1-flash-lite', // Tier 1 Fallback: 500 RPD, 15 RPM
     'gemini-3-flash',        // Tier 2 Fallback: 20 RPD, 5 RPM
     'gemini-2.5-flash',      // Tier 3 Fallback: 20 RPD, 5 RPM
 ];
-
-function getGeminiUrl(modelName: string): string {
-    return `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
-}
 
 // ─── Greeting fast-path ──────────────────────────────────────────────
 const GREETINGS = new Set([
@@ -144,6 +145,31 @@ interface GeminiContent {
     parts: GeminiContentPart[];
 }
 
+async function callDirectGeminiDev(
+    modelName: string,
+    contents: GeminiContent[],
+    systemInstruction: string
+): Promise<string | null> {
+    if (!DEV_GEMINI_API_KEY) return null;
+    try {
+        const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${DEV_GEMINI_API_KEY}`;
+        const directRes = await fetch(directUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                contents,
+                generationConfig: { maxOutputTokens: 4096, temperature: 0.25 },
+            }),
+        });
+        if (!directRes.ok) return null;
+        const data = await directRes.json();
+        return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    } catch {
+        return null;
+    }
+}
+
 async function callGeminiWithHistory(
     history: ChatMessage[],
     systemInstruction: string
@@ -157,15 +183,19 @@ async function callGeminiWithHistory(
 
     // Try candidate models in order: 3.5-flash-lite (500 RPD) -> 3.1-flash-lite (500 RPD) -> 3-flash -> 2.5-flash
     for (const modelName of CANDIDATE_MODELS) {
-        const url = getGeminiUrl(modelName);
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 20000);
+        const timeout = setTimeout(() => controller.abort(), 25000);
 
         try {
-            const res = await fetch(url, {
+            // 1. Primary Route: Secure Serverless Proxy Endpoint
+            const res = await fetch(AI_PROXY_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-deen-client': CLIENT_VERSION_HEADER,
+                },
                 body: JSON.stringify({
+                    model: modelName,
                     systemInstruction: {
                         parts: [{ text: systemInstruction }]
                     },
@@ -186,20 +216,37 @@ async function callGeminiWithHistory(
             }
 
             if (!res.ok) {
+                // If in __DEV__ and proxy failed, try direct dev fallback
+                if (typeof __DEV__ !== 'undefined' && __DEV__ && DEV_GEMINI_API_KEY) {
+                    console.warn(`[IMAM AI DEV] Proxy HTTP ${res.status}. Attempting direct local dev fallback...`);
+                    const devText = await callDirectGeminiDev(modelName, contents, systemInstruction);
+                    if (devText) return devText;
+                }
+
                 const errData = await res.json().catch(() => ({}));
-                const errMsg = errData?.error?.message || res.statusText;
+                const errMsg = errData?.error || errData?.message || res.statusText;
                 console.warn(`[IMAM AI] Model ${modelName} HTTP ${res.status}: ${errMsg}. Trying fallback model...`);
                 continue;
             }
 
             const data = await res.json();
-            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            const text = data?.text || data?.candidates?.[0]?.content?.parts?.[0]?.text;
             if (text) {
                 return text;
             }
         } catch (err: any) {
             clearTimeout(timeout);
             lastError = err;
+
+            // If in __DEV__ and network error occurred reaching proxy, try direct dev fallback
+            if (typeof __DEV__ !== 'undefined' && __DEV__ && DEV_GEMINI_API_KEY) {
+                console.warn(`[IMAM AI DEV] Proxy network error. Attempting direct local dev fallback...`);
+                try {
+                    const devText = await callDirectGeminiDev(modelName, contents, systemInstruction);
+                    if (devText) return devText;
+                } catch {}
+            }
+
             console.warn(`[IMAM AI] Model ${modelName} failed (${err?.message || err}). Trying next candidate...`);
             continue;
         }
