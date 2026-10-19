@@ -31,6 +31,17 @@ export function generateSessionTitle(firstPrompt: string): string {
 }
 
 /**
+ * Returns a human-friendly display title for a session, always preferring the first question asked.
+ */
+export function getSessionDisplayTitle(session: ChatSession): string {
+  const firstUserMsg = session.messages.find(m => m.sender === 'user');
+  if (firstUserMsg && firstUserMsg.text && firstUserMsg.text.trim()) {
+    return generateSessionTitle(firstUserMsg.text);
+  }
+  return session.title && session.title !== 'New Conversation' ? session.title : 'New Conversation';
+}
+
+/**
  * Loads all saved chat sessions from AsyncStorage, sorted newest first.
  */
 export async function getAllSessions(): Promise<ChatSession[]> {
@@ -38,13 +49,21 @@ export async function getAllSessions(): Promise<ChatSession[]> {
     const raw = await AsyncStorage.getItem(SESSIONS_STORAGE_KEY);
     if (!raw) return [];
     const sessions: ChatSession[] = JSON.parse(raw);
-    return sessions.map(s => ({
-      ...s,
-      messages: s.messages.map(m => ({
+    return sessions.map(s => {
+      const msgs = s.messages.map(m => ({
         ...m,
         timestamp: new Date(m.timestamp),
-      })),
-    })).sort((a, b) => b.updatedAt - a.updatedAt);
+      }));
+      const firstUser = msgs.find(m => m.sender === 'user');
+      const title = (firstUser && firstUser.text.trim())
+        ? generateSessionTitle(firstUser.text)
+        : (s.title && s.title !== 'New Conversation' ? s.title : 'New Conversation');
+      return {
+        ...s,
+        title,
+        messages: msgs,
+      };
+    }).sort((a, b) => b.updatedAt - a.updatedAt);
   } catch (err) {
     console.warn('[ChatSessions] Error reading sessions:', err);
     return [];
@@ -74,8 +93,21 @@ export async function getActiveSession(): Promise<ChatSession> {
 
 /**
  * Creates and persists a brand new chat session with default welcome message.
+ * Reuses existing empty session if the user hasn't asked a question yet.
  */
 export async function createNewSession(customTitle?: string): Promise<ChatSession> {
+  const sessions = await getAllSessions();
+
+  // If the latest session has NO user queries yet, reuse it instead of creating duplicates
+  if (sessions.length > 0) {
+    const latest = sessions[0];
+    const hasUserQueries = latest.messages.some(m => m.sender === 'user');
+    if (!hasUserQueries) {
+      await AsyncStorage.setItem(ACTIVE_SESSION_STORAGE_KEY, latest.id);
+      return latest;
+    }
+  }
+
   const now = Date.now();
   const newSession: ChatSession = {
     id: `session_${now}`,
@@ -85,7 +117,6 @@ export async function createNewSession(customTitle?: string): Promise<ChatSessio
     messages: [{ ...INITIAL_WELCOME_MESSAGE, timestamp: new Date() }],
   };
 
-  const sessions = await getAllSessions();
   const updated = [newSession, ...sessions.filter(s => s.id !== newSession.id)];
 
   await AsyncStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updated));
@@ -102,13 +133,11 @@ export async function saveSession(session: ChatSession): Promise<void> {
     const sessions = await getAllSessions();
     const index = sessions.findIndex(s => s.id === session.id);
     
-    // Auto-update title if it's still default and there's a user message
+    // Auto-update title based on first user question
+    const firstUserMsg = session.messages.find(m => m.sender === 'user');
     let title = session.title;
-    if (title === 'New Conversation') {
-      const firstUserMsg = session.messages.find(m => m.sender === 'user');
-      if (firstUserMsg) {
-        title = generateSessionTitle(firstUserMsg.text);
-      }
+    if (firstUserMsg && firstUserMsg.text && firstUserMsg.text.trim()) {
+      title = generateSessionTitle(firstUserMsg.text);
     }
 
     const updatedSession: ChatSession = {

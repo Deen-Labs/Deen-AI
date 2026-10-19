@@ -44,7 +44,7 @@ export default function SettingsScreen() {
 
       Alert.alert(
         "Open Settings Manually",
-        "Your device prevented automatic settings navigation. Please go to Phone Settings ➔ Connections ➔ More Connection Settings ➔ Private DNS.",
+        "Your device prevented automatic settings navigation. Please go to Phone Settings  Connections  More Connection Settings  Private DNS.",
         [{ text: "OK" }]
       );
     } else {
@@ -147,7 +147,7 @@ export default function SettingsScreen() {
 
         {/* System-Wide & Secure Folder Protection Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🛡️ System & Secure Folder Shield</Text>
+          <Text style={styles.sectionTitle}>️ System & Secure Folder Shield</Text>
           
           <View style={styles.settingCard}>
             <Text style={styles.dnsSectionHeader}>Absolute Device Protection</Text>
@@ -156,7 +156,7 @@ export default function SettingsScreen() {
             </Text>
             
             <View style={styles.dnsAlertBox}>
-              <Text style={styles.dnsAlertTitle}>💡 The Solution:</Text>
+              <Text style={styles.dnsAlertTitle}> The Solution:</Text>
               <Text style={styles.dnsAlertBody}>
                 Configure a Secure Private DNS. Because DNS filters operate at your device's core network level, they block adult sites <Text style={{fontWeight: 'bold', color: '#ffdda8'}}>everywhere on your device</Text>—including all browsers (Chrome, Samsung Internet), Incognito tabs, and your Secure Folder!
               </Text>
@@ -176,7 +176,7 @@ export default function SettingsScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={styles.dnsCopyButtonText}>
-                  {copiedDns1 ? "✓ Copied" : "Copy"}
+                  {copiedDns1 ? " Copied" : "Copy"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -193,14 +193,14 @@ export default function SettingsScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={styles.dnsCopyButtonText}>
-                  {copiedDns2 ? "✓ Copied" : "Copy"}
+                  {copiedDns2 ? " Copied" : "Copy"}
                 </Text>
               </TouchableOpacity>
             </View>
 
             <Text style={styles.dnsLabel}>Step 2: Configure in Settings</Text>
             <Text style={styles.dnsStepDescription}>
-              Tap the button below, go to <Text style={{fontWeight: '600', color: '#d6e2e0'}}>Connections ➔ More Connection Settings ➔ Private DNS</Text>, select "Private DNS provider hostname", paste the copied text, and tap Save!
+              Tap the button below, go to <Text style={{fontWeight: '600', color: '#d6e2e0'}}>Connections  More Connection Settings  Private DNS</Text>, select "Private DNS provider hostname", paste the copied text, and tap Save!
             </Text>
 
             <TouchableOpacity
@@ -208,7 +208,27 @@ export default function SettingsScreen() {
               onPress={openDNSSettings}
               activeOpacity={0.8}
             >
-              <Text style={styles.dnsShortcutButtonText}>⚡ Open Phone DNS Settings</Text>
+              <Text style={styles.dnsShortcutButtonText}>Open Phone DNS Settings</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Permissions & Privacy Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Permissions & Privacy</Text>
+
+          <View style={styles.settingCard}>
+            <Text style={styles.settingLabel}>System Permissions</Text>
+            <Text style={styles.settingDescription}>
+              Manage device location, notifications, and other system permissions directly in Android Settings at any time without compromising your protection streak.
+            </Text>
+            <TouchableOpacity
+              style={styles.permissionButton}
+              onPress={() => Linking.openSettings()}
+              activeOpacity={0.8}
+            >
+              <Feather name="shield" size={15} color="#0f1718" style={{ marginRight: 6 }} />
+              <Text style={styles.permissionButtonText}>Manage App Permissions</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -219,7 +239,7 @@ export default function SettingsScreen() {
           
           <View style={styles.settingCard}>
             <Text style={styles.settingLabel}>Version</Text>
-            <Text style={styles.settingValue}>1.0.0</Text>
+            <Text style={styles.settingValue}>2.1.5</Text>
           </View>
 
           <View style={styles.settingCard}>
@@ -457,6 +477,21 @@ const styles = StyleSheet.create({
   },
   dnsShortcutButtonText: {
     fontSize: 15,
+    fontWeight: "700",
+    color: "#0f1718",
+  },
+  permissionButton: {
+    backgroundColor: "#00ff66",
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 12,
+  },
+  permissionButtonText: {
+    fontSize: 14,
     fontWeight: "700",
     color: "#0f1718",
   },

@@ -4,15 +4,15 @@ Deen AI is an Islamic-focused AI assistant and digital wellness companion by **D
 
 ---
 
-## Latest Release (v2.1.1) - Standalone Android Production Packaging, Multi-Session Imam AI & Qibla Compass
+## Latest Release (v2.1.5) - Standalone Android Production Packaging, Live Sensor Qibla Compass & Privacy Anti-Tamper Shield
 
-### Standalone Release Packaging (v2.1.1)
-- **Direct Sideload Production APK (`Deen-AI-v2.1.1.apk`)**: Packaged standalone release APK pre-optimized with R8/Proguard, Hermes JavaScript bytecode compilation, and zero external dependency on Expo Go for immediate physical device installation.
-- **Unified Website Distribution**: Integrated directly into the [Deen Labs](https://deenlabs.tech) showcase website with instant 1-click download (`Download App (v2.1.1)`).
+### Standalone Release Packaging (v2.1.5)
+- **Direct Sideload Production APK (`Deen-AI-v2.1.5.apk`)**: Packaged standalone release APK pre-optimized with R8/Proguard, Hermes JavaScript bytecode compilation, and zero external dependency on Expo Go for immediate physical device installation.
+- **Unified Website Distribution**: Integrated directly into the [Deen Labs](https://deenlabs.tech) showcase website with instant 1-click download (`Download App (v2.1.5)`).
 
 ### Multi-Session Client-Side Chat Engine
 - **Independent Conversation Sessions**: Imam AI supports full multi-session chats stored securely on-device via `AsyncStorage` (`@deen_imam_chat_sessions_v1`). Users can start new conversations, switch between previous discussions without context overloading, and delete past sessions.
-- **Auto-Generated Contextual Titles**: Each session automatically names itself from the user's initial inquiry (e.g. *"Tahajjud timings and rulings"*, *"Masjid Azizia direction"*).
+- **Immediate Contextual Question Titles**: Each session automatically names itself from the user's initial inquiry immediately upon submission (e.g. *"Tahajjud timings and rulings"*, *"Masjid Azizia direction"*).
 - **Session History Drawer Modal**: Clean dark-emerald modal displays conversation titles, last-active timestamps, query counts, and delete actions.
 
 ### String-Based Fast-Path Recall ($0 Token Cost & <300ms Latency)
@@ -27,9 +27,13 @@ Deen AI is an Islamic-focused AI assistant and digital wellness companion by **D
   - **Tier 3 Fallback**: `gemini-2.5-flash` (20 Requests/Day, 5 RPM)
 - **Automatic HTTP 429 Cascade**: If a model hits a rate or quota limit, requests cascade seamlessly down the hierarchy without error alerts.
 
-### Precision Qibla Compass Modal
-- **Spherical Great-Circle Azimuth**: Calculates true bearing towards the Kaaba in Makkah (`21.422487° N, 39.826206° E`) from user's live GPS coordinates.
-- **Interactive Compass Dial**: Dedicated dark-gold compass modal showing exact bearing (e.g. `292° WNW`), distance in km (`4,240 km`), and orientation dial.
+### Live Sensor Qibla Compass
+- **Native Motion Sensor Fusion**: Connects `expo-location` `watchHeadingAsync` with device accelerometer and magnetometer sensors for continuous 360-degree rotation.
+- **Dynamic Orientation & Kaaba Alignment**: The compass dial tracks physical True North while the needle tracks the Great-Circle bearing (`21.422487° N, 39.826206° E`), highlighting in glowing emerald when aligned with the Kaaba within ±6°.
+
+### Action-Level Anti-Tamper & Privacy Protection
+- **Selective Destruction Interception**: Blocks unauthorized attempts to Force Stop, Uninstall, or Clear Storage in Android Settings, requiring 4-digit PIN verification to pause protection.
+- **Full System Permissions Freedom**: Users can freely access App Info and toggle Location, Notification, and Camera permissions anytime for complete privacy control.
 
 ### Daily Inspiration Panel (30-Day Non-Repeating FIFO)
 - **Extensive Authenticated Library**: Authenticated library of 22+ Hadiths and Quranic Ayahs with verified references (Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Surah Al-Baqarah, etc.).
@@ -42,7 +46,7 @@ Deen AI is an Islamic-focused AI assistant and digital wellness companion by **D
 ### v1.5.3 - Multi-Session Imam AI & Fast-Path Engine
 - Integrated on-device conversation drawer and session history persistence.
 - Added regex deterministic in-app tool execution and strict Islamic guardrail refusal.
-- Implemented cascading Gemini quota hierarchy (`gemini-3.5-flash-lite` ➔ `gemini-2.5-flash`).
+- Implemented cascading Gemini quota hierarchy (`gemini-3.5-flash-lite` -> `gemini-2.5-flash`).
 
 ### v1.5.2 - In-App Agent, Mandatory PIN Security & Ergonomic Focus Update
 - **In-App Tool Execution**: Imam AI executes in-app tasks (Focus timers, Masjids) via command blocks.

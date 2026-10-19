@@ -16,7 +16,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
-import { useChat, ChatMessage, ChatSession } from '../../lib/chat';
+import { useChat, ChatMessage, ChatSession, getSessionDisplayTitle } from '../../lib/chat';
 import { Masjid, formatDistance } from '../../lib/masjid';
 import { isLocked, verifyPIN } from '../../lib/lock';
 import { setFocusModeActive } from '../../lib/focus';
@@ -259,7 +259,7 @@ export default function ChatScreen() {
                                 activeOpacity={0.7}
                             >
                                 <Text style={styles.sourcesTitle}>
-                                    📚 Verified Sources ({item.sources!.length})
+                                     Verified Sources ({item.sources!.length})
                                 </Text>
                                 <Text style={styles.dropdownArrow}>
                                     {isExpanded ? '▲' : '▼'}
@@ -363,7 +363,9 @@ export default function ChatScreen() {
                             </View>
                             <View style={styles.headerTextWrap}>
                                 <Text style={styles.headerTitle} numberOfLines={1}>
-                                    {currentSession?.title && currentSession.title !== 'New Conversation' ? currentSession.title : 'Imam AI'}
+                                    {currentSession && getSessionDisplayTitle(currentSession) !== 'New Conversation'
+                                        ? getSessionDisplayTitle(currentSession)
+                                        : 'Imam AI'}
                                 </Text>
                                 <Text style={styles.headerSubtitle} numberOfLines={1}>
                                     Verified Scholarly RAG via Internet Archive
@@ -529,7 +531,7 @@ export default function ChatScreen() {
                                                     style={[styles.sessionCardTitle, isActive && styles.sessionCardTitleActive]}
                                                     numberOfLines={1}
                                                 >
-                                                    {item.title}
+                                                    {getSessionDisplayTitle(item)}
                                                 </Text>
                                                 <View style={styles.sessionCardMetaRow}>
                                                     <Text style={styles.sessionCardMetaText}>
