@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Analytics } from '@vercel/analytics/react';
 import { CursorProvider } from "./context/CursorContext";
 import RotatedSquareCursor from "./components/RotatedSquareCursor";
 import MagneticButton from "./components/MagneticButton";
@@ -810,6 +811,7 @@ export default function App() {
 </div>
         </>
       </div>
+      <Analytics />
     </CursorProvider>
   );
 }
