@@ -353,8 +353,8 @@ export default function App() {
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="/assets/deen-app-beta.apk" download className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
-                  <i className="fa-solid fa-download mr-2"></i> Download App (Beta)
+                <MagneticButton as="a" href="/assets/deen-app-v2.1.1.apk" download="Deen-AI-v2.1.1.apk" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
+                  <i className="fa-solid fa-download mr-2"></i> Download App (v2.1.1)
                 </MagneticButton>
                 <MagneticButton as="a" href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
                   <i className="fa-brands fa-github mr-2"></i> Explore Codebase
@@ -433,12 +433,12 @@ export default function App() {
                 </div>
                 <div>
                   <h4 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">ShadowPlane</h4>
-                  <p className="text-xs text-slate-400">Autonomous CI/CD Gatekeeper for Agentic DevOps</p>
+                  <p className="text-xs text-slate-400">IaC Containment Firewall & Verification Gateway</p>
                 </div>
               </div>
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                ShadowPlane is a deterministic, secure sandbox that intercepts AI-generated infrastructure code (Terraform) before it reaches production. It provisions the code inside an isolated <strong>LocalStack</strong> container. If the deployment fails, ShadowPlane's AI self-healing engine parses the logs, patches the <code>.tf</code> files, and safely retries. It strictly enforces system exit codes, ensuring your CI/CD runner knows exactly when it is safe to proceed.
+                ShadowPlane is a deterministic IaC containment firewall and verification gateway designed for Agentic DevOps. It intercepts agent-authored Terraform and executes it inside an isolated, rootless <strong>Docker sandbox</strong> with stripped host credentials and network egress restricted to <strong>LocalStack</strong>. Powered by <strong>Change-Risk Intelligence</strong> and fail-closed <strong>Checkov</strong> scanning, it proactively detects destructive state drops (RDS/S3/KMS) and IAM privilege broadening before issuing an immutable <strong>SHA-256 Attestation</strong>.
               </p>
 
               {/* Tech badges */}
@@ -447,6 +447,7 @@ export default function App() {
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Docker</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Terraform</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">LocalStack</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Checkov</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">GitHub Actions</span>
               </div>
 
@@ -473,14 +474,14 @@ export default function App() {
                   <span className="text-[9px] text-slate-500">ENV: SANDBOX</span>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-slate-500">&gt; target-dir: ./infra</p>
-                  <p className="text-slate-500">[1] Initializing ephemeral LocalStack sandbox...</p>
-                  <p className="text-red-400">[2] terraform apply FAILED: Invalid IAM Policy.</p>
-                  <p className="text-blue-400">[3] AI Self-Healing Engine patching main.tf...</p>
-                  <p className="text-emerald-400">[4] terraform apply SUCCESS. Infrastructure verified.</p>
-                  <div className="bg-slate-900/60 p-2.5 rounded border border-slate-900 text-[11px] text-slate-200 mt-2 font-sans border-l-2 border-l-blue-500">
-                    Gatekeeper passed. Blast radius contained.
-                    <span className="block mt-1 text-[10px] font-mono font-bold text-blue-400">sys.exit(0)</span>
+                  <p className="text-slate-500">&gt; shadowplane --target-dir ./infra</p>
+                  <p className="text-slate-500">[1] Mounting isolated Docker sandbox container...</p>
+                  <p className="text-cyan-400">[2] Checkov static analysis: 0 violations (PASS).</p>
+                  <p className="text-amber-400">[3] Change-Risk Intelligence: Plan verified (LOW RISK).</p>
+                  <p className="text-emerald-400">[4] LocalStack apply complete. Evidence hash signed.</p>
+                  <div className="bg-slate-900/60 p-2.5 rounded border border-slate-900 text-[11px] text-slate-200 mt-2 font-sans border-l-2 border-l-emerald-500">
+                    Attestation passed. Blast radius contained.
+                    <span className="block mt-1 text-[10px] font-mono font-bold text-emerald-400">SHA-256: 3515fb25... | sys.exit(0)</span>
                   </div>
                 </div>
               </div>

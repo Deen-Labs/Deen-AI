@@ -25,6 +25,7 @@ local.properties
 *.key
 *.mobileprovision
 *.apk
+!frontend-web/public/assets/*.apk
 
 # macOS/Windows
 .DS_Store
