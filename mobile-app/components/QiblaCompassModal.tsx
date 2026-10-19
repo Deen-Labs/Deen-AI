@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
+  Animated,
 } from 'react-native';
 import * as Location from 'expo-location';
 import { Feather } from '@expo/vector-icons';
@@ -78,6 +79,11 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
   const [sensorAvailable, setSensorAvailable] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
 
+  // Native animated value for silky-smooth 60fps/120fps rotation
+  const animatedHeading = useRef(new Animated.Value(0)).current;
+  const currentAngleRef = useRef<number>(0);
+  const lastUiUpdateRef = useRef<number>(0);
+
   useEffect(() => {
     let headingSub: Location.LocationSubscription | null = null;
     let isMounted = true;
@@ -93,8 +99,36 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
               if (!isMounted) return;
               const h = headingData.trueHeading >= 0 ? headingData.trueHeading : headingData.magHeading;
               if (typeof h === 'number' && !isNaN(h)) {
-                setCompassHeading(Math.round(h));
                 setSensorAvailable(true);
+
+                // Unwrapped continuous angle to prevent 360-degree spin flips
+                const normHeading = ((h % 360) + 360) % 360;
+                const current = currentAngleRef.current;
+                const currentNorm = ((current % 360) + 360) % 360;
+
+                let diff = normHeading - currentNorm;
+                if (diff > 180) diff -= 360;
+                if (diff < -180) diff += 360;
+
+                const targetAngle = current + diff;
+                currentAngleRef.current = targetAngle;
+
+                // Native UI thread spring for fluid, responsive compass movement
+                Animated.spring(animatedHeading, {
+                  toValue: targetAngle,
+                  stiffness: 140,
+                  damping: 18,
+                  mass: 0.6,
+                  overshootClamping: false,
+                  useNativeDriver: Platform.OS !== 'web',
+                }).start();
+
+                // Throttle React state updates to keep JS thread free and eliminate lag
+                const now = Date.now();
+                if (now - lastUiUpdateRef.current > 120) {
+                  lastUiUpdateRef.current = now;
+                  setCompassHeading(Math.round(normHeading));
+                }
               }
             });
           } else {
@@ -134,19 +168,45 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
     }
   };
 
-  // Outer ring rotation (N points to real physical North)
-  const dialRotation = compassHeading !== null ? -compassHeading : 0;
+  // Interpolate native animated heading to needle and north rotations
+  const northRotate = animatedHeading.interpolate({
+    inputRange: [-3600, 3600],
+    outputRange: ['3600deg', '-3600deg'],
+  });
 
-  // Needle angle relative to the top of the device screen pointing toward Kaaba
-  const needleRotation =
-    compassHeading !== null
-      ? (qibla.bearing - compassHeading + 360) % 360
-      : qibla.bearing;
+  const needleRotate = animatedHeading.interpolate({
+    inputRange: [-3600, 3600],
+    outputRange: [`${qibla.bearing + 3600}deg`, `${qibla.bearing - 3600}deg`],
+  });
 
   // Check if device is aligned with Qibla (within +/- 6 degrees)
+  const angleDiff =
+    compassHeading !== null
+      ? (qibla.bearing - compassHeading + 360) % 360
+      : null;
+
   const isFacingQibla =
-    compassHeading !== null &&
-    (needleRotation <= 6 || needleRotation >= 354);
+    angleDiff !== null && (angleDiff <= 6 || angleDiff >= 354);
+
+  // Directional guidance text
+  const getGuidanceText = () => {
+    if (compassHeading === null) {
+      return sensorAvailable
+        ? "Calibrating compass... Hold phone flat"
+        : "Static bearing (sensors unavailable)";
+    }
+    if (isFacingQibla) {
+      return "Aligned with the Kaaba";
+    }
+    if (angleDiff !== null) {
+      if (angleDiff <= 180) {
+        return `Turn ${Math.round(angleDiff)}° right to face Kaaba`;
+      } else {
+        return `Turn ${Math.round(360 - angleDiff)}° left to face Kaaba`;
+      }
+    }
+    return `Heading: ${compassHeading}° • Rotate toward ${qibla.bearing}°`;
+  };
 
   return (
     <Modal
@@ -175,38 +235,59 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
 
           {/* Compass Dial Display */}
           <View style={styles.compassWrapper}>
-            {/* Outer Cardinal Ring that rotates with device heading */}
+            {/* Outer Reference Dial with Alignment Target Gate at 12 o'clock */}
             <View
               style={[
                 styles.outerRing,
                 isFacingQibla && styles.outerRingAligned,
-                { transform: [{ rotate: `${dialRotation}deg` }] },
               ]}
             >
-              {/* Cardinal Markers */}
-              <Text style={[styles.cardinalLabel, styles.north]}>N</Text>
-              <Text style={[styles.cardinalLabel, styles.east]}>E</Text>
-              <Text style={[styles.cardinalLabel, styles.south]}>S</Text>
-              <Text style={[styles.cardinalLabel, styles.west]}>W</Text>
+              {/* Target Gate at 12 o'clock (phone's forward orientation) */}
+              <View style={[styles.targetGate, isFacingQibla && styles.targetGateAligned]}>
+                <View style={[styles.targetNotch, isFacingQibla && styles.targetNotchAligned]} />
+                <Text style={[styles.targetGateLabel, isFacingQibla && styles.targetGateLabelAligned]}>
+                  QIBLA
+                </Text>
+              </View>
+
+              {/* Quadrant reference offsets */}
+              <Text style={[styles.refLabel, styles.refRight]}>+90°</Text>
+              <Text style={[styles.refLabel, styles.refBottom]}>180°</Text>
+              <Text style={[styles.refLabel, styles.refLeft]}>-90°</Text>
             </View>
 
-            {/* Rotated Needle Dial pointing to Kaaba in real-time */}
-            <View
+            {/* True North Indicator (orbits dial perimeter to show Earth's physical North) */}
+            <Animated.View
               style={[
-                styles.needleContainer,
-                { transform: [{ rotate: `${needleRotation}deg` }] },
+                styles.northPivot,
+                { transform: [{ rotate: northRotate }] },
               ]}
               pointerEvents="none"
             >
-              {/* Directional arrow tip pointing to Kaaba */}
-              <View style={[styles.needleTip, isFacingQibla && styles.needleTipAligned]}>
-                <Feather name="navigation" size={15} color={isFacingQibla ? "#00ff66" : "#e2a23b"} />
+              <View style={styles.northMarker}>
+                <Text style={styles.northMarkerText}>N</Text>
               </View>
-              <View style={[styles.needleLine, isFacingQibla && styles.needleLineAligned]} />
-              <View style={styles.needleBase} />
-            </View>
+            </Animated.View>
 
-            {/* Center Hub */}
+            {/* Dynamic Qibla Pointer Needle (sweeps smoothly to direct user toward Kaaba) */}
+            <Animated.View
+              style={[
+                styles.needlePivot,
+                { transform: [{ rotate: needleRotate }] },
+              ]}
+              pointerEvents="none"
+            >
+              {/* Arrowhead pointing towards Kaaba */}
+              <View style={[styles.arrowHeadContainer, isFacingQibla && styles.arrowHeadContainerAligned]}>
+                <View style={[styles.arrowTriangle, isFacingQibla && styles.arrowTriangleAligned]} />
+              </View>
+              {/* Needle shaft */}
+              <View style={[styles.needleShaft, isFacingQibla && styles.needleShaftAligned]} />
+              {/* Counter-weight tail */}
+              <View style={styles.needleTail} />
+            </Animated.View>
+
+            {/* Center Hub displaying Qibla bearing coordinates */}
             <View style={[styles.centerHub, isFacingQibla && styles.centerHubAligned]}>
               <Text style={[styles.bearingText, isFacingQibla && styles.bearingTextAligned]}>
                 {qibla.bearing}°
@@ -224,11 +305,7 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
               style={{ marginRight: 6 }}
             />
             <Text style={[styles.alignmentBadgeText, isFacingQibla && styles.alignmentBadgeTextActive]}>
-              {isFacingQibla
-                ? "Aligned with the Kaaba"
-                : (compassHeading !== null
-                    ? `Heading: ${compassHeading}° • Rotate toward ${qibla.bearing}°`
-                    : (sensorAvailable ? "Calibrating compass... Hold phone flat" : "Static bearing (sensors unavailable)"))}
+              {getGuidanceText()}
             </Text>
           </View>
 
@@ -258,7 +335,7 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
             </View>
 
             <Text style={styles.explanationText}>
-              Turn your device until the needle points straight up. The dial will highlight emerald when facing the Kaaba.
+              Turn your device until the green needle points straight up into the Qibla target. The dial will highlight emerald when facing the Kaaba.
             </Text>
           </View>
 
@@ -326,79 +403,198 @@ const styles = StyleSheet.create({
     padding: 6,
   },
   compassWrapper: {
+    width: 240,
+    height: 240,
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 12,
+    marginVertical: 14,
+    alignSelf: 'center',
+    position: 'relative',
   },
   outerRing: {
     width: 220,
     height: 220,
     borderRadius: 110,
     borderWidth: 2,
-    borderColor: 'rgba(0, 255, 102, 0.3)',
+    borderColor: 'rgba(0, 255, 102, 0.25)',
     backgroundColor: '#061617',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
-  cardinalLabel: {
-    position: 'absolute',
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#4b6465',
+  outerRingAligned: {
+    borderColor: '#00ff66',
+    shadowColor: '#00ff66',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 14,
+    elevation: 10,
   },
-  north: { top: 8, color: '#e2a23b' },
-  east: { right: 12 },
-  south: { bottom: 8 },
-  west: { left: 10, color: '#00ff66' },
-
-  needleContainer: {
+  targetGate: {
     position: 'absolute',
-    width: 40,
-    height: 190,
+    top: -1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    backgroundColor: '#0a1f20',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 102, 0.3)',
+  },
+  targetGateAligned: {
+    backgroundColor: 'rgba(0, 255, 102, 0.2)',
+    borderColor: '#00ff66',
+  },
+  targetNotch: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderTopWidth: 6,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#658081',
+    marginBottom: 1,
+  },
+  targetNotchAligned: {
+    borderTopColor: '#00ff66',
+  },
+  targetGateLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#658081',
+    letterSpacing: 0.5,
+  },
+  targetGateLabelAligned: {
+    color: '#00ff66',
+  },
+  refLabel: {
+    position: 'absolute',
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#3d5253',
+  },
+  refRight: {
+    right: 10,
+    top: 103,
+  },
+  refBottom: {
+    bottom: 8,
+  },
+  refLeft: {
+    left: 10,
+    top: 103,
+  },
+
+  northPivot: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-  needleTip: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0, 255, 102, 0.2)',
-    borderWidth: 1.5,
-    borderColor: '#00ff66',
+  northMarker: {
+    top: 6,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(226, 162, 59, 0.2)',
+    borderWidth: 1,
+    borderColor: '#e2a23b',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  kaabaSymbol: {
-    fontSize: 16,
+  northMarkerText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#e2a23b',
   },
-  needleLine: {
-    width: 3,
-    height: 60,
+
+  needlePivot: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  arrowHeadContainer: {
+    position: 'absolute',
+    top: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  arrowHeadContainerAligned: {
+    shadowColor: '#00ff66',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  arrowTriangle: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 9,
+    borderRightWidth: 9,
+    borderBottomWidth: 17,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#00ff66',
+  },
+  arrowTriangleAligned: {
+    borderBottomColor: '#00ff66',
+  },
+  needleShaft: {
+    position: 'absolute',
+    top: 41,
+    width: 4,
+    height: 34,
     backgroundColor: '#00ff66',
     borderRadius: 2,
   },
-  needleBase: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#4b6465',
+  needleShaftAligned: {
+    backgroundColor: '#00ff66',
+    width: 5,
+  },
+  needleTail: {
+    position: 'absolute',
+    top: 144,
+    width: 3,
+    height: 22,
+    backgroundColor: 'rgba(75, 100, 101, 0.7)',
+    borderRadius: 2,
   },
 
   centerHub: {
+    position: 'absolute',
     width: 76,
     height: 76,
     borderRadius: 38,
     backgroundColor: '#0d2527',
     borderWidth: 2,
-    borderColor: '#00ff66',
+    borderColor: 'rgba(0, 255, 102, 0.4)',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
   },
+  centerHubAligned: {
+    borderColor: '#00ff66',
+    shadowColor: '#00ff66',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 8,
+  },
   bearingText: {
     fontSize: 18,
     fontWeight: '800',
+    color: '#00ff66',
+  },
+  bearingTextAligned: {
     color: '#00ff66',
   },
   cardinalText: {
@@ -467,32 +663,6 @@ const styles = StyleSheet.create({
   },
   iconCircleAligned: {
     backgroundColor: 'rgba(0, 255, 102, 0.25)',
-  },
-  outerRingAligned: {
-    borderColor: '#00ff66',
-    shadowColor: '#00ff66',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  needleTipAligned: {
-    borderColor: '#00ff66',
-    backgroundColor: 'rgba(0, 255, 102, 0.35)',
-  },
-  needleLineAligned: {
-    backgroundColor: '#00ff66',
-    width: 4,
-  },
-  centerHubAligned: {
-    borderColor: '#00ff66',
-    shadowColor: '#00ff66',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-  },
-  bearingTextAligned: {
-    color: '#00ff66',
   },
   alignmentBadge: {
     flexDirection: 'row',
