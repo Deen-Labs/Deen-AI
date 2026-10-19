@@ -129,7 +129,7 @@ export default function PINModal({
 
   const currentPin = phase === 'confirm' ? confirmPin : pin;
   const currentTitle = mode === 'set'
-    ? (phase === 'enter' ? '🔐 Set New PIN' : '🔐 Confirm PIN')
+    ? (phase === 'enter' ? 'Set 4-Digit Security PIN' : 'Confirm Security PIN')
     : title;
   const currentSubtitle = mode === 'set'
     ? (phase === 'enter'

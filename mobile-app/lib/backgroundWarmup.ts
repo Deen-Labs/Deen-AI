@@ -50,8 +50,8 @@ export async function warmUpAppData(): Promise<void> {
     // 2. Concurrently fetch and warm both Prayer Times & Nearby Masajid
     const prayerPromise = getPrayerTimes(lat, lng, String(settings.calculationMethodValue));
     const masjidPromise = location
-      ? getNearbyMasjids(location, 5000)
-      : getNearbyMasjids({ latitude: lat, longitude: lng }, 5000);
+      ? getNearbyMasjids(location, 1000)
+      : getNearbyMasjids({ latitude: lat, longitude: lng }, 1000);
 
     const results = await Promise.allSettled([prayerPromise, masjidPromise]);
     isWarmedUp = true;

@@ -16,6 +16,7 @@ import { getCurrentLocation } from "../../lib/location";
 import { getPrayerTimes, formatTime, getNextPrayer, PrayerTimings, getCachedPrayerTimesSync } from "../../lib/prayerTimes";
 import { loadSettings } from "../../lib/settings";
 import { subscribeToWarmup } from "../../lib/backgroundWarmup";
+import QiblaCompassModal from "../../components/QiblaCompassModal";
 
 interface PrayerDisplayConfig {
   arabic: string;
@@ -73,6 +74,7 @@ export default function PrayerTimesScreen() {
   const [error, setError] = useState<string | null>(null);
   const [source, setSource] = useState<"api" | "masjid">(cached ? cached.source.type : "api");
   const [countdown, setCountdown] = useState<string>("");
+  const [qiblaModalVisible, setQiblaModalVisible] = useState(false);
   const router = useRouter();
 
   // Clock tick every minute
@@ -227,7 +229,7 @@ export default function PrayerTimesScreen() {
             {/* Qibla quick shortcut */}
             <TouchableOpacity
               style={styles.qiblaBadge}
-              onPress={() => router.push("/(tabs)/masjid")}
+              onPress={() => setQiblaModalVisible(true)}
               activeOpacity={0.8}
             >
               <Feather name="compass" size={14} color="#e2a23b" />
@@ -377,6 +379,11 @@ export default function PrayerTimesScreen() {
 
         <View style={{ height: 24 }} />
       </ScrollView>
+
+      <QiblaCompassModal
+        visible={qiblaModalVisible}
+        onClose={() => setQiblaModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }

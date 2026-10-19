@@ -98,9 +98,9 @@ export default function MasjidScreen() {
       // Parse the query for location keywords (e.g., "in Tolichowki" or "near Charminar")
       const { searchCenter, cleanedQuery } = await resolveSearchCenterAndQuery(queryToSearch, location);
 
-      // Set optimized radius: 35km for global searches; 12km if locked to a localized search center; 15km for default views.
+      // Set optimized radius: 25km for global searches; 12km if locked to a localized search center; 1000m (1km) for default views.
       const hasSearchCenter = searchCenter.latitude !== location.latitude || searchCenter.longitude !== location.longitude;
-      const searchRadius = queryToSearch.trim().length > 0 ? (hasSearchCenter ? 12000 : 35000) : 15000;
+      const searchRadius = queryToSearch.trim().length > 0 ? (hasSearchCenter ? 12000 : 25000) : 1000;
 
       const nearbyMasjids = await getNearbyMasjids(location, searchRadius, cleanedQuery, searchCenter);
       setMasjids(nearbyMasjids);

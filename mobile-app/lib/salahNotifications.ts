@@ -80,14 +80,14 @@ export async function scheduleSalahNotifications(timings: PrayerTimings): Promis
         },
       });
 
-      // Schedule 15 minutes before notification
-      const prePrayerDate = new Date(prayerDate.getTime() - 15 * 60000);
+      // Schedule 7 minutes before notification
+      const prePrayerDate = new Date(prayerDate.getTime() - 7 * 60000);
       
       if (prePrayerDate > now) {
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: `⏰ ${prayer.name} in 15 minutes`,
-            body: `${prayer.name} prayer is approaching. Prepare for salah.`,
+            title: `🕌 ${prayer.name} in 7 minutes`,
+            body: `${prayer.name} Salah begins in 7 minutes. Prepare your wudhu and heart for prayer.`,
           },
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,

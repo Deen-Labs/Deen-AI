@@ -25,60 +25,16 @@ import { requestNotificationPermissions, scheduleSalahNotifications } from '../.
 import { loadSettings } from '../../lib/settings';
 import { getFocusStats, FocusStats } from '../../lib/focus';
 import PINModal from '../../components/PINModal';
+import ProtectionActivationModal from '../../components/ProtectionActivationModal';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-interface DailyInspiration {
-  arabic: string;
-  translation: string;
-  source: string;
-  type: 'Ayah' | 'Hadith';
-}
-
-const DAILY_INSPIRATIONS: DailyInspiration[] = [
-  {
-    type: 'Ayah',
-    arabic: 'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا • إِنَّ مَعَ الْعُسْرِ يُسْرًا',
-    translation: 'For indeed, with hardship [will be] ease. Indeed, with hardship [will be] ease.',
-    source: 'Surah Ash-Sharh (94:5-6)',
-  },
-  {
-    type: 'Ayah',
-    arabic: 'يَا أَيُّهَا الَّذِينَ آمَنُوا اسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ ۚ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',
-    translation: 'O you who have believed, seek help through patience and prayer. Indeed, Allah is with the patient.',
-    source: 'Surah Al-Baqarah (2:153)',
-  },
-  {
-    type: 'Ayah',
-    arabic: 'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',
-    translation: 'Unquestionably, by the remembrance of Allah hearts are assured.',
-    source: 'Surah Ar-Ra’d (13:28)',
-  },
-  {
-    type: 'Ayah',
-    arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ',
-    translation: 'And whoever fears Allah — He will make for him a way out and will provide for him from where he does not expect.',
-    source: 'Surah At-Talaq (65:2-3)',
-  },
-  {
-    type: 'Hadith',
-    arabic: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى',
-    translation: 'Actions are judged by intentions, and every person will be rewarded according to what they intended.',
-    source: 'Sahih al-Bukhari 1',
-  },
-  {
-    type: 'Hadith',
-    arabic: 'مَنْ تَرَكَ شَيْئاً لِلَّهِ عَوَّضَهُ اللَّهُ خَيْراً مِنْهُ',
-    translation: 'Whoever leaves something for the sake of Allah, Allah will replace it with something far better.',
-    source: 'Musnad Ahmad',
-  },
-  {
-    type: 'Hadith',
-    arabic: 'احْفَظِ اللَّهَ يَحْفَظْكَ، احْفَظِ اللَّهَ تَجِدْهُ تُجَاهَكَ',
-    translation: 'Be mindful of Allah and He will protect you. Be mindful of Allah and you will find Him before you.',
-    source: 'Jami` at-Tirmidhi 2516',
-  },
-];
+import {
+  getDailyInspiration,
+  rollNextInspiration,
+  InspirationItem,
+  AUTHENTIC_INSPIRATIONS,
+} from '../../lib/dailyInspiration';
 
 function calculateCountdown(prayerTimeStr?: string): string {
   if (!prayerTimeStr) return '';
@@ -118,6 +74,7 @@ export default function DashboardScreen() {
   const [systemWideAvailable, setSystemWideAvailable] = useState(false);
   const [appLocked, setAppLocked] = useState(false);
   const [pinExists, setPinExists] = useState(false);
+  const [activationModalVisible, setActivationModalVisible] = useState(false);
 
   // Focus state
   const [focusStats, setFocusStats] = useState<FocusStats>({
@@ -133,19 +90,21 @@ export default function DashboardScreen() {
 
   // Daily inspiration
   const [copiedInspiration, setCopiedInspiration] = useState(false);
-  const dailyInspiration = useMemo(() => {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const diff = now.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const day = Math.floor(diff / oneDay);
-    return DAILY_INSPIRATIONS[day % DAILY_INSPIRATIONS.length];
+  const [dailyInspiration, setDailyInspiration] = useState<InspirationItem>(AUTHENTIC_INSPIRATIONS[0]);
+
+  useEffect(() => {
+    getDailyInspiration().then(setDailyInspiration);
   }, []);
+
+  const handleRollNextInspiration = async () => {
+    const next = await rollNextInspiration();
+    setDailyInspiration(next);
+  };
 
   // PIN modal
   const [pinModalVisible, setPinModalVisible] = useState(false);
   const [pinMode, setPinMode] = useState<'set' | 'verify'>('verify');
-  const [pinAction, setPinAction] = useState<'toggle_swp' | 'unlock' | 'lock' | null>(null);
+  const [pinAction, setPinAction] = useState<'toggle_swp' | 'unlock' | 'lock' | 'set_before_swp' | null>(null);
   const [pinError, setPinError] = useState<string | null>(null);
 
   // Refresh
@@ -254,11 +213,11 @@ export default function DashboardScreen() {
     setRefreshing(false);
   }, []);
 
-  // --- PIN Flow ---
+  // --- PIN & Protection Flow ---
   const handleToggleSWP = async (enabled: boolean) => {
     if (!enabled) {
       const locked = await isLocked();
-      if (locked) {
+      if (locked || pinExists) {
         setPinAction('toggle_swp');
         setPinMode('verify');
         setPinError(null);
@@ -273,9 +232,33 @@ export default function DashboardScreen() {
         setStreakDays(streakData.currentStreak);
       }
     } else {
-      const started = await nativeContentProtection.start();
-      setSystemWideActive(started);
+      const exists = await hasPIN();
+      setPinExists(exists);
+      setActivationModalVisible(true);
     }
+  };
+
+  const handleStatusBadgePress = async () => {
+    if (!systemWideActive) {
+      const exists = await hasPIN();
+      setPinExists(exists);
+      setActivationModalVisible(true);
+    } else {
+      handleSetLock();
+    }
+  };
+
+  const handleConfirmActivation = async () => {
+    setActivationModalVisible(false);
+    const started = await nativeContentProtection.start();
+    setSystemWideActive(started);
+  };
+
+  const handleRequirePin = () => {
+    setPinAction('set_before_swp');
+    setPinMode('set');
+    setPinError(null);
+    setPinModalVisible(true);
   };
 
   const handleSetLock = () => {
@@ -293,16 +276,30 @@ export default function DashboardScreen() {
   };
 
   const handlePINSubmit = async (pin: string) => {
-    if (pinAction === 'lock' && pinMode === 'set') {
+    if (pinAction === 'set_before_swp' && pinMode === 'set') {
+      const success = await setPIN(pin);
+      if (success) {
+        const { setLockEnabled } = require('../../lib/lock');
+        await setLockEnabled(true);
+        setAppLocked(true);
+        setPinExists(true);
+        setPinModalVisible(false);
+        // Start protection now that mandatory PIN is set!
+        const started = await nativeContentProtection.start();
+        setSystemWideActive(started);
+      } else {
+        setPinError('Failed to set PIN. Please try again.');
+      }
+    } else if (pinAction === 'lock' && pinMode === 'set') {
       const success = await setPIN(pin);
       if (success) {
         setPinModalVisible(false);
         setAppLocked(true);
         setPinExists(true);
         Alert.alert(
-          '🔒 Protection Locked',
+          'Protection Locked',
           'Your protection settings are now locked. Only someone with the PIN can disable them.',
-          [{ text: 'Great!' }]
+          [{ text: 'Great' }]
         );
       } else {
         setPinError('Failed to set PIN. Please try again.');
@@ -324,7 +321,7 @@ export default function DashboardScreen() {
           const { setLockEnabled } = require('../../lib/lock');
           await setLockEnabled(false);
           setAppLocked(false);
-          Alert.alert('🔓 Unlocked', 'Protection settings are now unlocked.');
+          Alert.alert('Settings Unlocked', 'Protection settings are now unlocked.');
         }
       } else {
         setPinError('Wrong PIN. Try again.');
@@ -377,11 +374,14 @@ export default function DashboardScreen() {
           <View style={styles.headerLeft}>
             <View style={styles.headerTitleRow}>
               <Text style={styles.headerTitle}>Deen AI</Text>
-              <View
+              <TouchableOpacity
                 style={[
                   styles.statusBadge,
                   systemWideActive ? styles.statusBadgeActive : styles.statusBadgeInactive,
                 ]}
+                onPress={handleStatusBadgePress}
+                activeOpacity={0.7}
+                accessibilityLabel={systemWideActive ? "Device Protected. Tap to manage PIN lock" : "Offline. Tap to enable protection"}
               >
                 <View
                   style={[
@@ -397,7 +397,7 @@ export default function DashboardScreen() {
                 >
                   {systemWideActive ? 'PROTECTED' : 'OFFLINE'}
                 </Text>
-              </View>
+              </TouchableOpacity>
             </View>
             <Text style={styles.headerSubtitle}>Your Islamic Digital Guardian</Text>
           </View>
@@ -562,25 +562,34 @@ export default function DashboardScreen() {
                 Daily {dailyInspiration.type}
               </Text>
             </View>
-            <TouchableOpacity
-              style={styles.copyButton}
-              onPress={handleCopyInspiration}
-              activeOpacity={0.7}
-            >
-              <Feather
-                name={copiedInspiration ? 'check' : 'copy'}
-                size={14}
-                color={copiedInspiration ? '#10b981' : '#ffdda8'}
-              />
-              <Text
-                style={[
-                  styles.copyButtonText,
-                  copiedInspiration && { color: '#10b981' },
-                ]}
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity
+                style={[styles.copyButton, { marginRight: 8, paddingHorizontal: 8 }]}
+                onPress={handleRollNextInspiration}
+                activeOpacity={0.7}
               >
-                {copiedInspiration ? 'Copied' : 'Share'}
-              </Text>
-            </TouchableOpacity>
+                <Feather name="refresh-cw" size={13} color="#ffdda8" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.copyButton}
+                onPress={handleCopyInspiration}
+                activeOpacity={0.7}
+              >
+                <Feather
+                  name={copiedInspiration ? 'check' : 'copy'}
+                  size={14}
+                  color={copiedInspiration ? '#10b981' : '#ffdda8'}
+                />
+                <Text
+                  style={[
+                    styles.copyButtonText,
+                    copiedInspiration && { color: '#10b981' },
+                  ]}
+                >
+                  {copiedInspiration ? 'Copied' : 'Share'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <Text style={styles.inspirationArabic}>{dailyInspiration.arabic}</Text>
@@ -616,8 +625,8 @@ export default function DashboardScreen() {
             <View style={styles.actionIconContainer}>
               <Feather name="map-pin" size={24} color="#e2a23b" />
             </View>
-            <Text style={styles.actionTitle}>Masjid & Qibla</Text>
-            <Text style={styles.actionStat}>Nearby locator</Text>
+            <Text style={styles.actionTitle}>Nearby Masjids</Text>
+            <Text style={styles.actionStat}>1km radius locator</Text>
           </TouchableOpacity>
         </Animated.View>
 
@@ -657,18 +666,31 @@ export default function DashboardScreen() {
         error={pinError}
         title={
           pinAction === 'toggle_swp'
-            ? '🔒 PIN Required'
+            ? 'PIN Required'
             : pinAction === 'unlock'
-            ? '🔓 Enter PIN to Unlock'
-            : '🔐 Set Protection PIN'
+            ? 'Enter PIN to Unlock'
+            : pinAction === 'set_before_swp'
+            ? 'Set 4-Digit Security PIN'
+            : 'Set Protection PIN'
         }
         subtitle={
           pinAction === 'toggle_swp'
             ? 'Enter PIN to disable System-Wide Protection'
             : pinAction === 'unlock'
             ? 'Enter your PIN to unlock settings'
+            : pinAction === 'set_before_swp'
+            ? 'You must set a 4-digit PIN before enabling protection'
             : 'Give this PIN to a trusted accountability partner'
         }
+      />
+
+      {/* Protection Activation Modal */}
+      <ProtectionActivationModal
+        visible={activationModalVisible}
+        onClose={() => setActivationModalVisible(false)}
+        onConfirm={handleConfirmActivation}
+        hasPin={pinExists}
+        onRequirePin={handleRequirePin}
       />
     </SafeAreaView>
   );
