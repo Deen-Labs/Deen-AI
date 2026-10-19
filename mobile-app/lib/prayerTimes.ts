@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export interface PrayerTimings {
   Fajr: string;
   Sunrise: string;
@@ -161,33 +163,83 @@ export function getLocalPrayerTimes(
   };
 }
 
+// In-memory cache for ultra-fast, zero-delay UI rendering
+let memoryPrayerCache: {
+  date: string;
+  lat: number;
+  lng: number;
+  data: { timings: PrayerTimings; source: PrayerSource };
+} | null = null;
+
 /**
- * Get prayer times - checks for masjid override first, falls back to API, and utilizes locally calculated math offline.
+ * Synchronous cache lookup for instantaneous screen renders (0ms latency).
+ */
+export function getCachedPrayerTimesSync(): { timings: PrayerTimings; source: PrayerSource } | null {
+  if (!memoryPrayerCache) return null;
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (memoryPrayerCache.date === todayStr) {
+    return memoryPrayerCache.data;
+  }
+  return null;
+}
+
+/**
+ * Get prayer times - checks in-memory cache, AsyncStorage, falls back to API, and utilizes locally calculated math offline.
  */
 export async function getPrayerTimes(
   latitude: number,
   longitude: number,
   followedMasjidId?: string
 ): Promise<{ timings: PrayerTimings; source: PrayerSource }> {
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  // 1. Fast in-memory cache check (0ms)
+  if (
+    memoryPrayerCache &&
+    memoryPrayerCache.date === todayStr &&
+    Math.abs(memoryPrayerCache.lat - latitude) < 0.05 &&
+    Math.abs(memoryPrayerCache.lng - longitude) < 0.05
+  ) {
+    return memoryPrayerCache.data;
+  }
+
+  // 2. Persistent storage cache check (~2ms)
+  const cacheKey = `PRAYER_TIMES_${todayStr}_${latitude.toFixed(2)}_${longitude.toFixed(2)}`;
   try {
-    // Try online API fetch
+    const persisted = await AsyncStorage.getItem(cacheKey);
+    if (persisted) {
+      const parsed = JSON.parse(persisted);
+      memoryPrayerCache = { date: todayStr, lat: latitude, lng: longitude, data: parsed };
+      return parsed;
+    }
+  } catch {
+    // Continue to network fetch
+  }
+
+  try {
+    // 3. Online API fetch
     const data = await fetchPrayerTimes(latitude, longitude);
-    return {
+    const result = {
       timings: data.timings,
       source: {
-        type: 'api',
-      }
+        type: 'api' as const,
+      },
     };
+    memoryPrayerCache = { date: todayStr, lat: latitude, lng: longitude, data: result };
+    AsyncStorage.setItem(cacheKey, JSON.stringify(result)).catch(() => {});
+    return result;
   } catch (error) {
     console.warn("Aladhan API offline or failed. Applying precise mathematical astronomical calculations locally.", error);
-    // Graceful offline fallback
+    // 4. Graceful offline fallback
     const timings = getLocalPrayerTimes(latitude, longitude);
-    return {
+    const fallbackResult = {
       timings,
       source: {
-        type: 'api',
-      }
+        type: 'api' as const,
+      },
     };
+    memoryPrayerCache = { date: todayStr, lat: latitude, lng: longitude, data: fallbackResult };
+    return fallbackResult;
   }
 }
 

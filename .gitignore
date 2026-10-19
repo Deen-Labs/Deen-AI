@@ -4,12 +4,41 @@ __pycache__/
 .venv/
 .env
 
-# Node/Next.js
+# Node/Next.js/Expo
 node_modules/
 .next/
 dist/
 .env.local
+.expo/
+web-build/
+*.tsbuildinfo
+
+# Android / Native
+.gradle/
+build/
+.cxx/
+local.properties
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
 
 # macOS/Windows
 .DS_Store
 Thumbs.db
+
+# Extraneous duplicated folders inside frontend-web
+frontend-web/.github/
+frontend-web/.vscode/
+frontend-web/.vite/
+frontend-web/ai-engine/
+frontend-web/backend-data/
+frontend-web/internetarchive-master/
+frontend-web/mobile-app/
+frontend-web/plan charts/
+frontend-web/ResumeLabs/
+frontend-web/ResumeLabs-web/
+frontend-web/README.md
+frontend-web/dist/

@@ -2,7 +2,8 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { getCurrentLocation, Coordinates } from "../../lib/location";
-import { getNearbyMasjids, Masjid, formatDistance, resolveSearchCenterAndQuery } from "../../lib/masjid";
+import { getNearbyMasjids, Masjid, formatDistance, resolveSearchCenterAndQuery, getCachedMasjidsSync } from "../../lib/masjid";
+import { subscribeToWarmup } from "../../lib/backgroundWarmup";
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android') {
@@ -12,13 +13,26 @@ if (Platform.OS === 'android') {
 }
 
 export default function MasjidScreen() {
-  const [masjids, setMasjids] = useState<Masjid[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = getCachedMasjidsSync();
+  const [masjids, setMasjids] = useState<Masjid[]>(cached || []);
+  const [loading, setLoading] = useState(!cached || cached.length === 0);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(null);
   const [selectedMasjidId, setSelectedMasjidId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Listen to background warm-up service
+  useEffect(() => {
+    const unsubscribe = subscribeToWarmup(() => {
+      const fresh = getCachedMasjidsSync();
+      if (fresh && fresh.length > 0) {
+        setMasjids(fresh);
+        setLoading(false);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const handleGlobalSearch = async () => {
     Keyboard.dismiss();

@@ -1,7 +1,23 @@
-import * as Notifications from 'expo-notifications';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { PrayerTimings } from './prayerTimes';
 
+// Expo Go on Android removed native push notifications in SDK 53+.
+// Standalone development builds (expo run:android / EAS Build) support it fully.
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+let Notifications: typeof import('expo-notifications') | null = null;
+if (!isExpoGo) {
+  try {
+    Notifications = require('expo-notifications');
+  } catch (error) {
+    console.warn('[SalahNotifications] expo-notifications not available:', error);
+  }
+}
+
 export async function requestNotificationPermissions(): Promise<boolean> {
+  if (isExpoGo || !Notifications) {
+    return false;
+  }
   try {
     const { status } = await Notifications.requestPermissionsAsync();
     return status === 'granted';
@@ -12,6 +28,9 @@ export async function requestNotificationPermissions(): Promise<boolean> {
 }
 
 export async function cancelAllSalahNotifications(): Promise<void> {
+  if (isExpoGo || !Notifications) {
+    return;
+  }
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
   } catch (error) {
@@ -20,6 +39,9 @@ export async function cancelAllSalahNotifications(): Promise<void> {
 }
 
 export async function scheduleSalahNotifications(timings: PrayerTimings): Promise<void> {
+  if (isExpoGo || !Notifications) {
+    return;
+  }
   try {
     await cancelAllSalahNotifications();
 
@@ -53,6 +75,7 @@ export async function scheduleSalahNotifications(timings: PrayerTimings): Promis
           body: `It's time for ${prayer.name} prayer. May Allah accept your salah.`,
         },
         trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
           date: prayerDate,
         },
       });
@@ -67,6 +90,7 @@ export async function scheduleSalahNotifications(timings: PrayerTimings): Promis
             body: `${prayer.name} prayer is approaching. Prepare for salah.`,
           },
           trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
             date: prePrayerDate,
           },
         });

@@ -14,12 +14,20 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 import { useChat, ChatMessage } from '../../lib/chat';
 import { isLocked, verifyPIN } from '../../lib/lock';
 import { setFocusModeActive } from '../../lib/focus';
 import { nativeContentProtection } from '../../lib/nativeContentProtection';
 import { getStreak, recordVPNDisabled } from '../../lib/streak';
 import PINModal from '../../components/PINModal';
+
+const SUGGESTED_QUESTIONS = [
+    "How to maintain consistency in Fajr prayer?",
+    "What is the ruling on fasting while traveling?",
+    "Dua for overcoming anxiety and intrusive doubts",
+    "Explain the virtues and timings of Tahajjud",
+];
 
 export default function ChatScreen() {
     const [inputText, setInputText] = useState('');
@@ -234,8 +242,15 @@ export default function ChatScreen() {
                 keyboardVerticalOffset={Platform.OS === "ios" ? tabBarHeight : 0}
             >
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Imam-AI</Text>
-                    <Text style={styles.headerSubtitle}>Your companion in Islam, Ask Away !</Text>
+                    <View style={styles.headerTitleRow}>
+                        <View style={styles.headerAvatar}>
+                            <Feather name="message-circle" size={20} color="#0f1718" />
+                        </View>
+                        <View>
+                            <Text style={styles.headerTitle}>Imam AI</Text>
+                            <Text style={styles.headerSubtitle}>Verified Scholarly RAG via Internet Archive</Text>
+                        </View>
+                    </View>
                 </View>
 
                 <FlatList
@@ -247,6 +262,29 @@ export default function ChatScreen() {
                     keyboardShouldPersistTaps="handled"
                     onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
                     onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                    ListHeaderComponent={
+                        messages.length <= 1 ? (
+                            <View style={styles.suggestionsContainer}>
+                                <View style={styles.suggestionsHeaderRow}>
+                                    <Feather name="compass" size={14} color="#e2a23b" />
+                                    <Text style={styles.suggestionsTitle}>Suggested Inquiries</Text>
+                                </View>
+                                <View style={styles.chipsWrapper}>
+                                    {SUGGESTED_QUESTIONS.map((q, idx) => (
+                                        <TouchableOpacity
+                                            key={idx}
+                                            style={styles.suggestionChip}
+                                            onPress={() => sendMessage(q)}
+                                            activeOpacity={0.7}
+                                        >
+                                            <Text style={styles.suggestionChipText}>{q}</Text>
+                                            <Feather name="arrow-up-right" size={14} color="#e2a23b" />
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
+                        ) : null
+                    }
                 />
 
                 {isTyping && (
@@ -300,20 +338,77 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        padding: 20,
-        paddingBottom: 10,
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        paddingBottom: 12,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(255, 255, 255, 0.08)',
     },
+    headerTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    headerAvatar: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        backgroundColor: '#e2a23b',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     headerTitle: {
-        fontSize: 24,
-        fontWeight: '700',
+        fontSize: 20,
+        fontWeight: '800',
         color: '#f3f7f6',
+        letterSpacing: -0.3,
     },
     headerSubtitle: {
         fontSize: 12,
         color: '#94a4a2',
-        marginTop: 4,
+        marginTop: 2,
+    },
+    suggestionsContainer: {
+        marginBottom: 16,
+        backgroundColor: '#0c3033',
+        borderRadius: 16,
+        padding: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(226, 162, 59, 0.2)',
+    },
+    suggestionsHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 10,
+    },
+    suggestionsTitle: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#ffdda8',
+        textTransform: 'uppercase',
+        letterSpacing: 0.8,
+    },
+    chipsWrapper: {
+        gap: 8,
+    },
+    suggestionChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: 'rgba(226, 162, 59, 0.08)',
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(226, 162, 59, 0.22)',
+    },
+    suggestionChipText: {
+        fontSize: 13,
+        color: '#f3f7f6',
+        fontWeight: '500',
+        flex: 1,
+        marginRight: 8,
     },
     listContent: {
         padding: 16,

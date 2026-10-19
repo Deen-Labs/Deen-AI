@@ -221,7 +221,17 @@ export function formatDistance(meters: number): string {
 
 // In-memory cache to avoid repeated API calls
 let masjidCache: { coords: Coordinates; radius: number; result: Masjid[]; timestamp: number } | null = null;
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes fresh cache
+
+/**
+ * Synchronous cache lookup for instantaneous screen renders (0ms latency).
+ */
+export function getCachedMasjidsSync(): Masjid[] | null {
+  if (masjidCache && Date.now() - masjidCache.timestamp < CACHE_TTL_MS) {
+    return masjidCache.result;
+  }
+  return null;
+}
 
 /**
  * Generate a smart, beautiful local list of masajid dynamically relative to coordinates.

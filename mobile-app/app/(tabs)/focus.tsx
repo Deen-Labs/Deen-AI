@@ -16,6 +16,7 @@ import {
 } from "../../lib/focus";
 import { nativeContentProtection } from "../../lib/nativeContentProtection";
 import { useLocalSearchParams } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 
 export default function FocusScreen() {
   const [isActive, setIsActive] = useState(false);
@@ -322,7 +323,7 @@ export default function FocusScreen() {
           
           <View style={styles.infoCard}>
             <View style={styles.infoIcon}>
-              <Text style={styles.infoIconText}>🔕</Text>
+              <Feather name="bell-off" size={20} color="#e2a23b" />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoTitle}>Minimize Distractions</Text>
@@ -334,7 +335,7 @@ export default function FocusScreen() {
 
           <View style={styles.infoCard}>
             <View style={styles.infoIcon}>
-              <Text style={styles.infoIconText}>⏰</Text>
+              <Feather name="clock" size={20} color="#e2a23b" />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoTitle}>Prayer Time Sync</Text>
@@ -346,7 +347,7 @@ export default function FocusScreen() {
 
           <View style={styles.infoCard}>
             <View style={styles.infoIcon}>
-              <Text style={styles.infoIconText}>📊</Text>
+              <Feather name="bar-chart-2" size={20} color="#e2a23b" />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoTitle}>Track Your Progress</Text>
@@ -365,7 +366,7 @@ export default function FocusScreen() {
           {systemWideAvailable && (
             <View style={styles.settingCard}>
               <View style={styles.settingIconContainer}>
-                <Text style={styles.settingIcon}>🌐</Text>
+                <Feather name="globe" size={20} color="#e2a23b" />
               </View>
               <View style={styles.settingContent}>
                 <Text style={styles.settingTitle}>System-Wide Protection (VPN)</Text>
@@ -398,7 +399,7 @@ export default function FocusScreen() {
           {/* NSFW Blocking Toggle */}
           <View style={styles.settingCard}>
             <View style={styles.settingIconContainer}>
-              <Text style={styles.settingIcon}>🛡️</Text>
+              <Feather name="shield" size={20} color="#e2a23b" />
             </View>
             <View style={styles.settingContent}>
               <Text style={styles.settingTitle}>Block NSFW Content</Text>
@@ -420,7 +421,7 @@ export default function FocusScreen() {
           {/* App Blocking Toggle */}
           <View style={styles.settingCard}>
             <View style={styles.settingIconContainer}>
-              <Text style={styles.settingIcon}>📱</Text>
+              <Feather name="smartphone" size={20} color="#e2a23b" />
             </View>
             <View style={styles.settingContent}>
               <Text style={styles.settingTitle}>Block Distracting Apps</Text>
@@ -445,9 +446,11 @@ export default function FocusScreen() {
               <Text style={styles.configureButtonText}>
                 {showAppSettings ? "Hide" : "Configure"} Blocked Apps
               </Text>
-              <Text style={styles.configureButtonIcon}>
-                {showAppSettings ? "▲" : "▼"}
-              </Text>
+              <Feather 
+                name={showAppSettings ? "chevron-up" : "chevron-down"} 
+                size={16} 
+                color="#ffdda8" 
+              />
             </TouchableOpacity>
           )}
 
@@ -457,7 +460,7 @@ export default function FocusScreen() {
               <Text style={styles.appListTitle}>Select apps to block:</Text>
               {blockingSettings.blockedApps.map((app) => (
                 <View key={app.id} style={styles.appItem}>
-                  <Text style={styles.appIcon}>📱</Text>
+                  <Feather name="smartphone" size={16} color="#94a4a2" style={styles.appIcon} />
                   <Text style={styles.appName}>{app.name}</Text>
                   <Switch
                     value={app.enabled}
@@ -706,9 +709,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 12,
   },
-  infoIconText: {
-    fontSize: 20,
-  },
   infoContent: {
     flex: 1,
   },
@@ -745,9 +745,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
-  },
-  settingIcon: {
-    fontSize: 20,
   },
   settingContent: {
     flex: 1,
@@ -790,10 +787,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#ffdda8",
   },
-  configureButtonIcon: {
-    fontSize: 12,
-    color: "#ffdda8",
-  },
   appListContainer: {
     backgroundColor: "#0c3033",
     borderWidth: 1,
@@ -818,7 +811,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(255, 255, 255, 0.05)",
   },
   appIcon: {
-    fontSize: 18,
     marginRight: 12,
   },
   appName: {

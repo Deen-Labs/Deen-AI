@@ -1,42 +1,89 @@
 # Deen AI
 
-## Latest Release (v1.5.1i) - Internal Update
-- **Aggressive Text Blocking**: Native service now actively scans keystrokes and loaded screen text. Search queries matching blocked words are instantly intercepted.
-- **Uninstall PIN Unlock**: Uninstall attempts via Settings now instantly trigger a PIN screen. Entering the correct PIN grants exactly 2 minutes to safely uninstall the app.
-- **Imaam AI Enhancements**: Focus mode durations of any length can now be passed via Imaam AI (e.g. "start focus mode for 1 minute"). The focus mode will automatically route and start immediately.
-- **Background Initialization**: Location, Prayer Times, and Masjids fetch silently in the background on app startup for instantaneous loading.
-- **UI & UX Fixes**: 
-  - Strictly enforced 4-digit PIN lock.
-  - Prayer calculation method hardcoded to Umm Al-Qura University, Makkah (panel removed).
-  - Helper texts ("Tap for more details") added to dashboard cards.
-  - Renamed the dashboard lock button for clarity.
-- **Hidden Developer Menu**: Rapidly tap the Streak circle 7 times in the dashboard to access developer tools (streak override) without needing a separate Dev APK.
+Deen AI is an Islamic-focused AI assistant and digital wellness companion by **Deen Labs**. It combines proactive prayer reminders, daily dhikr & Quran/Hadith inspiration, halal content protection, and authentic Islamic Q&A powered by Retrieval-Augmented Generation (RAG).
 
-An Islamic-focused AI assistant (by Deen Labs) that provides proactive prayer reminders, dhikr prompts, and safe Q&A via Retrieval Augmented Generation (RAG).
+---
 
-## Monorepo Layout
-- `ai-engine/` — RAG pipeline, LLM connectors
-- `backend-data/` — DB schemas, ETL for Quran/Hadith, API (FastAPI)
-- `frontend-web/` — Web/Next.js UI (chat, prayer timeline)
+## 🚀 Latest Release (v1.5.1 / v1.5.1i) - Performance, UI & Warm-Up Update
 
-## Tech Stack (Current)
-- **Frontend/Mobile**: React Native, Expo (SDK 57)
-- **AI**: Google Gemini API (integrated directly in client)
-- **Native Android Security**: Custom AccessibilityService and VPNService for system-wide content protection
-- **Data/State**: AsyncStorage, Local JSON caches (Prayer times, Hadith data)
+### ⚡ Background Warm-Up & Zero-Latency Screen Transitions
+- **Concurrent Startup Pre-Fetch**: Background engine (`lib/backgroundWarmup.ts`) executes immediately upon app launch, querying prayer times and nearby masjids concurrently.
+- **Instantaneous Tab Renders**: Pre-warmed in-memory singletons and persistent `AsyncStorage` caches allow navigation to the Prayer and Masjid tabs to render with zero loading spinners or network stalls (0ms transition).
+- **Graceful Offline Fallbacks**: If location or network services are unavailable, cached coordinates and scheduled prayer timings ensure complete offline functionality.
 
+### 📱 Streamlined 5-Tab Navigation
+- **Optimized Tab Bar**: Simplified from 6 cramped tabs to 5 primary tabs (`Home`, `Prayer`, `Focus`, `Imam AI`, `Masjid`) utilizing crisp Feather vector icons.
+- **Relocated Settings**: Moved the Settings screen out of the bottom bar into a dedicated, clean top-right icon on the dashboard header.
 
-## Git Workflow
-- `main`: protected, no direct pushes.
-- `progress`: optional integration branch.
-- Use PRs with ≥1 review.
+### 🕋 Real-Time Dashboard & Inspiration
+- **Live Next Azan Ticker**: Dynamic countdown timer updating live every second to the next Salah.
+- **Daily Ayah & Hadith Card**: Features Arabic calligraphy typography, English translation, source attribution, and a quick one-tap copy-to-clipboard action.
+- **Protection Status Pill**: Visual status pill (`PROTECTED` / `OFFLINE`) with an emerald glow indicator when the native VPN/content protection shield is active.
+- **Layout Polish**: Cleaned up overlapping floating action buttons and standardized card margins across device resolutions.
 
-## Next Steps
-- Continue refining native Android blocking capabilities.
-- Implement comprehensive offline prayer time scheduling (notifications).
-- Release on app stores.
+### 🗓️ Dual Gregorian & Hijri Prayer Experience
+- **Bilingual Calendar Display**: Displays simultaneous Gregorian and Hijri dates (English `8 Jumada I, 1448 AH` + Arabic `٨ جمادى الأولى ١٤٤٨ هـ`).
+- **Salah Countdown Hero**: Prominent hero card tracking exact hours, minutes, and seconds until the upcoming prayer.
+- **Visual Daily Schedule**: Full timetable with bilingual labels, prayer status indicators, and contextual icons.
 
-## Local Setup
-- Requires Node ≥18.
-- Navigate to `mobile-app/` and run `npm install`.
-- Run `npx expo start` or build via `./gradlew assembleRelease` in the `android/` directory for testing native modules.
+### 🤖 Imam AI & Focus Mode Enhancements
+- **Quick Suggestion Chips**: Branded header and quick-tap prompt chips for instant answers to frequently asked Islamic questions.
+- **Natural Language Focus Mode**: Voice or text commands to Imam AI (e.g. *"start focus mode for 15 minutes"*) parse custom durations and automatically route to an active Focus session.
+
+### 🛡️ Native Security & Stability Fixes
+- **Expo Go Android SDK Crash Guard**: Safeguarded `expo-notifications` against runtime null listener exceptions on Android devices running Expo Go.
+- **Aggressive Content Filtering**: AccessibilityService and VPNService intercept prohibited search queries and app launches.
+- **Uninstall PIN Lock**: Device settings interception prompts a strictly enforced 4-digit PIN screen, granting a 2-minute safety window for legitimate uninstalls.
+- **Hidden Developer Menu**: Rapidly tap the Streak circle 7 times in the dashboard to access developer debugging tools (streak overrides) without requiring a separate dev build.
+- **Standalone Android Packaging**: Fully configured native Gradle 8.13, Kotlin 2.0, and NDK 27.1 build pipeline for standalone release APKs.
+
+---
+
+## 📂 Monorepo Layout
+
+- `mobile-app/` — React Native & Expo mobile application for Android & iOS.
+- `frontend-web/` — Web landing page and interactive showcase (`deenlabs.tech`).
+- `ai-engine/` — RAG pipeline, embeddings, and LLM connectors.
+- `backend-data/` — Database schemas, ETL pipelines for Quran, Hadith, and Tafsir data.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Mobile Framework**: React Native (0.86.2), Expo (SDK 57), Expo Router (v57)
+- **Styling**: NativeWind (Tailwind CSS v4)
+- **Vector Icons**: Expo Vector Icons (Feather)
+- **AI Core**: Google Gemini API & Local LLMs
+- **Native Android Security**: Custom `AccessibilityService` and `VpnService`
+- **Build Tools**: Gradle 8.13, Android SDK 36, NDK 27.1.12297006, Java 21 LTS
+
+---
+
+## 💻 Local Setup & Development
+
+### Mobile App (`mobile-app/`)
+1. Ensure **Node.js ≥ 20** and **Java 21 LTS** are installed.
+2. Navigate to the mobile app directory:
+   ```bash
+   cd mobile-app
+   npm install
+   ```
+3. Start the Expo development server:
+   ```bash
+   npx expo start
+   ```
+4. Build the standalone Android APK:
+   ```bash
+   cd android
+   ./gradlew assembleRelease
+   ```
+   The generated release APK is located at:
+   `android/app/build/outputs/apk/release/app-release.apk`
+
+---
+
+## 🌿 Git Workflow
+
+- **`main`**: Production-ready branch. Protected.
+- **`progress`**: Active feature integration and testing branch.
+- Submit Pull Requests with at least 1 review prior to merging into `main`.

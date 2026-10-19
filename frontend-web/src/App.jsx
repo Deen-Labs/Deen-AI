@@ -67,21 +67,21 @@ export default function App() {
        ========================================== */}
   <header id="navbar" className="sticky top-0 z-50 transition-all duration-300 w-full border-b border-slate-900 bg-slate-950/80 backdrop-blur-md">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between min-h-[5rem] py-3">
+      <div className="flex items-center justify-between min-h-[4.25rem] py-2">
         
         {/* Branding Logo / Title */}
         <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex flex-col items-start group">
-          <img src="/assets/logo.png" alt="DEEN LABS Logo" className="h-14 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
-          <span className="text-[10px] uppercase tracking-[0.15em] text-slate-400 font-semibold font-display mt-1.5 ml-1 select-none">Technology Lab</span>
+          <img src="/assets/logo.png" alt="DEEN LABS Logo" className="h-11 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
+          <span className="text-[9px] uppercase tracking-[0.15em] text-slate-400 font-semibold font-display mt-1 ml-0.5 select-none">Technology Lab</span>
         </a>
 
         {/* Desktop Navigation Items */}
         <nav className="hidden md:flex items-center space-x-1" aria-label="Main Navigation">
-          <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">Deen-AI</a>
-          <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
-          <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
+          <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">Deen-AI</a>
+          <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
+          <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
           
-          <MagneticButton as="a" href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="ml-4 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
+          <MagneticButton as="a" href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="ml-3 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
             Connect With Me
           </MagneticButton>
         </nav>
@@ -254,11 +254,11 @@ export default function App() {
   {/* ==========================================
        THE PRODUCTS SECTION (Showcase Container)
        ========================================== */}
-  <section id="products" className="py-24 border-t border-slate-900 bg-zinc-950/30 relative">
+  <section id="products" className="py-16 sm:py-20 border-t border-slate-900 bg-zinc-950/30 relative">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       {/* Section Heading */}
-      <div className="text-center max-w-3xl mx-auto mb-20 flex flex-col items-center">
+      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 flex flex-col items-center">
         <h2 className="inline-block font-display font-semibold text-xs tracking-widest text-brand-accent uppercase border border-teal-500/20 bg-teal-500/5 px-3.5 py-1.5 rounded-full mb-4">
           Proprietary Software Systems
         </h2>
@@ -272,12 +272,12 @@ export default function App() {
       </div>
 
       {/* Products List (Horizontal Rows) */}
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-10">
 
         {/* ==========================================
              DEEN-AI PRODUCT SHOWCASE (Row 1)
              ========================================== */}
-        <InteractiveProjectCard id="deen-ai"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-8 hover:border-teal-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-950/10 group relative overflow-hidden">
+        <InteractiveProjectCard id="deen-ai"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-teal-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-950/10 group relative overflow-hidden">
 
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-brand-accent to-emerald-500"></div>
@@ -312,13 +312,13 @@ export default function App() {
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="/assets/deen-app-beta.apk" download className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
+                <MagneticButton as="a" href="/assets/deen-app-beta.apk" download className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
                   <i className="fa-solid fa-download mr-2"></i> Download App (Beta)
                 </MagneticButton>
-                <a href="https://github.com/Deen-Labs/Deen-AI" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+                <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
                   <i className="fa-brands fa-github mr-2"></i> Explore Codebase
                 </a>
-                <a href="#" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
+                <a href="#" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
                   Read Docs
                 </a>
               </div>
@@ -362,7 +362,7 @@ export default function App() {
         {/* ==========================================
              SHADOWPLANE PRODUCT SHOWCASE (Row 3)
              ========================================== */}
-                <InteractiveProjectCard id="shadowplane" className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-8 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-950/10 group relative overflow-hidden">
+        <InteractiveProjectCard id="shadowplane" className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-950/10 group relative overflow-hidden">
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-400"></div>
           
@@ -394,14 +394,14 @@ export default function App() {
               </div>
 
               {/* Action buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <MagneticButton as="a" href="https://hub.docker.com/r/goldsteatlh/shadowplane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 rounded-xl shadow-lg shadow-blue-950/20 transition-all duration-200">
-                    <i className="fa-brands fa-docker mr-2"></i> View on Docker Hub
-                  </MagneticButton>
-                  <MagneticButton as="a" href="https://github.com/GOLDSTEALTH/ShadowPlane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
-                    <i className="fa-brands fa-github mr-2"></i> Explore Codebase
-                  </MagneticButton>
-                </div>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <MagneticButton as="a" href="https://hub.docker.com/r/goldsteatlh/shadowplane" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 rounded-xl shadow-lg shadow-blue-950/20 transition-all duration-200">
+                  <i className="fa-brands fa-docker mr-2"></i> View on Docker Hub
+                </MagneticButton>
+                <a href="https://github.com/GOLDSTEALTH/ShadowPlane" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+                  <i className="fa-brands fa-github mr-2"></i> Explore Codebase
+                </a>
+              </div>
 
             </div>
 
@@ -435,7 +435,7 @@ export default function App() {
         {/* ==========================================
              IHATEATS PRODUCT SHOWCASE (Row 2)
              ========================================== */}
-                <InteractiveProjectCard id="ihateats"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-8 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-950/10 group relative overflow-hidden">
+        <InteractiveProjectCard id="ihateats"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-950/10 group relative overflow-hidden">
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-indigo-500 to-violet-500"></div>
 
@@ -469,12 +469,12 @@ export default function App() {
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="https://ihateats.deenlabs.tech/" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-500 hover:to-violet-600 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200">
-                  <i className="fa-solid fa-rocket mr-2"></i> Launch Application
+                <MagneticButton as="a" href="https://ihateats.deenlabs.tech/" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-500 hover:to-violet-600 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200">
+                  <i className="fa-solid fa-arrow-up-right-from-square mr-2"></i> Visit Site
                 </MagneticButton>
-                <MagneticButton as="a" href="https://github.com/Deen-Labs/ihateATS" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
+                <a href="https://github.com/Deen-Labs/ihateATS" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
                   <i className="fa-brands fa-github mr-2"></i> View Codebase
-                </MagneticButton>
+                </a>
               </div>
             </div>
 

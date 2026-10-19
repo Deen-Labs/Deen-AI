@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,26 +10,103 @@ import {
   Dimensions,
   Alert,
   RefreshControl,
+  Platform,
+  Clipboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { getStreak, checkAndUpdateStreak, recordVPNDisabled } from '../../lib/streak';
 import { isLocked, hasPIN, setPIN, verifyPIN } from '../../lib/lock';
 import { nativeContentProtection } from '../../lib/nativeContentProtection';
-import { getNextPrayer, formatTime, getPrayerTimes, PrayerTimings } from '../../lib/prayerTimes';
+import { getNextPrayer, formatTime, getPrayerTimes } from '../../lib/prayerTimes';
 import { getCurrentLocation } from '../../lib/location';
 import { requestNotificationPermissions, scheduleSalahNotifications } from '../../lib/salahNotifications';
 import { loadSettings } from '../../lib/settings';
-import {
-  setFocusModeActive,
-  getBlockingSettings,
-  saveBlockingSettings,
-  getFocusStats,
-  FocusStats,
-} from '../../lib/focus';
+import { getFocusStats, FocusStats } from '../../lib/focus';
 import PINModal from '../../components/PINModal';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+interface DailyInspiration {
+  arabic: string;
+  translation: string;
+  source: string;
+  type: 'Ayah' | 'Hadith';
+}
+
+const DAILY_INSPIRATIONS: DailyInspiration[] = [
+  {
+    type: 'Ayah',
+    arabic: 'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا • إِنَّ مَعَ الْعُسْرِ يُسْرًا',
+    translation: 'For indeed, with hardship [will be] ease. Indeed, with hardship [will be] ease.',
+    source: 'Surah Ash-Sharh (94:5-6)',
+  },
+  {
+    type: 'Ayah',
+    arabic: 'يَا أَيُّهَا الَّذِينَ آمَنُوا اسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ ۚ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',
+    translation: 'O you who have believed, seek help through patience and prayer. Indeed, Allah is with the patient.',
+    source: 'Surah Al-Baqarah (2:153)',
+  },
+  {
+    type: 'Ayah',
+    arabic: 'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',
+    translation: 'Unquestionably, by the remembrance of Allah hearts are assured.',
+    source: 'Surah Ar-Ra’d (13:28)',
+  },
+  {
+    type: 'Ayah',
+    arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ',
+    translation: 'And whoever fears Allah — He will make for him a way out and will provide for him from where he does not expect.',
+    source: 'Surah At-Talaq (65:2-3)',
+  },
+  {
+    type: 'Hadith',
+    arabic: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى',
+    translation: 'Actions are judged by intentions, and every person will be rewarded according to what they intended.',
+    source: 'Sahih al-Bukhari 1',
+  },
+  {
+    type: 'Hadith',
+    arabic: 'مَنْ تَرَكَ شَيْئاً لِلَّهِ عَوَّضَهُ اللَّهُ خَيْراً مِنْهُ',
+    translation: 'Whoever leaves something for the sake of Allah, Allah will replace it with something far better.',
+    source: 'Musnad Ahmad',
+  },
+  {
+    type: 'Hadith',
+    arabic: 'احْفَظِ اللَّهَ يَحْفَظْكَ، احْفَظِ اللَّهَ تَجِدْهُ تُجَاهَكَ',
+    translation: 'Be mindful of Allah and He will protect you. Be mindful of Allah and you will find Him before you.',
+    source: 'Jami` at-Tirmidhi 2516',
+  },
+];
+
+function calculateCountdown(prayerTimeStr?: string): string {
+  if (!prayerTimeStr) return '';
+  const [hStr, mStr] = prayerTimeStr.split(':');
+  const h = parseInt(hStr, 10);
+  const m = parseInt(mStr, 10);
+  if (isNaN(h) || isNaN(m)) return '';
+
+  const now = new Date();
+  const target = new Date();
+  target.setHours(h, m, 0, 0);
+
+  let diff = target.getTime() - now.getTime();
+  if (diff < 0) {
+    diff += 24 * 60 * 60 * 1000;
+  }
+
+  const totalSecs = Math.floor(diff / 1000);
+  const hours = Math.floor(totalSecs / 3600);
+  const minutes = Math.floor((totalSecs % 3600) / 60);
+  const seconds = totalSecs % 60;
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  if (hours > 0) {
+    return `${hours}h ${pad(minutes)}m ${pad(seconds)}s`;
+  }
+  return `${minutes}m ${pad(seconds)}s`;
+}
 
 export default function DashboardScreen() {
   // Streak state
@@ -43,7 +120,6 @@ export default function DashboardScreen() {
   const [pinExists, setPinExists] = useState(false);
 
   // Focus state
-  const [focusActive, setFocusActive] = useState(false);
   const [focusStats, setFocusStats] = useState<FocusStats>({
     totalSessions: 0,
     totalMinutes: 0,
@@ -53,6 +129,18 @@ export default function DashboardScreen() {
 
   // Prayer state
   const [nextPrayerInfo, setNextPrayerInfo] = useState<{ name: string; time: string } | null>(null);
+  const [prayerCountdown, setPrayerCountdown] = useState<string>('');
+
+  // Daily inspiration
+  const [copiedInspiration, setCopiedInspiration] = useState(false);
+  const dailyInspiration = useMemo(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = now.getTime() - start.getTime();
+    const oneDay = 1000 * 60 * 60 * 24;
+    const day = Math.floor(diff / oneDay);
+    return DAILY_INSPIRATIONS[day % DAILY_INSPIRATIONS.length];
+  }, []);
 
   // PIN modal
   const [pinModalVisible, setPinModalVisible] = useState(false);
@@ -78,20 +166,31 @@ export default function DashboardScreen() {
     animateEntrance();
   }, []);
 
+  // Live countdown timer ticker
+  useEffect(() => {
+    if (!nextPrayerInfo?.time) return;
+    setPrayerCountdown(calculateCountdown(nextPrayerInfo.time));
+    const timer = setInterval(() => {
+      setPrayerCountdown(calculateCountdown(nextPrayerInfo?.time));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [nextPrayerInfo?.time]);
+
   const animateEntrance = () => {
+    const useNative = Platform.OS !== 'web';
     Animated.parallel([
       Animated.spring(streakScale, {
         toValue: 1,
-        useNativeDriver: true,
+        useNativeDriver: useNative,
         tension: 50,
         friction: 7,
-        delay: 200,
+        delay: 150,
       }),
       Animated.timing(cardFade, {
         toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-        delay: 400,
+        duration: 500,
+        useNativeDriver: useNative,
+        delay: 300,
       }),
     ]).start();
   };
@@ -145,7 +244,7 @@ export default function DashboardScreen() {
         await scheduleSalahNotifications(timings);
       }
     } catch {
-      // Silently fail — prayer card just won't show
+      // Silently fail — prayer card will show fallback or hide
     }
   };
 
@@ -158,7 +257,6 @@ export default function DashboardScreen() {
   // --- PIN Flow ---
   const handleToggleSWP = async (enabled: boolean) => {
     if (!enabled) {
-      // Trying to DISABLE protection
       const locked = await isLocked();
       if (locked) {
         setPinAction('toggle_swp');
@@ -167,7 +265,6 @@ export default function DashboardScreen() {
         setPinModalVisible(true);
         return;
       }
-      // Not locked, disable directly
       const stopped = await nativeContentProtection.stop();
       if (stopped) {
         setSystemWideActive(false);
@@ -176,7 +273,6 @@ export default function DashboardScreen() {
         setStreakDays(streakData.currentStreak);
       }
     } else {
-      // Enable protection
       const started = await nativeContentProtection.start();
       setSystemWideActive(started);
     }
@@ -184,13 +280,11 @@ export default function DashboardScreen() {
 
   const handleSetLock = () => {
     if (pinExists && appLocked) {
-      // Unlock flow
       setPinAction('unlock');
       setPinMode('verify');
       setPinError(null);
       setPinModalVisible(true);
     } else {
-      // Set PIN flow
       setPinAction('lock');
       setPinMode('set');
       setPinError(null);
@@ -238,15 +332,20 @@ export default function DashboardScreen() {
     }
   };
 
-  // --- Streak ring calculation ---
+  const handleCopyInspiration = () => {
+    Clipboard.setString(`"${dailyInspiration.translation}" — ${dailyInspiration.source}`);
+    setCopiedInspiration(true);
+    setTimeout(() => setCopiedInspiration(false), 2000);
+  };
+
   const getStreakMessage = () => {
-    if (streakDays === 0) return 'Start your journey today';
+    if (streakDays === 0) return 'Start your pure journey today';
     if (streakDays < 3) return 'Every day counts, keep going!';
     if (streakDays < 7) return 'MashaAllah, building momentum!';
     if (streakDays < 14) return 'SubhanAllah, one week strong! 💪';
     if (streakDays < 30) return 'AlhamduLillah, amazing discipline!';
     if (streakDays < 90) return 'You are a warrior of faith! 🏆';
-    return 'Legendary. May Allah reward you! 🌟';
+    return 'Legendary. May Allah reward your steadfastness! 🌟';
   };
 
   const getStreakEmoji = () => {
@@ -273,10 +372,44 @@ export default function DashboardScreen() {
           />
         }
       >
-        {/* Header */}
+        {/* ─── HEADER WITH SETTINGS & SHIELD PILL ─── */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Deen AI</Text>
-          <Text style={styles.headerSubtitle}>Your Islamic Digital Guardian</Text>
+          <View style={styles.headerLeft}>
+            <View style={styles.headerTitleRow}>
+              <Text style={styles.headerTitle}>Deen AI</Text>
+              <View
+                style={[
+                  styles.statusBadge,
+                  systemWideActive ? styles.statusBadgeActive : styles.statusBadgeInactive,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.statusDot,
+                    systemWideActive ? styles.statusDotActive : styles.statusDotInactive,
+                  ]}
+                />
+                <Text
+                  style={[
+                    styles.statusBadgeText,
+                    systemWideActive ? styles.statusBadgeTextActive : styles.statusBadgeTextInactive,
+                  ]}
+                >
+                  {systemWideActive ? 'PROTECTED' : 'OFFLINE'}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.headerSubtitle}>Your Islamic Digital Guardian</Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.settingsIconButton}
+            onPress={() => router.push('/(tabs)/settings')}
+            activeOpacity={0.7}
+            accessibilityLabel="Settings"
+          >
+            <Feather name="settings" size={20} color="#ffdda8" />
+          </TouchableOpacity>
         </View>
 
         {/* ─── STREAK HERO SECTION ─── */}
@@ -286,7 +419,7 @@ export default function DashboardScreen() {
             { transform: [{ scale: streakScale }] },
           ]}
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.streakCircle}
             activeOpacity={0.9}
             onPress={() => {
@@ -295,29 +428,38 @@ export default function DashboardScreen() {
               devTapTimer.current = setTimeout(() => {
                 devTapCount.current = 0;
               }, 1000);
-              
+
               if (devTapCount.current >= 7) {
                 devTapCount.current = 0;
-                Alert.prompt(
-                  "Developer Tools",
-                  "Enter new streak days manually:",
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    { text: "Update", onPress: async (val) => {
-                        const num = parseInt(val || "0");
-                        if (!isNaN(num)) {
-                          const { saveStreak } = require('../../lib/streak');
-                          await saveStreak({
-                            currentStreak: num,
-                            lastResetDate: new Date().toISOString(),
-                            vpnDisabledCount: 0
-                          });
-                          setStreakDays(num);
-                        }
-                      }
-                    }
-                  ]
-                );
+                const handleUpdate = (val?: string) => {
+                  const num = parseInt(val || '0');
+                  if (!isNaN(num)) {
+                    const { setStreakOverride } = require('../../lib/streak');
+                    setStreakOverride(num).then(() => {
+                      setStreakDays(num);
+                    });
+                  }
+                };
+
+                if (Platform.OS === 'web') {
+                  const val = window.prompt('Developer Tools\nEnter new streak days manually:');
+                  if (val !== null) handleUpdate(val);
+                } else if (Platform.OS === 'ios') {
+                  Alert.prompt('Developer Tools', 'Enter new streak days manually:', [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Update', onPress: handleUpdate },
+                  ]);
+                } else {
+                  Alert.alert(
+                    'Developer Tools',
+                    'Dev override quick actions:',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      { text: 'Reset to 0', onPress: () => handleUpdate('0') },
+                      { text: 'Add 10 Days', onPress: () => handleUpdate(String(streakDays + 10)) },
+                    ]
+                  );
+                }
               }
             }}
           >
@@ -331,22 +473,37 @@ export default function DashboardScreen() {
         </Animated.View>
 
         {/* ─── SYSTEM-WIDE PROTECTION CARD ─── */}
-        <Animated.View style={[styles.swpCard, { opacity: cardFade }]}>
+        <Animated.View
+          style={[
+            styles.swpCard,
+            systemWideActive && styles.swpCardActive,
+            { opacity: cardFade },
+          ]}
+        >
           <View style={styles.swpHeader}>
-            <View style={styles.swpIconContainer}>
-              <Text style={styles.swpIcon}>🛡️</Text>
+            <View
+              style={[
+                styles.swpIconContainer,
+                systemWideActive && styles.swpIconContainerActive,
+              ]}
+            >
+              <Feather
+                name="shield"
+                size={22}
+                color={systemWideActive ? '#10b981' : '#e2a23b'}
+              />
             </View>
             <View style={styles.swpInfo}>
               <Text style={styles.swpTitle}>System-Wide Protection</Text>
               <Text style={[styles.swpStatus, systemWideActive && styles.swpStatusActive]}>
-                {systemWideActive ? '✅ Active — Device Protected' : '⚠️ Inactive — Device Exposed'}
+                {systemWideActive ? 'Active — Device Protected' : 'Inactive — Device Exposed'}
               </Text>
             </View>
             <Switch
               value={systemWideActive}
               onValueChange={handleToggleSWP}
-              trackColor={{ false: '#3e4a48', true: 'rgba(76, 175, 80, 0.5)' }}
-              thumbColor={systemWideActive ? '#4caf50' : '#94a4a2'}
+              trackColor={{ false: '#3e4a48', true: 'rgba(16, 185, 129, 0.4)' }}
+              thumbColor={systemWideActive ? '#10b981' : '#94a4a2'}
             />
           </View>
 
@@ -362,7 +519,7 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </Animated.View>
 
-        {/* ─── NEXT PRAYER CARD ─── */}
+        {/* ─── NEXT PRAYER & LIVE COUNTDOWN CARD ─── */}
         {nextPrayerInfo && (
           <Animated.View style={[styles.prayerCard, { opacity: cardFade }]}>
             <TouchableOpacity
@@ -370,20 +527,70 @@ export default function DashboardScreen() {
               onPress={() => router.push('/(tabs)/prayer')}
               activeOpacity={0.8}
             >
-              <View style={styles.prayerIconContainer}>
-                <Text style={styles.prayerIcon}>🕌</Text>
+              <View style={styles.prayerTopRow}>
+                <View style={styles.prayerBadge}>
+                  <Feather name="clock" size={14} color="#e2a23b" />
+                  <Text style={styles.prayerBadgeText}>NEXT AZAN</Text>
+                </View>
+                {prayerCountdown ? (
+                  <View style={styles.countdownBadge}>
+                    <Text style={styles.countdownBadgeText}>in {prayerCountdown}</Text>
+                  </View>
+                ) : null}
               </View>
-              <View style={styles.prayerInfo}>
-                <Text style={styles.prayerLabel}>NEXT PRAYER</Text>
-                <Text style={styles.prayerName}>{nextPrayerInfo.name}</Text>
-                <Text style={{fontSize: 10, color: '#94a4a2', marginTop: 4}}>Tap for more details</Text>
+
+              <View style={styles.prayerContentRow}>
+                <View style={styles.prayerInfo}>
+                  <Text style={styles.prayerName}>{nextPrayerInfo.name}</Text>
+                  <Text style={styles.prayerTime}>{formatTime(nextPrayerInfo.time)}</Text>
+                </View>
+                <View style={styles.prayerActionPill}>
+                  <Text style={styles.prayerActionPillText}>Schedule</Text>
+                  <Feather name="chevron-right" size={16} color="#e2a23b" />
+                </View>
               </View>
-              <Text style={styles.prayerTime}>{formatTime(nextPrayerInfo.time)}</Text>
             </TouchableOpacity>
           </Animated.View>
         )}
 
-        {/* ─── QUICK ACTION CARDS ─── */}
+        {/* ─── DAILY INSPIRATION (AYAH / HADITH) ─── */}
+        <Animated.View style={[styles.inspirationCard, { opacity: cardFade }]}>
+          <View style={styles.inspirationHeader}>
+            <View style={styles.inspirationTypeRow}>
+              <Feather name="book-open" size={15} color="#e2a23b" />
+              <Text style={styles.inspirationTypeTitle}>
+                Daily {dailyInspiration.type}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.copyButton}
+              onPress={handleCopyInspiration}
+              activeOpacity={0.7}
+            >
+              <Feather
+                name={copiedInspiration ? 'check' : 'copy'}
+                size={14}
+                color={copiedInspiration ? '#10b981' : '#ffdda8'}
+              />
+              <Text
+                style={[
+                  styles.copyButtonText,
+                  copiedInspiration && { color: '#10b981' },
+                ]}
+              >
+                {copiedInspiration ? 'Copied' : 'Share'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.inspirationArabic}>{dailyInspiration.arabic}</Text>
+          <Text style={styles.inspirationTranslation}>
+            "{dailyInspiration.translation}"
+          </Text>
+          <Text style={styles.inspirationSource}>— {dailyInspiration.source}</Text>
+        </Animated.View>
+
+        {/* ─── QUICK ACTION TILES ─── */}
         <Animated.View style={[styles.quickActions, { opacity: cardFade }]}>
           {/* Focus Mode */}
           <TouchableOpacity
@@ -391,62 +598,52 @@ export default function DashboardScreen() {
             onPress={() => router.push('/(tabs)/focus')}
             activeOpacity={0.8}
           >
-            <Text style={styles.actionIcon}>🎯</Text>
+            <View style={styles.actionIconContainer}>
+              <Feather name="target" size={24} color="#e2a23b" />
+            </View>
             <Text style={styles.actionTitle}>Focus Mode</Text>
             <Text style={styles.actionStat}>
-              {focusStats.totalMinutes} min total
+              {focusStats.totalMinutes} min tracked
             </Text>
-            <Text style={{fontSize: 10, color: '#94a4a2', marginTop: 6, textAlign: 'center'}}>Tap for more details</Text>
           </TouchableOpacity>
 
-          {/* Masjid */}
+          {/* Masjid Finder */}
           <TouchableOpacity
             style={styles.actionCard}
             onPress={() => router.push('/(tabs)/masjid')}
             activeOpacity={0.8}
           >
-            <Text style={styles.actionIcon}>🕋</Text>
-            <Text style={styles.actionTitle}>Masjid</Text>
-            <Text style={styles.actionStat}>Find nearby</Text>
-            <Text style={{fontSize: 10, color: '#94a4a2', marginTop: 6, textAlign: 'center'}}>Tap for more details</Text>
+            <View style={styles.actionIconContainer}>
+              <Feather name="map-pin" size={24} color="#e2a23b" />
+            </View>
+            <Text style={styles.actionTitle}>Masjid & Qibla</Text>
+            <Text style={styles.actionStat}>Nearby locator</Text>
           </TouchableOpacity>
         </Animated.View>
 
-        {/* ─── SETTINGS ROW ─── */}
-        <Animated.View style={[styles.settingsRow, { opacity: cardFade }]}>
+        {/* ─── QUICK IMAM AI PROMPT BANNER ─── */}
+        <Animated.View style={[styles.imamPromptBanner, { opacity: cardFade }]}>
           <TouchableOpacity
-            style={styles.settingsCard}
-            onPress={() => router.push('/(tabs)/settings')}
+            style={styles.imamPromptInner}
+            onPress={() => router.push('/(tabs)/chat')}
             activeOpacity={0.8}
           >
-            <Text style={styles.settingsIcon}>⚙️</Text>
-            <View style={styles.settingsInfo}>
-              <Text style={styles.settingsTitle}>Settings</Text>
-              <Text style={styles.settingsSubtitle}>
-                Prayer calc, DNS, location
+            <View style={styles.imamIconCircle}>
+              <Feather name="message-circle" size={22} color="#0f1718" />
+            </View>
+            <View style={styles.imamPromptTextWrapper}>
+              <Text style={styles.imamPromptTitle}>Have a spiritual question?</Text>
+              <Text style={styles.imamPromptSubtitle}>
+                Ask Imam AI with Internet Archive verified citations
               </Text>
             </View>
-            <Text style={styles.settingsArrow}>›</Text>
+            <Feather name="arrow-right" size={18} color="#e2a23b" />
           </TouchableOpacity>
         </Animated.View>
 
-        {/* Bottom spacer for floating button */}
-        <View style={{ height: 100 }} />
+        {/* Bottom spacer for comfortable scrolling above the tab bar */}
+        <View style={{ height: 24 }} />
       </ScrollView>
-
-      {/* ─── FLOATING IMAM AI BUTTON ─── */}
-      <View style={styles.floatingButtonContainer}>
-        <TouchableOpacity
-          style={styles.floatingButton}
-          onPress={() => router.push('/(tabs)/chat')}
-          activeOpacity={0.85}
-        >
-          <View style={styles.floatingButtonInner}>
-            <Text style={styles.floatingButtonIcon}>🤖</Text>
-            <Text style={styles.floatingButtonText}>Imam AI</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
 
       {/* PIN Modal */}
       <PINModal
@@ -470,7 +667,7 @@ export default function DashboardScreen() {
             ? 'Enter PIN to disable System-Wide Protection'
             : pinAction === 'unlock'
             ? 'Enter your PIN to unlock settings'
-            : 'Give this PIN to a friend or family member'
+            : 'Give this PIN to a trusted accountability partner'
         }
       />
     </SafeAreaView>
@@ -486,70 +683,134 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 24,
   },
+
+  // ─── Header ───
   header: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 12,
     paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 26,
+    fontWeight: '800',
     color: '#f3f7f6',
-    marginBottom: 4,
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#94a4a2',
+    marginTop: 2,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  statusBadgeActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    borderColor: 'rgba(16, 185, 129, 0.35)',
+  },
+  statusBadgeInactive: {
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 5,
+  },
+  statusDotActive: {
+    backgroundColor: '#10b981',
+  },
+  statusDotInactive: {
+    backgroundColor: '#ef4444',
+  },
+  statusBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  statusBadgeTextActive: {
+    color: '#10b981',
+  },
+  statusBadgeTextInactive: {
+    color: '#ef4444',
+  },
+  settingsIconButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#0c3033',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // ─── Streak Hero ───
   streakHero: {
     alignItems: 'center',
-    paddingVertical: 28,
+    paddingVertical: 24,
     marginHorizontal: 20,
-    marginTop: 8,
+    marginTop: 10,
     backgroundColor: '#0b2527',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(226, 162, 59, 0.15)',
+    borderColor: 'rgba(226, 162, 59, 0.18)',
   },
   streakCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+    width: 154,
+    height: 154,
+    borderRadius: 77,
     backgroundColor: '#0c3033',
     borderWidth: 4,
     borderColor: '#e2a23b',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
     shadowColor: '#e2a23b',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
     elevation: 8,
   },
   streakEmoji: {
-    fontSize: 28,
+    fontSize: 26,
     marginBottom: 2,
   },
   streakNumber: {
-    fontSize: 48,
+    fontSize: 46,
     fontWeight: '800',
     color: '#e2a23b',
-    lineHeight: 52,
+    lineHeight: 50,
   },
   streakLabel: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: '#ffdda8',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   streakMessage: {
-    fontSize: 14,
-    color: '#94a4a2',
+    fontSize: 13,
+    color: '#d6e2e0',
     fontStyle: 'italic',
     textAlign: 'center',
     paddingHorizontal: 20,
@@ -558,12 +819,16 @@ const styles = StyleSheet.create({
   // ─── SWP Card ───
   swpCard: {
     marginHorizontal: 20,
-    marginTop: 16,
+    marginTop: 14,
     backgroundColor: '#0b2527',
-    borderRadius: 16,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
     padding: 16,
+  },
+  swpCardActive: {
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+    backgroundColor: 'rgba(11, 37, 39, 0.95)',
   },
   swpHeader: {
     flexDirection: 'row',
@@ -573,20 +838,20 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(226, 162, 59, 0.16)',
+    backgroundColor: 'rgba(226, 162, 59, 0.14)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
-  swpIcon: {
-    fontSize: 22,
+  swpIconContainerActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
   },
   swpInfo: {
     flex: 1,
     marginRight: 12,
   },
   swpTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     color: '#f3f7f6',
     marginBottom: 2,
@@ -597,23 +862,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   swpStatusActive: {
-    color: '#4caf50',
+    color: '#10b981',
   },
   lockButton: {
     marginTop: 12,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: 'rgba(226, 162, 59, 0.1)',
+    backgroundColor: 'rgba(226, 162, 59, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(226, 162, 59, 0.25)',
+    borderColor: 'rgba(226, 162, 59, 0.22)',
     alignItems: 'center',
   },
   lockButtonLocked: {
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-    borderColor: 'rgba(76, 175, 80, 0.25)',
+    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    borderColor: 'rgba(16, 185, 129, 0.25)',
   },
   lockButtonText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#ffdda8',
   },
@@ -621,48 +886,143 @@ const styles = StyleSheet.create({
   // ─── Prayer Card ───
   prayerCard: {
     marginHorizontal: 20,
-    marginTop: 16,
+    marginTop: 14,
   },
   prayerCardInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(226, 162, 59, 0.1)',
-    borderRadius: 16,
+    backgroundColor: '#0c3033',
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(226, 162, 59, 0.2)',
+    borderColor: 'rgba(226, 162, 59, 0.25)',
     padding: 16,
   },
-  prayerIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(226, 162, 59, 0.16)',
-    justifyContent: 'center',
+  prayerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginRight: 12,
+    marginBottom: 10,
   },
-  prayerIcon: {
-    fontSize: 22,
+  prayerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  prayerInfo: {
-    flex: 1,
-  },
-  prayerLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#94a4a2',
-    letterSpacing: 1,
-    marginBottom: 2,
-  },
-  prayerName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#ffdda8',
-  },
-  prayerTime: {
-    fontSize: 22,
+  prayerBadgeText: {
+    fontSize: 11,
     fontWeight: '700',
     color: '#e2a23b',
+    letterSpacing: 1,
+  },
+  countdownBadge: {
+    backgroundColor: 'rgba(226, 162, 59, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.3)',
+  },
+  countdownBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#ffdda8',
+    fontVariant: ['tabular-nums'],
+  },
+  prayerContentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  prayerInfo: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 12,
+  },
+  prayerName: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#f3f7f6',
+  },
+  prayerTime: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#e2a23b',
+  },
+  prayerActionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  prayerActionPillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#d6e2e0',
+  },
+
+  // ─── Daily Inspiration ───
+  inspirationCard: {
+    marginHorizontal: 20,
+    marginTop: 14,
+    backgroundColor: '#0b2527',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    padding: 18,
+  },
+  inspirationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  inspirationTypeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  inspirationTypeTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#ffdda8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  copyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+  },
+  copyButtonText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#ffdda8',
+  },
+  inspirationArabic: {
+    fontSize: 20,
+    lineHeight: 34,
+    color: '#ffdda8',
+    textAlign: 'right',
+    marginBottom: 10,
+    fontWeight: '600',
+  },
+  inspirationTranslation: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#d6e2e0',
+    fontStyle: 'italic',
+    marginBottom: 8,
+  },
+  inspirationSource: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#94a4a2',
+    textAlign: 'right',
   },
 
   // ─── Quick Actions ───
@@ -670,7 +1030,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     gap: 12,
-    marginTop: 16,
+    marginTop: 14,
   },
   actionCard: {
     flex: 1,
@@ -678,97 +1038,64 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
-    padding: 20,
+    padding: 16,
     alignItems: 'center',
   },
-  actionIcon: {
-    fontSize: 32,
+  actionIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(226, 162, 59, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 8,
   },
   actionTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
     color: '#f3f7f6',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   actionStat: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#94a4a2',
   },
 
-  // ─── Settings Row ───
-  settingsRow: {
-    paddingHorizontal: 20,
-    marginTop: 16,
+  // ─── Imam AI Banner ───
+  imamPromptBanner: {
+    marginHorizontal: 20,
+    marginTop: 14,
   },
-  settingsCard: {
+  imamPromptInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0b2527',
+    backgroundColor: '#0c3033',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    padding: 16,
+    borderColor: 'rgba(226, 162, 59, 0.2)',
+    padding: 14,
   },
-  settingsIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  settingsInfo: {
-    flex: 1,
-  },
-  settingsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#f3f7f6',
-  },
-  settingsSubtitle: {
-    fontSize: 12,
-    color: '#94a4a2',
-    marginTop: 2,
-  },
-  settingsArrow: {
-    fontSize: 24,
-    color: '#94a4a2',
-    fontWeight: '300',
-  },
-
-  // ─── Floating Imam AI Button ───
-  floatingButtonContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    paddingBottom: 8,
-  },
-  floatingButton: {
-    width: 140,
-    height: 60,
-    borderTopLeftRadius: 70,
-    borderTopRightRadius: 70,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
+  imamIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#e2a23b',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#e2a23b',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 10,
+    marginRight: 12,
   },
-  floatingButtonInner: {
-    alignItems: 'center',
-    paddingTop: 6,
+  imamPromptTextWrapper: {
+    flex: 1,
+    marginRight: 8,
   },
-  floatingButtonIcon: {
-    fontSize: 22,
+  imamPromptTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#f3f7f6',
     marginBottom: 2,
   },
-  floatingButtonText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#0f1718',
+  imamPromptSubtitle: {
+    fontSize: 11,
+    color: '#94a4a2',
   },
 });

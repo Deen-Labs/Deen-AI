@@ -119,3 +119,22 @@ export async function getStreakHistory(): Promise<Array<{ date: string; streak: 
     return [];
   }
 }
+
+export async function setStreakOverride(days: number): Promise<void> {
+  try {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    // Calculate the fake start date
+    const fakeStartDate = new Date();
+    fakeStartDate.setDate(fakeStartDate.getDate() - days);
+    
+    await Promise.all([
+      AsyncStorage.setItem(STREAK_COUNT_KEY, days.toString()),
+      AsyncStorage.setItem(STREAK_START_DATE_KEY, fakeStartDate.toISOString()),
+      AsyncStorage.setItem(LAST_CHECK_DATE_KEY, todayStr)
+    ]);
+  } catch (error) {
+    console.error('Error overriding streak:', error);
+  }
+}
