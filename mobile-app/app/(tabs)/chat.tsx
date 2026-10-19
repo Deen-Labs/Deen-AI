@@ -136,7 +136,19 @@ export default function ChatScreen() {
                         params: { autoStart: 'true' }
                     });
                 } else {
-                    setFocusModeActive(false);
+                    // Prevent silent disabling: require explicit user confirmation
+                    Alert.alert(
+                        "Stop Focus Mode",
+                        "Imam AI received a request to end your active Focus Mode session. Would you like to stop it now?",
+                        [
+                            { text: "Keep Active", style: "cancel" },
+                            {
+                                text: "End Session",
+                                style: "destructive",
+                                onPress: () => setFocusModeActive(false)
+                            }
+                        ]
+                    );
                 }
                 break;
             case 'toggle_swp':
@@ -148,8 +160,22 @@ export default function ChatScreen() {
                     if (command.value) {
                         nativeContentProtection.start();
                     } else {
-                        nativeContentProtection.stop();
-                        await recordVPNDisabled();
+                        // Prevent silent disabling: require explicit user confirmation even if not locked
+                        Alert.alert(
+                            "Disable System-Wide Protection",
+                            "Imam AI received a request to turn off System-Wide Protection. Are you sure you want to disable it?",
+                            [
+                                { text: "Keep Protected", style: "cancel" },
+                                {
+                                    text: "Disable",
+                                    style: "destructive",
+                                    onPress: async () => {
+                                        nativeContentProtection.stop();
+                                        await recordVPNDisabled();
+                                    }
+                                }
+                            ]
+                        );
                     }
                 }
                 break;
@@ -223,9 +249,19 @@ export default function ChatScreen() {
     };
 
     const handleOpenLink = (url: string) => {
-        Linking.openURL(url).catch(err => {
-            console.error("Failed to open source URL:", err);
-        });
+        try {
+            const parsed = new URL(url);
+            if (parsed.protocol !== 'https:') {
+                Alert.alert("Security Notice", "Only secure HTTPS URLs can be opened.");
+                return;
+            }
+            Linking.openURL(url).catch(err => {
+                console.error("Failed to open source URL:", err);
+            });
+        } catch (e) {
+            console.warn("Invalid URL in handleOpenLink:", url);
+            Alert.alert("Invalid Link", "The provided link is invalid or malformed.");
+        }
     };
 
     const renderMessage = ({ item }: { item: ChatMessage }) => {

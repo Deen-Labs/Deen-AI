@@ -48,6 +48,8 @@ class ContentFilterAccessibilityService : AccessibilityService() {
         "porn", "xxx", "xvideos", "xnxx", "xhamster", "brazzers", "nude", "sex"
     )
 
+    private var lastBrowserContentScanTime: Long = 0L
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         Log.d(TAG, "Content Filter Accessibility Service Connected")
@@ -58,8 +60,13 @@ class ContentFilterAccessibilityService : AccessibilityService() {
         return prefs.getBoolean("is_locked", false)
     }
 
-    private fun findTextInNodes(node: AccessibilityNodeInfo?, searchTexts: Set<String>): Boolean {
-        if (node == null) return false
+    private fun findTextInNodes(
+        node: AccessibilityNodeInfo?,
+        searchTexts: Set<String>,
+        currentDepth: Int = 0,
+        maxDepth: Int = 12
+    ): Boolean {
+        if (node == null || currentDepth > maxDepth) return false
         val nodeText = node.text?.toString()?.lowercase() ?: ""
         val nodeDesc = node.contentDescription?.toString()?.lowercase() ?: ""
         
@@ -70,7 +77,8 @@ class ContentFilterAccessibilityService : AccessibilityService() {
         }
         
         for (i in 0 until node.childCount) {
-            if (findTextInNodes(node.getChild(i), searchTexts)) {
+            val child = node.getChild(i)
+            if (findTextInNodes(child, searchTexts, currentDepth + 1, maxDepth)) {
                 return true
             }
         }
@@ -89,17 +97,27 @@ class ContentFilterAccessibilityService : AccessibilityService() {
             // Check the specific text changed event text
             val eventText = event.text?.joinToString(" ")?.lowercase() ?: ""
             if (eventText.isNotBlank() && adultKeywords.any { eventText.contains(it) }) {
-                Log.d(TAG, "Aggressive Text Block Triggered by eventText: $eventText")
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Aggressive Text Block Triggered by eventText: $eventText")
+                }
                 blockAndRedirect("blocked-keyword")
                 return
             }
             
-            // If it's a browser package, scan the root node for bad words heavily
+            // If it's a browser package, scan the root node for bad words heavily with 350ms debouncing
             if (browserPackages.contains(packageName) && rootNode != null) {
-                if (findTextInNodes(rootNode, adultKeywords)) {
-                    Log.d(TAG, "Aggressive Text Block Triggered by node text")
-                    blockAndRedirect("blocked-keyword")
-                    return
+                val now = System.currentTimeMillis()
+                if (event.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED || (now - lastBrowserContentScanTime >= 350L)) {
+                    if (event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+                        lastBrowserContentScanTime = now
+                    }
+                    if (findTextInNodes(rootNode, adultKeywords)) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Aggressive Text Block Triggered by node text")
+                        }
+                        blockAndRedirect("blocked-keyword")
+                        return
+                    }
                 }
             }
         }
@@ -108,7 +126,7 @@ class ContentFilterAccessibilityService : AccessibilityService() {
 
         // 1. Anti-Tamper & Streak Protection
         // Allows users to manage permissions and inspect app settings,
-        // but strictly intercepts destructive actions (Uninstall, Force Stop, Clear Data).
+        // but strictly intercepts destructive actions (Uninstall, Force Stop, Clear Data, Accessibility Disable).
         if (isLockEnabled()) {
             val prefs = getSharedPreferences("deen_ai_prefs", Context.MODE_PRIVATE)
             val unlockExpiry = prefs.getLong("uninstall_unlock_expiry", 0)
@@ -117,8 +135,10 @@ class ContentFilterAccessibilityService : AccessibilityService() {
                 val isInstaller = packageInstallerPackages.contains(packageName)
 
                 if (isInstaller) {
-                    val hasUninstallPrompt = findTextInNodes(rootNode, setOf("uninstall", "deen ai", "com.deenai"))
-                    if (hasUninstallPrompt) {
+                    // VULN-04 fix: Require BOTH Deen AI target identifier AND uninstall action
+                    val isDeenTarget = findTextInNodes(rootNode, setOf("deen ai", "com.deenai"))
+                    val hasUninstallAction = findTextInNodes(rootNode, setOf("uninstall", "delete"))
+                    if (isDeenTarget && hasUninstallAction) {
                         Log.d(TAG, "Blocked PackageInstaller uninstall prompt for Deen AI!")
                         performGlobalAction(GLOBAL_ACTION_BACK)
                         val uri = android.net.Uri.parse("deenai://unlock-uninstall")
@@ -129,6 +149,20 @@ class ContentFilterAccessibilityService : AccessibilityService() {
                         return
                     }
                 } else if (isSettings) {
+                    // Prevent Accessibility Service Self-Disable (VULN-04)
+                    val isDeenAccessibilityContext = findTextInNodes(rootNode, setOf("deen ai system-wide protection", "deen ai"))
+                    val hasAccessibilityToggleText = findTextInNodes(rootNode, setOf("use service", "use deen ai", "turn off", "stop"))
+                    if (isDeenAccessibilityContext && hasAccessibilityToggleText) {
+                        Log.d(TAG, "Blocked attempt to disable Deen AI Accessibility Service!")
+                        performGlobalAction(GLOBAL_ACTION_BACK)
+                        val uri = android.net.Uri.parse("deenai://unlock-uninstall")
+                        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
+                        return
+                    }
+
                     val isDeenContext = findTextInNodes(rootNode, setOf("deen ai", "com.deenai"))
 
                     if (isDeenContext) {
@@ -141,7 +175,9 @@ class ContentFilterAccessibilityService : AccessibilityService() {
                                               (clickedNode?.contentDescription ?: "")).lowercase()
 
                             if (destructiveActions.any { clickedText.contains(it) }) {
-                                Log.d(TAG, "Blocked destructive click on Deen AI in Settings: $clickedText")
+                                if (BuildConfig.DEBUG) {
+                                    Log.d(TAG, "Blocked destructive click on Deen AI in Settings: $clickedText")
+                                }
                                 performGlobalAction(GLOBAL_ACTION_BACK)
                                 val uri = android.net.Uri.parse("deenai://unlock-uninstall")
                                 val intent = Intent(Intent.ACTION_VIEW, uri).apply {
@@ -173,9 +209,13 @@ class ContentFilterAccessibilityService : AccessibilityService() {
         if (browserPackages.contains(packageName)) {
             val url = extractUrl(rootNode)
             if (url != null) {
-                Log.d(TAG, "Browser URL detected: $url")
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Browser URL detected: $url")
+                }
                 if (isUrlBlocked(url)) {
-                    Log.d(TAG, "Blocked URL detected: $url. Redirecting to app!")
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Blocked URL detected: $url. Redirecting to app!")
+                    }
                     
                     // Record block event
                     val prefs = getSharedPreferences("deen_ai_prefs", Context.MODE_PRIVATE)
@@ -193,12 +233,17 @@ class ContentFilterAccessibilityService : AccessibilityService() {
 
     private fun extractUrl(node: AccessibilityNodeInfo): String? {
         val result = StringBuilder()
-        findUrlInNodes(node, result)
+        findUrlInNodes(node, result, 0, 12)
         return if (result.isNotEmpty()) result.toString() else null
     }
 
-    private fun findUrlInNodes(node: AccessibilityNodeInfo?, result: StringBuilder) {
-        if (node == null) return
+    private fun findUrlInNodes(
+        node: AccessibilityNodeInfo?,
+        result: StringBuilder,
+        currentDepth: Int = 0,
+        maxDepth: Int = 12
+    ) {
+        if (node == null || currentDepth > maxDepth) return
         if (node.className == "android.widget.EditText" || node.viewIdResourceName?.contains("url_bar", ignoreCase = true) == true) {
             if (node.text != null && node.text.toString().isNotBlank()) {
                 val text = node.text.toString()
@@ -209,7 +254,7 @@ class ContentFilterAccessibilityService : AccessibilityService() {
             }
         }
         for (i in 0 until node.childCount) {
-            findUrlInNodes(node.getChild(i), result)
+            findUrlInNodes(node.getChild(i), result, currentDepth + 1, maxDepth)
             if (result.isNotEmpty()) return
         }
     }

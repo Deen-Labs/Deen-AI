@@ -292,6 +292,17 @@ export function generateFallbackMasjids(latitude: number, longitude: number): Ma
 }
 
 /**
+ * Sanitize input for Overpass QL regex filter (VULN-06).
+ * Strips syntax delimiters and quotes, and escapes regex metacharacters.
+ */
+function sanitizeOverpassRegex(input: string): string {
+  return input
+    .replace(/["\\;]/g, '')
+    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    .trim();
+}
+
+/**
  * Fetch nearby masjids using Overpass API (OpenStreetMap)
  * Free and doesn't require an API key
  */
@@ -317,9 +328,10 @@ export async function getNearbyMasjids(
     }
   }
 
-  // Construct name search filter for Overpass if nameQuery is provided
-  const nameFilter = nameQuery && nameQuery.trim().length > 0
-    ? `["name"~"${nameQuery.trim()}",i]`
+  // Construct sanitized name search filter for Overpass if nameQuery is provided (VULN-06)
+  const sanitizedName = nameQuery ? sanitizeOverpassRegex(nameQuery) : '';
+  const nameFilter = sanitizedName.length > 0
+    ? `["name"~"${sanitizedName}",i]`
     : '';
 
   // Use radius search around center coordinates (default 1000m)

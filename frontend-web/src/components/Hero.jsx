@@ -14,15 +14,15 @@ export default function Hero({ tags, badges }) {
             </h1>
           
             <a
-              href="/assets/deen-app-v2.1.5.apk"
-              download="Deen-AI-v2.1.5.apk"
+              href="/assets/deen-app-v2.2.1.apk"
+              download="Deen-AI-v2.2.1.apk"
               className="button button--lg"
               style={{
                 display: "inline-block",
                 marginTop: "32px",
                 alignSelf: "flex-start",
               }}>
-              Download the App (v2.1.5)
+              Download the App (v2.2.1)
             </a>
           </div>
           <div className="hero__image-wrapper">
