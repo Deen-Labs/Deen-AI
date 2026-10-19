@@ -129,7 +129,7 @@ export default function App() {
   {/* ==========================================
        THE HERO SECTION
        ========================================== */}
-  <section id="hero" className="relative pt-28 sm:pt-24 lg:pt-32 pb-20 lg:pb-32 overflow-hidden flex items-center">
+  <section id="hero" className="relative py-12 sm:py-14 lg:py-16 overflow-hidden flex items-center">
     {/* Grid Overlay Graphics */}
     <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30"></div>
     
@@ -285,29 +285,70 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left Column: Copy & Details */}
-            <div className="lg:col-span-7 flex flex-col space-y-6">
+            <div className="lg:col-span-7 flex flex-col space-y-5">
               <div className="flex items-center space-x-3.5">
                 <div className="h-12 w-12 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-brand-accent group-hover:scale-105 transition-transform">
                   <i className="fa-solid fa-kaaba text-lg"></i>
                 </div>
                 <div>
                   <h4 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">Deen-AI Mobile App</h4>
-                  <p className="text-xs text-slate-400">Islamic Practice Mobile App featuring built-in Imam AI</p>
+                  <p className="text-xs text-slate-400">All-in-One Islamic Lifestyle, Focus & AI Assistant App</p>
                 </div>
               </div>
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                Deen-AI is a context-aware Islamic mobile application featuring nearby masjid detection, digital prayer display sync, and <strong>Imam AI</strong>—the core chatbot assistant built directly into the app. Powered by the <strong>Google Gemini API</strong>, Imam AI prevents logical hallucinations and reference errors by utilizing a specialized Retrieval-Augmented Generation (RAG) pipeline. It queries and checks verified Islamic source records via the <strong>Internet Archive API</strong>, performing strict cross-reference validation before generating response texts.
+                Deen-AI is an all-in-one Islamic mobile companion engineered for daily spiritual practice, mindfulness, and digital purity. Beyond its hallucination-resistant <strong>Imam AI</strong>, the app provides real-time prayer calculations, nearby masjid discovery, and automatic device-level content shielding.
               </p>
 
+              {/* Core Feature Highlights (2x2 Grid) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
+                    <i className="fa-solid fa-clock text-xs"></i>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-xs">Accurate Salah & Azan</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Astronomical timings, dual Hijri calendar, live countdown ticker & Azan audio.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
+                    <i className="fa-solid fa-mosque text-xs"></i>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-xs">Nearby Masjid Finder</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Live GPS discovery, compass bearing, walking/driving distance & directions.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
+                    <i className="fa-solid fa-shield-halved text-xs"></i>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-xs">18+ [NSFW] Content Blocker</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Encrypted DNS shield (DoH) blocking adult domains & digital distractions.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
+                    <i className="fa-solid fa-brain text-xs"></i>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-xs">Imam AI (Strict RAG)</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Gemini API + Internet Archive validation with zero hallucinations.</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Tech badges */}
-              <div className="flex flex-wrap gap-2">
-                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">FastAPI</span>
-                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Python</span>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">React Native</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Expo</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">FastAPI & Python</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Google Gemini API</span>
-                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Internet Archive API</span>
-                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Uvicorn</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">RAG Pipeline</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">GPS Geolocation</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">DoH DNS Filter</span>
               </div>
 
               {/* Action buttons */}
@@ -350,6 +391,22 @@ export default function App() {
                   <div className="bg-slate-900/60 p-2.5 rounded border border-slate-900 text-[11px] text-slate-200 mt-2 font-sans border-l-2 border-l-teal-500">
                     "Indeed, prayer has been decreed upon the believers a decree of specified times." 
                     <span className="block mt-1 text-[10px] font-mono font-bold text-teal-400">— Qur'an (4:103) [Source-Verified]</span>
+                  </div>
+                </div>
+
+                {/* Service Health Indicators */}
+                <div className="mt-4 pt-3 border-t border-slate-900/80 grid grid-cols-3 gap-1.5 text-[9px] text-slate-400 font-sans">
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    <span className="truncate">DNS Shield: OK</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+                    <span className="truncate">GPS Masajid: OK</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    <span className="truncate">Azan Ticker: LIVE</span>
                   </div>
                 </div>
               </div>
