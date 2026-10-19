@@ -161,9 +161,9 @@ export default function App() {
           {/* Core Call to Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <MagneticButton as="a" href="#consulting" onClick={(e) => scrollToSection(e, 'consulting')} className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-xl shadow-xl shadow-amber-950/20 hover:scale-[1.01] transition-all duration-200">Contact Me</MagneticButton>
-            <a href="#products" onClick={(e) => scrollToSection(e, 'products')} className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+            <MagneticButton as="a" href="#products" onClick={(e) => scrollToSection(e, 'products')} className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
               Explore Our Lab Products
-            </a>
+            </MagneticButton>
           </div>
 
         </div>
@@ -312,15 +312,15 @@ export default function App() {
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="/assets/deen-app-beta.apk" download className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
+                <MagneticButton as="a" href="/assets/deen-app-beta.apk" download className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
                   <i className="fa-solid fa-download mr-2"></i> Download App (Beta)
                 </MagneticButton>
-                <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+                <MagneticButton as="a" href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
                   <i className="fa-brands fa-github mr-2"></i> Explore Codebase
-                </a>
-                <a href="#" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
+                </MagneticButton>
+                <MagneticButton as="a" href="#" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
                   Read Docs
-                </a>
+                </MagneticButton>
               </div>
 
               {/* Warning Disclaimer */}
@@ -395,12 +395,12 @@ export default function App() {
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="https://hub.docker.com/r/goldsteatlh/shadowplane" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 rounded-xl shadow-lg shadow-blue-950/20 transition-all duration-200">
+                <MagneticButton as="a" href="https://hub.docker.com/r/goldsteatlh/shadowplane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 rounded-xl shadow-lg shadow-blue-950/20 transition-all duration-200">
                   <i className="fa-brands fa-docker mr-2"></i> View on Docker Hub
                 </MagneticButton>
-                <a href="https://github.com/GOLDSTEALTH/ShadowPlane" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+                <MagneticButton as="a" href="https://github.com/GOLDSTEALTH/ShadowPlane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
                   <i className="fa-brands fa-github mr-2"></i> Explore Codebase
-                </a>
+                </MagneticButton>
               </div>
 
             </div>
@@ -469,12 +469,12 @@ export default function App() {
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="https://ihateats.deenlabs.tech/" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-500 hover:to-violet-600 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200">
+                <MagneticButton as="a" href="https://ihateats.deenlabs.tech/" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-500 hover:to-violet-600 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200">
                   <i className="fa-solid fa-arrow-up-right-from-square mr-2"></i> Visit Site
                 </MagneticButton>
-                <a href="https://github.com/Deen-Labs/ihateATS" target="_blank" rel="noopener noreferrer" className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+                <MagneticButton as="a" href="https://github.com/Deen-Labs/ihateATS" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
                   <i className="fa-brands fa-github mr-2"></i> View Codebase
-                </a>
+                </MagneticButton>
               </div>
             </div>
 

@@ -40,15 +40,22 @@ export default function MagneticButton({
     setCursorState('magnetic');
   };
 
-  const handlePointerLeave = () => {
-    setCursorState('default');
+  const handlePointerLeave = (e) => {
     x.set(0);
     y.set(0);
+
+    const target = e?.relatedTarget || (e?.clientX != null && document.elementFromPoint(e.clientX, e.clientY));
+    if (target && typeof target.closest === 'function' && target.closest('[data-cursor="card"], article')) {
+      setCursorState('card');
+    } else {
+      setCursorState('default');
+    }
   };
 
   return (
     <motion.div
       ref={ref}
+      data-cursor="magnetic"
       onPointerMove={handlePointerMove}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}

@@ -3,7 +3,7 @@ import { motion, useMotionValue, useSpring, useTransform, useMotionTemplate } fr
 import { useCursor } from '../context/CursorContext';
 
 export default function InteractiveProjectCard({ children, className = '', id, ...props }) {
-  const { setCursorState } = useCursor();
+  const { cursorState, setCursorState } = useCursor();
   const ref = useRef(null);
 
   const x = useMotionValue(0);
@@ -32,6 +32,13 @@ export default function InteractiveProjectCard({ children, className = '', id, .
     
     x.set(localX);
     y.set(localY);
+
+    if (cursorState !== 'card') {
+      const isMagnetic = e.target.closest('[data-cursor="magnetic"]');
+      if (!isMagnetic) {
+        setCursorState('card');
+      }
+    }
   };
 
   const handlePointerEnter = (e) => {
@@ -39,7 +46,8 @@ export default function InteractiveProjectCard({ children, className = '', id, .
     setCursorState('card');
   };
 
-  const handlePointerLeave = () => {
+  const handlePointerLeave = (e) => {
+    if (e && e.pointerType === 'touch') return;
     setCursorState('default');
     x.set(0);
     y.set(0);
@@ -49,6 +57,7 @@ export default function InteractiveProjectCard({ children, className = '', id, .
     <article
       id={id}
       ref={ref}
+      data-cursor="card"
       onPointerMove={handlePointerMove}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
