@@ -369,7 +369,7 @@ export default function App() {
               <div className="flex items-start gap-2.5 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl max-w-xl">
                 <i className="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-xs"></i>
                 <p className="text-[11px] text-emerald-200/90 leading-relaxed">
-                  <strong>Fully Built & Actively Evolving:</strong> This application is fully built, production-ready, and continuously maintained with new features, optimizations, and authenticated Islamic data added day by day.
+                  <strong>Fully Built & Actively Maintained:</strong> This application is fully built, production-ready, and regularly maintained with new features, performance optimizations, and verified Islamic data updated whenever required.
                 </p>
               </div>
             </div>
