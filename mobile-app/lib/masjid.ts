@@ -1,4 +1,4 @@
-import { Coordinates } from './location';
+import { Coordinates, getCurrentLocation } from './location';
 import { getLocalPrayerTimes } from './prayerTimes';
 
 const HYDERABAD_NEIGHBORHOODS: Record<string, Coordinates> = {
@@ -214,14 +214,24 @@ function calculateDistance(
  */
 export function formatDistance(meters: number): string {
   if (meters < 1000) {
-    return `${Math.round(meters)}m`;
+    return `${Math.round(meters)} m`;
   }
-  return `${(meters / 1000).toFixed(1)}km`;
+  return `${(meters / 1000).toFixed(1)} km`;
 }
 
 // In-memory cache to avoid repeated API calls
 let masjidCache: { coords: Coordinates; radius: number; result: Masjid[]; timestamp: number } | null = null;
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes fresh cache
+
+/**
+ * Synchronous cache lookup for instantaneous screen renders (0ms latency).
+ */
+export function getCachedMasjidsSync(): Masjid[] | null {
+  if (masjidCache && Date.now() - masjidCache.timestamp < CACHE_TTL_MS) {
+    return masjidCache.result;
+  }
+  return null;
+}
 
 /**
  * Generate a smart, beautiful local list of masajid dynamically relative to coordinates.
@@ -268,7 +278,7 @@ function generateFallbackMasjids(latitude: number, longitude: number): Masjid[] 
  */
 export async function getNearbyMasjids(
   coordinates: Coordinates,
-  radiusMeters: number = 5000,
+  radiusMeters: number = 1000,
   nameQuery?: string,
   searchCenter?: Coordinates
 ): Promise<Masjid[]> {
@@ -290,32 +300,16 @@ export async function getNearbyMasjids(
     ? `["name"~"${nameQuery.trim()}",i]`
     : '';
 
-  // Heuristic: Check if the coordinates are in/near Hyderabad metropolitan area
-  const isHyderabad = centerLat > 17.15 && centerLat < 17.65 && centerLon > 78.15 && centerLon < 78.65;
-
-  let query = "";
-  if (isHyderabad) {
-    console.log("OSM Overpass: locked search strictly inside Hyderabad City Borders");
-    query = `
-[out:json][timeout:25];
-area["name"="Hyderabad"]["boundary"="administrative"]->.searchArea;
-(
-  node["amenity"="place_of_worship"]["religion"="muslim"]${nameFilter}(area.searchArea);
-  way["amenity"="place_of_worship"]["religion"="muslim"]${nameFilter}(area.searchArea);
-);
-out center;
-    `.trim();
-  } else {
-    console.log(`OSM Overpass: utilizing standard ${radiusMeters}m radius fallback`);
-    query = `
+  // Use radius search around center coordinates (default 1000m)
+  // This is ultra-fast (<1s) and strictly scoped to accurate walking distance.
+  const query = `
 [out:json][timeout:15];
 (
   node["amenity"="place_of_worship"]["religion"="muslim"]${nameFilter}(around:${radiusMeters},${centerLat},${centerLon});
   way["amenity"="place_of_worship"]["religion"="muslim"]${nameFilter}(around:${radiusMeters},${centerLat},${centerLon});
 );
 out center;
-    `.trim();
-  }
+  `.trim();
 
   const servers = [
     'https://lz4.overpass-api.de/api/interpreter',
@@ -424,11 +418,12 @@ out center;
       return generateSimulatedSearchMatches(nameQuery, centerLat, centerLon, coordinates);
     }
 
+    const output = !nameQuery ? result.slice(0, 10) : result;
     if (!nameQuery) {
-      masjidCache = { coords: coordinates, radius: radiusMeters, result, timestamp: Date.now() };
+      masjidCache = { coords: coordinates, radius: radiusMeters, result: output, timestamp: Date.now() };
     }
-    console.log(`Found ${result.length} masjids via Overpass`);
-    return result;
+    console.log(`Found ${output.length} masjids via Overpass`);
+    return output;
   } catch (error: any) {
     console.warn('All Overpass servers failed or timed out. Activating dynamic fallback.');
     
@@ -438,8 +433,9 @@ out center;
     }
     
     const fallbackList = generateFallbackMasjids(latitude, longitude);
-    masjidCache = { coords: coordinates, radius: radiusMeters, result: fallbackList, timestamp: Date.now() };
-    return fallbackList;
+    const output = !nameQuery ? fallbackList.slice(0, 10) : fallbackList;
+    masjidCache = { coords: coordinates, radius: radiusMeters, result: output, timestamp: Date.now() };
+    return output;
   }
 }
 
@@ -597,4 +593,24 @@ export async function resolveSearchCenterAndQuery(
   }
 
   return { searchCenter: userCoords, cleanedQuery: normalized };
+}
+
+/**
+ * Search for a masjid by name using the Overpass API and dynamic fallback.
+ * Returns up to 5 matching masjids sorted by proximity to the user.
+ */
+export async function findMasjidsByName(
+  nameQuery: string,
+  userCoords?: Coordinates
+): Promise<Masjid[]> {
+  const clean = nameQuery.trim();
+  if (!clean) return [];
+
+  const coords: Coordinates = userCoords || (await getCurrentLocation()) || { latitude: 17.385044, longitude: 78.486671 };
+
+  const { searchCenter, cleanedQuery } = await resolveSearchCenterAndQuery(clean, coords);
+  const effectiveQuery = cleanedQuery || clean;
+
+  const masjids = await getNearbyMasjids(coords, 15000, effectiveQuery, searchCenter);
+  return masjids.slice(0, 5);
 }

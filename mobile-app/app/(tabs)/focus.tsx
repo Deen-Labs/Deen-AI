@@ -11,11 +11,15 @@ import {
   saveBlockingSettings,
   updateBlockedApp,
   BlockingSettings,
-  BlockedApp,
   getSampleApps,
 } from "../../lib/focus";
 import { nativeContentProtection } from "../../lib/nativeContentProtection";
+import { getStreak } from "../../lib/streak";
+import { isLocked, hasPIN, setPIN, verifyPIN } from "../../lib/lock";
+import PINModal from "../../components/PINModal";
+import ProtectionActivationModal from "../../components/ProtectionActivationModal";
 import { useLocalSearchParams } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 
 export default function FocusScreen() {
   const [isActive, setIsActive] = useState(false);
@@ -29,14 +33,23 @@ export default function FocusScreen() {
     currentStreak: 0,
   });
   const [todayMinutes, setTodayMinutes] = useState(0);
+  const [streakDays, setStreakDays] = useState(0);
   const [blockingSettings, setBlockingSettings] = useState<BlockingSettings>({
-    enableAppBlocking: false,
+    enableAppBlocking: true,
     enableNSFWBlocking: true,
     blockedApps: [],
   });
   const [showAppSettings, setShowAppSettings] = useState(false);
   const [systemWideActive, setSystemWideActive] = useState(false);
   const [systemWideAvailable, setSystemWideAvailable] = useState(false);
+
+  // Security & PIN modal states
+  const [pinModalVisible, setPinModalVisible] = useState(false);
+  const [pinMode, setPinMode] = useState<'set' | 'verify'>('verify');
+  const [pinAction, setPinAction] = useState<'toggle_swp' | 'set_before_swp' | null>(null);
+  const [pinError, setPinError] = useState<string | null>(null);
+  const [pinExists, setPinExists] = useState(false);
+  const [activationModalVisible, setActivationModalVisible] = useState(false);
 
   const params = useLocalSearchParams();
 
@@ -52,7 +65,6 @@ export default function FocusScreen() {
           selectDuration(mins);
         }
       }
-      // slight delay to allow state to settle
       setTimeout(() => {
         startFocus();
       }, 300);
@@ -67,18 +79,21 @@ export default function FocusScreen() {
       const status = await nativeContentProtection.getStatus();
       setSystemWideActive(status.active);
     }
+    const hasPin = await hasPIN();
+    setPinExists(hasPin);
   };
 
   const loadStats = async () => {
     const loadedStats = await getFocusStats();
     const todayTime = await getTodayFocusTime();
+    const streak = await getStreak();
     setStats(loadedStats);
     setTodayMinutes(todayTime);
+    setStreakDays(streak.currentStreak);
   };
 
   const loadBlockingSettings = async () => {
     const settings = await getBlockingSettings();
-    // Merge with sample apps if no apps are configured yet
     if (settings.blockedApps.length === 0) {
       settings.blockedApps = getSampleApps();
     }
@@ -93,7 +108,6 @@ export default function FocusScreen() {
         setTimeRemaining((time) => time - 1);
       }, 1000);
     } else if (timeRemaining === 0 && isActive) {
-      // Session completed
       completeSession(true);
     }
 
@@ -141,7 +155,6 @@ export default function FocusScreen() {
   const pauseFocus = async () => {
     setIsActive(false);
     await setFocusModeActive(false);
-    // Save as incomplete session
     await completeSession(false);
   };
 
@@ -153,18 +166,6 @@ export default function FocusScreen() {
     await setFocusModeActive(false);
     setTimeRemaining(selectedDuration * 60);
     setSessionStartTime(null);
-  };
-
-  const toggleAppBlocking = async (enabled: boolean) => {
-    const updatedSettings = { ...blockingSettings, enableAppBlocking: enabled };
-    setBlockingSettings(updatedSettings);
-    await saveBlockingSettings(updatedSettings);
-  };
-
-  const toggleNSFWBlocking = async (enabled: boolean) => {
-    const updatedSettings = { ...blockingSettings, enableNSFWBlocking: enabled };
-    setBlockingSettings(updatedSettings);
-    await saveBlockingSettings(updatedSettings);
   };
 
   const toggleAppEnabled = async (appId: string, enabled: boolean) => {
@@ -180,13 +181,64 @@ export default function FocusScreen() {
     }
   };
 
-  const toggleSystemWideProtection = async (enabled: boolean) => {
-    if (enabled) {
-      const started = await nativeContentProtection.start();
-      setSystemWideActive(started);
-    } else {
+  const handleToggleSWP = async (enabled: boolean) => {
+    if (!enabled) {
+      const locked = await isLocked();
+      if (locked || pinExists) {
+        setPinAction('toggle_swp');
+        setPinMode('verify');
+        setPinError(null);
+        setPinModalVisible(true);
+        return;
+      }
       const stopped = await nativeContentProtection.stop();
-      setSystemWideActive(!stopped);
+      if (stopped) {
+        setSystemWideActive(false);
+      }
+    } else {
+      const exists = await hasPIN();
+      setPinExists(exists);
+      setActivationModalVisible(true);
+    }
+  };
+
+  const handleConfirmActivation = async () => {
+    setActivationModalVisible(false);
+    const started = await nativeContentProtection.start();
+    setSystemWideActive(started);
+  };
+
+  const handleRequirePin = () => {
+    setPinAction('set_before_swp');
+    setPinMode('set');
+    setPinError(null);
+    setPinModalVisible(true);
+  };
+
+  const handlePINSubmit = async (pin: string) => {
+    if (pinAction === 'set_before_swp' && pinMode === 'set') {
+      const success = await setPIN(pin);
+      if (success) {
+        const { setLockEnabled } = require('../../lib/lock');
+        await setLockEnabled(true);
+        setPinExists(true);
+        setPinModalVisible(false);
+        const started = await nativeContentProtection.start();
+        setSystemWideActive(started);
+      } else {
+        setPinError('Failed to set PIN. Try again.');
+      }
+    } else if (pinAction === 'toggle_swp') {
+      const valid = await verifyPIN(pin);
+      if (valid) {
+        setPinModalVisible(false);
+        const stopped = await nativeContentProtection.stop();
+        if (stopped) {
+          setSystemWideActive(false);
+        }
+      } else {
+        setPinError('Wrong PIN. Try again.');
+      }
     }
   };
 
@@ -200,13 +252,21 @@ export default function FocusScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView style={styles.scrollView}>
-        {/* Header */}
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Header with Title and Streak Flame Counter */}
         <View style={styles.header}>
-          <Text style={styles.title}>Content Calm</Text>
-          <Text style={styles.subtitle}>
-            Focus mode to minimize distractions
-          </Text>
+          <View style={styles.headerTextWrapper}>
+            <Text style={styles.title}>Content Calm</Text>
+            <Text style={styles.subtitle}>
+              Focus mode to minimize distractions
+            </Text>
+          </View>
+          <View style={styles.streakBadge}>
+            <Text style={styles.streakFlame}>🔥</Text>
+            <Text style={styles.streakText}>
+              {streakDays} {streakDays === 1 ? 'Day' : 'Days'}
+            </Text>
+          </View>
         </View>
 
         {/* Stats Bar */}
@@ -217,8 +277,8 @@ export default function FocusScreen() {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.currentStreak}</Text>
-            <Text style={styles.statLabel}>Streak</Text>
+            <Text style={styles.statValue}>{stats.completedSessions}</Text>
+            <Text style={styles.statLabel}>Completed</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
@@ -227,16 +287,13 @@ export default function FocusScreen() {
           </View>
         </View>
 
-        {/* Timer Circle */}
-        <View style={styles.timerSection}>
+        {/* ─── UNIONIZED FOCUS HERO CARD ─── */}
+        <View style={styles.heroFocusCard}>
+          {/* Circular Progress Timer Dial */}
           <View style={styles.timerCircle}>
-            {/* Background ring */}
             <View style={styles.progressRing} />
-            
-            {/* Progress arc - starts full and degrades */}
             {progress > 0 && (
               <View style={styles.progressContainer}>
-                {/* Left half - always shows when progress > 0 */}
                 <View
                   style={[
                     styles.progressLeft,
@@ -247,7 +304,6 @@ export default function FocusScreen() {
                     },
                   ]}
                 />
-                {/* Right half - shows when progress > 0.5 (more than half time remaining) */}
                 {progress > 0.5 && (
                   <View
                     style={[
@@ -270,194 +326,118 @@ export default function FocusScreen() {
               </Text>
             </View>
           </View>
-        </View>
 
-        {/* Duration Selection */}
-        {!isActive && (
-          <View style={styles.durationSection}>
-            <Text style={styles.sectionTitle}>Duration</Text>
-            <View style={styles.durationButtons}>
+          {/* Duration Selection Chips (seamlessly integrated inside hero) */}
+          {!isActive && (
+            <View style={styles.durationPillsRow}>
               {durations.map((duration) => (
                 <TouchableOpacity
                   key={duration.value}
                   style={[
-                    styles.durationButton,
-                    selectedDuration === duration.value && styles.durationButtonActive,
+                    styles.durationPill,
+                    selectedDuration === duration.value && styles.durationPillActive,
                   ]}
-                  onPress={() => selectDuration(duration.value)}>
+                  onPress={() => selectDuration(duration.value)}
+                  activeOpacity={0.7}
+                >
                   <Text
                     style={[
-                      styles.durationButtonText,
-                      selectedDuration === duration.value && styles.durationButtonTextActive,
-                    ]}>
+                      styles.durationPillText,
+                      selectedDuration === duration.value && styles.durationPillTextActive,
+                    ]}
+                  >
                     {duration.label}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
-        )}
-
-        {/* Control Buttons */}
-        <View style={styles.controlsSection}>
-          {!isActive ? (
-            <TouchableOpacity style={styles.startButton} onPress={startFocus}>
-              <Text style={styles.startButtonText}>Start Focus</Text>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.activeControls}>
-              <TouchableOpacity style={styles.pauseButton} onPress={pauseFocus}>
-                <Text style={styles.pauseButtonText}>Pause</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.resetButton} onPress={resetFocus}>
-                <Text style={styles.resetButtonText}>Reset</Text>
-              </TouchableOpacity>
-            </View>
           )}
-        </View>
 
-        {/* Features Info */}
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>During Focus Mode</Text>
-          
-          <View style={styles.infoCard}>
-            <View style={styles.infoIcon}>
-              <Text style={styles.infoIconText}>🔕</Text>
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoTitle}>Minimize Distractions</Text>
-              <Text style={styles.infoDescription}>
-                Stay mindful and present during prayer times
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.infoCard}>
-            <View style={styles.infoIcon}>
-              <Text style={styles.infoIconText}>⏰</Text>
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoTitle}>Prayer Time Sync</Text>
-              <Text style={styles.infoDescription}>
-                Auto-start before prayer times (coming soon)
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.infoCard}>
-            <View style={styles.infoIcon}>
-              <Text style={styles.infoIconText}>📊</Text>
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoTitle}>Track Your Progress</Text>
-              <Text style={styles.infoDescription}>
-                See your focus time statistics (coming soon)
-              </Text>
-            </View>
+          {/* Unified Action Controls (Start / Pause / Reset) */}
+          <View style={styles.heroControlsWrapper}>
+            {!isActive ? (
+              <TouchableOpacity 
+                style={styles.heroStartButton} 
+                onPress={startFocus} 
+                activeOpacity={0.85}
+              >
+                <Feather name="play" size={18} color="#0f1718" style={{ marginRight: 8 }} />
+                <Text style={styles.heroStartButtonText}>Start Focus</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.activeControls}>
+                <TouchableOpacity style={styles.pauseButton} onPress={pauseFocus} activeOpacity={0.8}>
+                  <Feather name="pause" size={16} color="#0f1718" style={{ marginRight: 6 }} />
+                  <Text style={styles.pauseButtonText}>Pause</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.resetButton} onPress={resetFocus} activeOpacity={0.8}>
+                  <Feather name="rotate-ccw" size={16} color="#e2a23b" style={{ marginRight: 6 }} />
+                  <Text style={styles.resetButtonText}>Reset</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </View>
 
-        {/* Content Protection Settings */}
+        {/* Content Protection Section */}
         <View style={styles.settingsSection}>
           <Text style={styles.sectionTitle}>Content Protection</Text>
           
-          {/* System-Wide Protection Toggle (Android Only) */}
+          {/* Single Unified System-Wide Protection Toggle */}
           {systemWideAvailable && (
             <View style={styles.settingCard}>
               <View style={styles.settingIconContainer}>
-                <Text style={styles.settingIcon}>🌐</Text>
+                <Feather name="shield" size={20} color={systemWideActive ? "#10b981" : "#e2a23b"} />
               </View>
               <View style={styles.settingContent}>
-                <Text style={styles.settingTitle}>System-Wide Protection (VPN)</Text>
+                <Text style={styles.settingTitle}>System-Wide Protection</Text>
                 <Text style={styles.settingDescription}>
-                  Block NSFW content in ALL apps - Chrome, Safari, any browser. Uses VPN for device-wide filtering.
+                  Filters explicit and harmful content across all browsers and apps on this device.
                 </Text>
                 <Text style={[styles.settingNote, systemWideActive && styles.settingNoteSuccess]}>
                   {systemWideActive 
-                    ? '✅ Active - Your entire device is protected' 
-                    : '⚠️ Requires VPN permission'}
+                    ? 'Active — Device Protected' 
+                    : 'Inactive — Tap toggle to enable'}
                 </Text>
               </View>
               <Switch
                 value={systemWideActive}
-                onValueChange={async (enabled) => {
-                  if (enabled) {
-                    const started = await nativeContentProtection.start();
-                    setSystemWideActive(started);
-                  } else {
-                    const stopped = await nativeContentProtection.stop();
-                    setSystemWideActive(!stopped);
-                  }
-                }}
-                trackColor={{ false: "#3e4a48", true: "rgba(76, 175, 80, 0.5)" }}
-                thumbColor={systemWideActive ? "#4caf50" : "#94a4a2"}
+                onValueChange={handleToggleSWP}
+                trackColor={{ false: "#3e4a48", true: "rgba(16, 185, 129, 0.4)" }}
+                thumbColor={systemWideActive ? "#10b981" : "#94a4a2"}
               />
             </View>
           )}
-          
-          {/* NSFW Blocking Toggle */}
-          <View style={styles.settingCard}>
-            <View style={styles.settingIconContainer}>
-              <Text style={styles.settingIcon}>🛡️</Text>
+
+          {/* Yellow Block Distracting Apps Button */}
+          <TouchableOpacity 
+            style={styles.yellowBlockAppsButton}
+            onPress={() => setShowAppSettings(!showAppSettings)}
+            activeOpacity={0.85}
+          >
+            <View style={styles.yellowButtonIconCircle}>
+              <Feather name="slash" size={18} color="#0f1718" />
             </View>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingTitle}>Block NSFW Content</Text>
-              <Text style={styles.settingDescription}>
-                Automatically detect and block inappropriate content. Protected by DEEN AI.
-              </Text>
-              <Text style={styles.settingNote}>
-                Note: Requires device permissions for full protection
+            <View style={styles.yellowButtonTextWrapper}>
+              <Text style={styles.yellowButtonTitle}>Block Distracting Apps</Text>
+              <Text style={styles.yellowButtonSubtitle}>
+                {blockingSettings.blockedApps.filter(a => a.enabled).length} apps selected for focus lockdown
               </Text>
             </View>
-            <Switch
-              value={blockingSettings.enableNSFWBlocking}
-              onValueChange={toggleNSFWBlocking}
-              trackColor={{ false: "#3e4a48", true: "rgba(226, 162, 59, 0.5)" }}
-              thumbColor={blockingSettings.enableNSFWBlocking ? "#e2a23b" : "#94a4a2"}
+            <Feather 
+              name={showAppSettings ? "chevron-up" : "chevron-down"} 
+              size={20} 
+              color="#0f1718" 
             />
-          </View>
+          </TouchableOpacity>
 
-          {/* App Blocking Toggle */}
-          <View style={styles.settingCard}>
-            <View style={styles.settingIconContainer}>
-              <Text style={styles.settingIcon}>📱</Text>
-            </View>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingTitle}>Block Distracting Apps</Text>
-              <Text style={styles.settingDescription}>
-                Temporarily block selected apps during Focus Mode
-              </Text>
-            </View>
-            <Switch
-              value={blockingSettings.enableAppBlocking}
-              onValueChange={toggleAppBlocking}
-              trackColor={{ false: "#3e4a48", true: "rgba(226, 162, 59, 0.5)" }}
-              thumbColor={blockingSettings.enableAppBlocking ? "#e2a23b" : "#94a4a2"}
-            />
-          </View>
-
-          {/* Configure Apps Button */}
-          {blockingSettings.enableAppBlocking && (
-            <TouchableOpacity 
-              style={styles.configureButton}
-              onPress={() => setShowAppSettings(!showAppSettings)}
-            >
-              <Text style={styles.configureButtonText}>
-                {showAppSettings ? "Hide" : "Configure"} Blocked Apps
-              </Text>
-              <Text style={styles.configureButtonIcon}>
-                {showAppSettings ? "▲" : "▼"}
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {/* App Selection List */}
-          {showAppSettings && blockingSettings.enableAppBlocking && (
+          {/* App Selection List (Expanded) */}
+          {showAppSettings && (
             <View style={styles.appListContainer}>
-              <Text style={styles.appListTitle}>Select apps to block:</Text>
+              <Text style={styles.appListTitle}>Select apps to block during Focus Mode:</Text>
               {blockingSettings.blockedApps.map((app) => (
                 <View key={app.id} style={styles.appItem}>
-                  <Text style={styles.appIcon}>📱</Text>
+                  <Feather name="smartphone" size={16} color="#94a4a2" style={styles.appIcon} />
                   <Text style={styles.appName}>{app.name}</Text>
                   <Switch
                     value={app.enabled}
@@ -471,8 +451,68 @@ export default function FocusScreen() {
           )}
         </View>
 
-        <View style={{ height: 30 }} />
+        {/* Features Info */}
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>During Focus Mode</Text>
+          
+          <View style={styles.infoCard}>
+            <View style={styles.infoIcon}>
+              <Feather name="bell-off" size={20} color="#e2a23b" />
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoTitle}>Minimize Distractions</Text>
+              <Text style={styles.infoDescription}>
+                Stay mindful and present during prayer times and dhikr.
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.infoCard}>
+            <View style={styles.infoIcon}>
+              <Feather name="clock" size={20} color="#e2a23b" />
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoTitle}>Prayer Time Sync</Text>
+              <Text style={styles.infoDescription}>
+                Reminders notify you 7 minutes before each obligatory prayer.
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* PIN Verification / Setup Modal */}
+      <PINModal
+        visible={pinModalVisible}
+        onClose={() => {
+          setPinModalVisible(false);
+          setPinError(null);
+        }}
+        onSubmit={handlePINSubmit}
+        mode={pinMode}
+        error={pinError}
+        title={
+          pinAction === 'toggle_swp'
+            ? 'PIN Required'
+            : 'Set 4-Digit Security PIN'
+        }
+        subtitle={
+          pinAction === 'toggle_swp'
+            ? 'Enter PIN to disable System-Wide Protection'
+            : 'You must set a 4-digit PIN before enabling protection'
+        }
+      />
+
+      {/* Protection Activation Modal */}
+      <ProtectionActivationModal
+        visible={activationModalVisible}
+        onClose={() => setActivationModalVisible(false)}
+        onConfirm={handleConfirmActivation}
+        hasPin={pinExists}
+        onRequirePin={handleRequirePin}
+      />
     </SafeAreaView>
   );
 }
@@ -486,38 +526,65 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 20,
-    paddingBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  headerTextWrapper: {
+    flex: 1,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "700",
     color: "#f3f7f6",
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#94a4a2",
+  },
+  streakBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(226, 162, 59, 0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(226, 162, 59, 0.3)",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    gap: 4,
+  },
+  streakFlame: {
+    fontSize: 14,
+  },
+  streakText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#ffdda8",
   },
   statsBar: {
     flexDirection: "row",
     backgroundColor: "#0b2527",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 12,
+    borderRadius: 14,
     marginHorizontal: 20,
-    marginBottom: 20,
-    padding: 16,
+    marginBottom: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
   },
   statItem: {
     flex: 1,
     alignItems: "center",
   },
   statValue: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "700",
     color: "#e2a23b",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   statLabel: {
     fontSize: 11,
@@ -527,43 +594,52 @@ const styles = StyleSheet.create({
   statDivider: {
     width: 1,
     backgroundColor: "rgba(255, 255, 255, 0.08)",
-    marginHorizontal: 8,
+    marginHorizontal: 4,
   },
-  timerSection: {
+  // ─── UNIONIZED HERO FOCUS CARD ───
+  heroFocusCard: {
+    backgroundColor: "#0b2527",
+    borderWidth: 1,
+    borderColor: "rgba(226, 162, 59, 0.18)",
+    borderRadius: 20,
+    marginHorizontal: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
     alignItems: "center",
-    paddingVertical: 40,
+    marginBottom: 20,
   },
   timerCircle: {
-    width: 260,
-    height: 260,
+    width: 200,
+    height: 200,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
+    marginBottom: 16,
   },
   progressRing: {
     position: "absolute",
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    borderWidth: 8,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    borderWidth: 7,
     borderColor: "rgba(226, 162, 59, 0.15)",
   },
   progressContainer: {
     position: "absolute",
-    width: 260,
-    height: 260,
+    width: 200,
+    height: 200,
   },
   progressLeft: {
     position: "absolute",
     left: 0,
     top: 0,
-    width: 130,
-    height: 260,
-    borderTopLeftRadius: 130,
-    borderBottomLeftRadius: 130,
-    borderLeftWidth: 8,
-    borderTopWidth: 8,
-    borderBottomWidth: 8,
+    width: 100,
+    height: 200,
+    borderTopLeftRadius: 100,
+    borderBottomLeftRadius: 100,
+    borderLeftWidth: 7,
+    borderTopWidth: 7,
+    borderBottomWidth: 7,
     borderColor: "#e2a23b",
     borderRightWidth: 0,
     transformOrigin: "right center",
@@ -572,21 +648,21 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     top: 0,
-    width: 130,
-    height: 260,
-    borderTopRightRadius: 130,
-    borderBottomRightRadius: 130,
-    borderRightWidth: 8,
-    borderTopWidth: 8,
-    borderBottomWidth: 8,
+    width: 100,
+    height: 200,
+    borderTopRightRadius: 100,
+    borderBottomRightRadius: 100,
+    borderRightWidth: 7,
+    borderTopWidth: 7,
+    borderBottomWidth: 7,
     borderColor: "#e2a23b",
     borderLeftWidth: 0,
     transformOrigin: "left center",
   },
   timerInner: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
     backgroundColor: "#0c3033",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
@@ -594,97 +670,224 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   timerText: {
-    fontSize: 48,
+    fontSize: 38,
     fontWeight: "700",
     color: "#f3f7f6",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   timerLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#94a4a2",
+    fontWeight: "500",
   },
-  durationSection: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#ffdda8",
-    marginBottom: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  durationButtons: {
+  durationPillsRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: 8,
+    width: "100%",
+    marginBottom: 16,
   },
-  durationButton: {
+  durationPill: {
     flex: 1,
-    paddingVertical: 12,
-    backgroundColor: "#0b2527",
+    paddingVertical: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: "center",
   },
-  durationButtonActive: {
-    backgroundColor: "rgba(226, 162, 59, 0.16)",
-    borderColor: "rgba(226, 162, 59, 0.3)",
+  durationPillActive: {
+    backgroundColor: "rgba(226, 162, 59, 0.18)",
+    borderColor: "#e2a23b",
   },
-  durationButtonText: {
-    fontSize: 14,
+  durationPillText: {
+    fontSize: 12,
     fontWeight: "600",
-    color: "#d6e2e0",
+    color: "#94a4a2",
   },
-  durationButtonTextActive: {
+  durationPillTextActive: {
     color: "#ffdda8",
+    fontWeight: "700",
   },
-  controlsSection: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
+  heroControlsWrapper: {
+    width: "100%",
   },
-  startButton: {
+  heroStartButton: {
     backgroundColor: "#e2a23b",
-    paddingVertical: 16,
-    borderRadius: 12,
+    flexDirection: "row",
+    paddingVertical: 14,
+    borderRadius: 14,
     alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#e2a23b",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  startButtonText: {
-    fontSize: 18,
+  heroStartButtonText: {
+    fontSize: 16,
     fontWeight: "700",
     color: "#0f1718",
   },
   activeControls: {
     flexDirection: "row",
     gap: 12,
+    width: "100%",
   },
   pauseButton: {
     flex: 1,
+    flexDirection: "row",
     backgroundColor: "#ffdda8",
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 12,
     alignItems: "center",
+    justifyContent: "center",
   },
   pauseButtonText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
     color: "#0f1718",
   },
   resetButton: {
     flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#0c3033",
+    borderWidth: 1,
+    borderColor: "rgba(226, 162, 59, 0.3)",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  resetButtonText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#e2a23b",
+  },
+  // ─── SETTINGS SECTION ───
+  settingsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#ffdda8",
+    marginBottom: 10,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  settingCard: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#0b2527",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 12,
   },
-  resetButtonText: {
-    fontSize: 16,
+  settingIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(226, 162, 59, 0.14)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  settingContent: {
+    flex: 1,
+    marginRight: 8,
+  },
+  settingTitle: {
+    fontSize: 15,
     fontWeight: "600",
     color: "#f3f7f6",
+    marginBottom: 2,
   },
+  settingDescription: {
+    fontSize: 12,
+    color: "#94a4a2",
+    lineHeight: 16,
+  },
+  settingNote: {
+    fontSize: 11,
+    color: "#7a8a88",
+    marginTop: 4,
+    fontWeight: "500",
+  },
+  settingNoteSuccess: {
+    color: "#10b981",
+  },
+  // ─── YELLOW BLOCK APPS BUTTON ───
+  yellowBlockAppsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#e2a23b",
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    shadowColor: "#e2a23b",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  yellowButtonIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(15, 23, 24, 0.15)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  yellowButtonTextWrapper: {
+    flex: 1,
+  },
+  yellowButtonTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#0f1718",
+  },
+  yellowButtonSubtitle: {
+    fontSize: 12,
+    color: "rgba(15, 23, 24, 0.75)",
+    marginTop: 1,
+  },
+  appListContainer: {
+    backgroundColor: "#071b1c",
+    borderWidth: 1,
+    borderColor: "rgba(226, 162, 59, 0.2)",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 12,
+  },
+  appListTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#ffdda8",
+    marginBottom: 12,
+  },
+  appItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.05)",
+  },
+  appIcon: {
+    marginRight: 10,
+  },
+  appName: {
+    flex: 1,
+    fontSize: 14,
+    color: "#d6e2e0",
+  },
+  // ─── FEATURES INFO ───
   infoSection: {
     paddingHorizontal: 20,
   },
@@ -694,136 +897,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    padding: 14,
+    marginBottom: 10,
   },
   infoIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(226, 162, 59, 0.16)",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(226, 162, 59, 0.14)",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
-  },
-  infoIconText: {
-    fontSize: 20,
   },
   infoContent: {
     flex: 1,
   },
   infoTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#f3f7f6",
-    marginBottom: 4,
-  },
-  infoDescription: {
-    fontSize: 13,
-    color: "#94a4a2",
-    lineHeight: 18,
-  },
-  settingsSection: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-  },
-  settingCard: {
-    flexDirection: "row",
-    backgroundColor: "#0b2527",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    alignItems: "flex-start",
-  },
-  settingIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(226, 162, 59, 0.16)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  settingIcon: {
-    fontSize: 20,
-  },
-  settingContent: {
-    flex: 1,
-    marginRight: 12,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#f3f7f6",
-    marginBottom: 4,
-  },
-  settingDescription: {
-    fontSize: 13,
-    color: "#94a4a2",
-    lineHeight: 18,
-    marginBottom: 4,
-  },
-  settingNote: {
-    fontSize: 11,
-    color: "#e2a23b",
-    fontStyle: "italic",
-    marginTop: 4,
-  },
-  settingNoteSuccess: {
-    color: "#4caf50",
-  },
-  configureButton: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#0c3033",
-    borderWidth: 1,
-    borderColor: "rgba(226, 162, 59, 0.3)",
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
-  },
-  configureButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#ffdda8",
+    color: "#f3f7f6",
+    marginBottom: 2,
   },
-  configureButtonIcon: {
+  infoDescription: {
     fontSize: 12,
-    color: "#ffdda8",
-  },
-  appListContainer: {
-    backgroundColor: "#0c3033",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
-  },
-  appListTitle: {
-    fontSize: 13,
-    fontWeight: "600",
     color: "#94a4a2",
-    marginBottom: 12,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  appItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.05)",
-  },
-  appIcon: {
-    fontSize: 18,
-    marginRight: 12,
-  },
-  appName: {
-    flex: 1,
-    fontSize: 15,
-    color: "#d6e2e0",
+    lineHeight: 16,
   },
 });

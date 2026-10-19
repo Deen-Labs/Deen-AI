@@ -1,7 +1,23 @@
-import * as Notifications from 'expo-notifications';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { PrayerTimings } from './prayerTimes';
 
+// Expo Go on Android removed native push notifications in SDK 53+.
+// Standalone development builds (expo run:android / EAS Build) support it fully.
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+let Notifications: typeof import('expo-notifications') | null = null;
+if (!isExpoGo) {
+  try {
+    Notifications = require('expo-notifications');
+  } catch (error) {
+    console.warn('[SalahNotifications] expo-notifications not available:', error);
+  }
+}
+
 export async function requestNotificationPermissions(): Promise<boolean> {
+  if (isExpoGo || !Notifications) {
+    return false;
+  }
   try {
     const { status } = await Notifications.requestPermissionsAsync();
     return status === 'granted';
@@ -12,6 +28,9 @@ export async function requestNotificationPermissions(): Promise<boolean> {
 }
 
 export async function cancelAllSalahNotifications(): Promise<void> {
+  if (isExpoGo || !Notifications) {
+    return;
+  }
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
   } catch (error) {
@@ -20,6 +39,9 @@ export async function cancelAllSalahNotifications(): Promise<void> {
 }
 
 export async function scheduleSalahNotifications(timings: PrayerTimings): Promise<void> {
+  if (isExpoGo || !Notifications) {
+    return;
+  }
   try {
     await cancelAllSalahNotifications();
 
@@ -53,20 +75,22 @@ export async function scheduleSalahNotifications(timings: PrayerTimings): Promis
           body: `It's time for ${prayer.name} prayer. May Allah accept your salah.`,
         },
         trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
           date: prayerDate,
         },
       });
 
-      // Schedule 15 minutes before notification
-      const prePrayerDate = new Date(prayerDate.getTime() - 15 * 60000);
+      // Schedule 7 minutes before notification
+      const prePrayerDate = new Date(prayerDate.getTime() - 7 * 60000);
       
       if (prePrayerDate > now) {
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: `⏰ ${prayer.name} in 15 minutes`,
-            body: `${prayer.name} prayer is approaching. Prepare for salah.`,
+            title: `🕌 ${prayer.name} in 7 minutes`,
+            body: `${prayer.name} Salah begins in 7 minutes. Prepare your wudhu and heart for prayer.`,
           },
           trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
             date: prePrayerDate,
           },
         });

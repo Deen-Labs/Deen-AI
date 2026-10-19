@@ -3,7 +3,7 @@ import { motion, useMotionValue, useSpring, useTransform, useMotionTemplate } fr
 import { useCursor } from '../context/CursorContext';
 
 export default function InteractiveProjectCard({ children, className = '', id, ...props }) {
-  const { setCursorState } = useCursor();
+  const { cursorState, setCursorState } = useCursor();
   const ref = useRef(null);
 
   const x = useMotionValue(0);
@@ -24,6 +24,7 @@ export default function InteractiveProjectCard({ children, className = '', id, .
   const glareBackground = useMotionTemplate`radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.06) 0%, transparent 60%)`;
 
   const handlePointerMove = (e) => {
+    if (e.pointerType === 'touch') return;
     if (!ref.current) return;
     const { width, height, left, top } = ref.current.getBoundingClientRect();
     const localX = (e.clientX - left) / width - 0.5;
@@ -31,13 +32,22 @@ export default function InteractiveProjectCard({ children, className = '', id, .
     
     x.set(localX);
     y.set(localY);
+
+    if (cursorState !== 'card') {
+      const isMagnetic = e.target.closest('[data-cursor="magnetic"]');
+      if (!isMagnetic) {
+        setCursorState('card');
+      }
+    }
   };
 
-  const handlePointerEnter = () => {
+  const handlePointerEnter = (e) => {
+    if (e && e.pointerType === 'touch') return;
     setCursorState('card');
   };
 
-  const handlePointerLeave = () => {
+  const handlePointerLeave = (e) => {
+    if (e && e.pointerType === 'touch') return;
     setCursorState('default');
     x.set(0);
     y.set(0);
@@ -47,10 +57,11 @@ export default function InteractiveProjectCard({ children, className = '', id, .
     <article
       id={id}
       ref={ref}
+      data-cursor="card"
       onPointerMove={handlePointerMove}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
-      className={`relative cursor-none ${className}`}
+      className={`relative ${className}`}
       style={{ perspective: 1500 }}
       {...props}
     >

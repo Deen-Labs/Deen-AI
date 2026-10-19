@@ -8,6 +8,22 @@ import InteractiveProjectCard from "./components/InteractiveProjectCard";
 
 export default function App() {
   const [formState, setFormState] = useState({ status: 'idle' });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const scrollToSection = (e, id) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      const navOffset = 88;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +57,8 @@ export default function App() {
   return (
     <CursorProvider>
       <RotatedSquareCursor />
-      <div className="font-sans text-slate-100 antialiased min-h-screen flex flex-col">
+      <div className="ambient-bg" aria-hidden="true" />
+      <div className="font-sans text-slate-100 antialiased min-h-screen flex flex-col relative z-0">
         {/* We wrap the generated JSX in a fragment just in case it returned multiple siblings */}
         <>
 <div>
@@ -51,45 +68,61 @@ export default function App() {
        ========================================== */}
   <header id="navbar" className="sticky top-0 z-50 transition-all duration-300 w-full border-b border-slate-900 bg-slate-950/80 backdrop-blur-md">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between min-h-[5rem] py-3">
+      <div className="flex items-center justify-between min-h-[4.25rem] py-2">
         
         {/* Branding Logo / Title */}
-        <a href="#" className="flex flex-col items-start group">
-          <img src="/assets/logo.png" alt="DEEN LABS Logo" className="h-14 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
-          <span className="text-[10px] uppercase tracking-[0.15em] text-slate-400 font-semibold font-display mt-1.5 ml-1 select-none">Technology Lab</span>
+        <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex flex-col items-start group">
+          <img src="/assets/logo.png" alt="DEEN LABS Logo" className="h-11 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
+          <span className="text-[9px] uppercase tracking-[0.15em] text-slate-400 font-semibold font-display mt-1 ml-0.5 select-none">Technology Lab</span>
         </a>
 
         {/* Desktop Navigation Items */}
         <nav className="hidden md:flex items-center space-x-1" aria-label="Main Navigation">
-          <a href="#deen-ai" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">Deen-AI</a>
-          <a href="#shadowplane" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
-          <a href="#ihateats" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
+          <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">Deen-AI</a>
+          <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
+          <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
           
-          <MagneticButton as="a" href="#contact" className="ml-4 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
+          <MagneticButton as="a" href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="ml-3 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
             Connect With Me
           </MagneticButton>
         </nav>
 
         {/* Mobile Menu Toggle Button */}
-        <button id="mobile-menu-btn" className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all duration-200" aria-label="Toggle Navigation Menu" aria-expanded="false">
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path id="menu-icon" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+        <button 
+          id="mobile-menu-btn" 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+          className="md:hidden p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all duration-200" 
+          aria-label="Toggle Navigation Menu" 
+          aria-expanded={isMobileMenuOpen}
+        >
+          {isMobileMenuOpen ? (
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
         </button>
 
       </div>
     </div>
 
     {/* Mobile Drawer Overlay Menu */}
-    <div id="mobile-menu" className="hidden md:hidden bg-slate-950/98 border-b border-slate-900 backdrop-blur-xl transition-all duration-300 ease-in-out">
-      <div className="px-2 pt-2 pb-4 space-y-1 sm:px-3">
-        <a href="#deen-ai" className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900">Deen-AI</a>
-        <a href="#shadowplane" className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900">ShadowPlane</a>
-        <a href="#ihateats" className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900">ihateATS</a>
+    <div id="mobile-menu" className={`md:hidden bg-slate-950/98 border-b border-slate-900 backdrop-blur-xl transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+      <div className="px-3 pt-2 pb-5 space-y-1 sm:px-4">
+        <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">Deen-AI</a>
+        <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadowPlane</a>
+        <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>
         
-        <MagneticButton as="a" href="#contact" className="block text-center mt-4 mx-4 py-3 text-sm font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] rounded-lg shadow-lg">
-            Connect With Me
-          </MagneticButton>
+        <a 
+          href="#contact" 
+          onClick={(e) => scrollToSection(e, 'contact')} 
+          className="block text-center mt-4 mx-2 py-3 text-sm font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] active:from-[#c28424] active:to-brand-gold rounded-lg shadow-lg active:scale-95 transition-transform"
+        >
+          Connect With Me
+        </a>
       </div>
     </div>
   </header>
@@ -97,12 +130,12 @@ export default function App() {
   {/* ==========================================
        THE HERO SECTION
        ========================================== */}
-  <section id="hero" className="relative pt-16 sm:pt-24 lg:pt-32 pb-20 lg:pb-32 overflow-hidden flex items-center">
+  <section id="hero" className="relative py-12 sm:py-14 lg:py-16 overflow-hidden flex items-center">
     {/* Grid Overlay Graphics */}
     <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30"></div>
     
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
         {/* Hero Information Column */}
         <div className="lg:col-span-7 flex flex-col text-left space-y-8">
@@ -113,7 +146,7 @@ export default function App() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-accent"></span>
             </span>
-            <span className="text-xs font-semibold tracking-wider uppercase text-teal-400 font-display">Enterprise Technology Lab</span>
+            <span className="text-xs font-semibold tracking-wider uppercase text-teal-400 font-display">Multi-Cloud & DevOps Engineering</span>
           </div>
 
           {/* Bold Display Heading */}
@@ -123,15 +156,15 @@ export default function App() {
 
           {/* Descriptive Subtitle copy */}
           <p className="text-base sm:text-lg text-slate-400 max-w-xl leading-relaxed">
-            I am a Cloud & DevOps Architect bridging physical infrastructures, hybrid deployments, and advanced RAG-based AI applications to build reliable technology for scale.
+            Multi-Cloud & DevOps Engineer specializing in autonomous CI/CD pipelines, Infrastructure-as-Code sandboxing, and scalable systems architecture.
           </p>
 
           {/* Core Call to Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <MagneticButton as="a" href="#consulting" className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-xl shadow-xl shadow-amber-950/20 hover:scale-[1.01] transition-all duration-200">Contact Me</MagneticButton>
-            <a href="#products" className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+            <MagneticButton as="a" href="#consulting" onClick={(e) => scrollToSection(e, 'consulting')} className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-xl shadow-xl shadow-amber-950/20 hover:scale-[1.01] transition-all duration-200">Contact Me</MagneticButton>
+            <MagneticButton as="a" href="#products" onClick={(e) => scrollToSection(e, 'products')} className="px-8 py-4 text-sm font-semibold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
               Explore Our Lab Products
-            </a>
+            </MagneticButton>
           </div>
 
         </div>
@@ -222,11 +255,11 @@ export default function App() {
   {/* ==========================================
        THE PRODUCTS SECTION (Showcase Container)
        ========================================== */}
-  <section id="products" className="py-24 border-t border-slate-900 bg-zinc-950/30 relative">
+  <section id="products" className="py-16 sm:py-20 border-t border-slate-900 bg-zinc-950/30 relative">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       {/* Section Heading */}
-      <div className="text-center max-w-3xl mx-auto mb-20 flex flex-col items-center">
+      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 flex flex-col items-center">
         <h2 className="inline-block font-display font-semibold text-xs tracking-widest text-brand-accent uppercase border border-teal-500/20 bg-teal-500/5 px-3.5 py-1.5 rounded-full mb-4">
           Proprietary Software Systems
         </h2>
@@ -240,12 +273,12 @@ export default function App() {
       </div>
 
       {/* Products List (Horizontal Rows) */}
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-10">
 
         {/* ==========================================
              DEEN-AI PRODUCT SHOWCASE (Row 1)
              ========================================== */}
-        <InteractiveProjectCard id="deen-ai"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 sm:p-8 hover:border-teal-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-950/10 group relative overflow-hidden">
+        <InteractiveProjectCard id="deen-ai"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-teal-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-950/10 group relative overflow-hidden">
 
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-brand-accent to-emerald-500"></div>
@@ -253,42 +286,83 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left Column: Copy & Details */}
-            <div className="lg:col-span-7 flex flex-col space-y-6">
+            <div className="lg:col-span-7 flex flex-col space-y-5">
               <div className="flex items-center space-x-3.5">
                 <div className="h-12 w-12 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-brand-accent group-hover:scale-105 transition-transform">
                   <i className="fa-solid fa-kaaba text-lg"></i>
                 </div>
                 <div>
                   <h4 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">Deen-AI Mobile App</h4>
-                  <p className="text-xs text-slate-400">Islamic Practice Mobile App featuring built-in Imam AI</p>
+                  <p className="text-xs text-slate-400">All-in-One Islamic Lifestyle, Focus & AI Assistant App</p>
                 </div>
               </div>
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                Deen-AI is a context-aware Islamic mobile application featuring nearby masjid detection, digital prayer display sync, and <strong>Imam AI</strong>—the core chatbot assistant built directly into the app. Powered by the <strong>Google Gemini API</strong>, Imam AI prevents logical hallucinations and reference errors by utilizing a specialized Retrieval-Augmented Generation (RAG) pipeline. It queries and checks verified Islamic source records via the <strong>Internet Archive API</strong>, performing strict cross-reference validation before generating response texts.
+                Deen-AI is an all-in-one Islamic mobile companion engineered for daily spiritual practice, mindfulness, and digital purity. Beyond its hallucination-resistant <strong>Imam AI</strong>, the app provides real-time prayer calculations, nearby masjid discovery, and automatic device-level content shielding.
               </p>
 
+              {/* Core Feature Highlights (2x2 Grid) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
+                    <i className="fa-solid fa-clock text-xs"></i>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-xs">Accurate Salah & Azan</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Astronomical timings, dual Hijri calendar, live countdown ticker & Azan audio.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
+                    <i className="fa-solid fa-mosque text-xs"></i>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-xs">Nearby Masjid Finder</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Live GPS discovery, compass bearing, walking/driving distance & directions.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
+                    <i className="fa-solid fa-shield-halved text-xs"></i>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-xs">18+ [NSFW] Content Blocker</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Encrypted DNS shield (DoH) blocking adult domains & digital distractions.</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
+                    <i className="fa-solid fa-brain text-xs"></i>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-xs">Imam AI (Strict RAG)</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Gemini API + Internet Archive validation with zero hallucinations.</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Tech badges */}
-              <div className="flex flex-wrap gap-2">
-                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">FastAPI</span>
-                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Python</span>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">React Native</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Expo</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">FastAPI & Python</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Google Gemini API</span>
-                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Internet Archive API</span>
-                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Uvicorn</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">RAG Pipeline</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">GPS Geolocation</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">DoH DNS Filter</span>
               </div>
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="/assets/deen-app-beta.apk" download className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
-                  <i className="fa-solid fa-download mr-2"></i> Download App (Beta)
+                <MagneticButton as="a" href="/assets/deen-app-v2.1.1.apk" download="Deen-AI-v2.1.1.apk" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
+                  <i className="fa-solid fa-download mr-2"></i> Download App (v2.1.1)
                 </MagneticButton>
-                <a href="https://github.com/Deen-Labs/Deen-AI" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+                <MagneticButton as="a" href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
                   <i className="fa-brands fa-github mr-2"></i> Explore Codebase
-                </a>
-                <a href="#" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
+                </MagneticButton>
+                <MagneticButton as="a" href="#" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
                   Read Docs
-                </a>
+                </MagneticButton>
               </div>
 
               {/* Warning Disclaimer */}
@@ -320,6 +394,22 @@ export default function App() {
                     <span className="block mt-1 text-[10px] font-mono font-bold text-teal-400">— Qur'an (4:103) [Source-Verified]</span>
                   </div>
                 </div>
+
+                {/* Service Health Indicators */}
+                <div className="mt-4 pt-3 border-t border-slate-900/80 grid grid-cols-3 gap-1.5 text-[9px] text-slate-400 font-sans">
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    <span className="truncate">DNS Shield: OK</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+                    <span className="truncate">GPS Masajid: OK</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    <span className="truncate">Azan Ticker: LIVE</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -330,7 +420,7 @@ export default function App() {
         {/* ==========================================
              SHADOWPLANE PRODUCT SHOWCASE (Row 3)
              ========================================== */}
-                <InteractiveProjectCard id="shadowplane" className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 sm:p-8 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-950/10 group relative overflow-hidden">
+        <InteractiveProjectCard id="shadowplane" className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-950/10 group relative overflow-hidden">
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-400"></div>
           
@@ -344,12 +434,12 @@ export default function App() {
                 </div>
                 <div>
                   <h4 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">ShadowPlane</h4>
-                  <p className="text-xs text-slate-400">Autonomous CI/CD Gatekeeper for Agentic DevOps</p>
+                  <p className="text-xs text-slate-400">IaC Containment Firewall & Verification Gateway</p>
                 </div>
               </div>
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                ShadowPlane is a deterministic, secure sandbox that intercepts AI-generated infrastructure code (Terraform) before it reaches production. It provisions the code inside an isolated <strong>LocalStack</strong> container. If the deployment fails, ShadowPlane's AI self-healing engine parses the logs, patches the <code>.tf</code> files, and safely retries. It strictly enforces system exit codes, ensuring your CI/CD runner knows exactly when it is safe to proceed.
+                ShadowPlane is a deterministic IaC containment firewall and verification gateway designed for Agentic DevOps. It intercepts agent-authored Terraform and executes it inside an isolated, rootless <strong>Docker sandbox</strong> with stripped host credentials and network egress restricted to <strong>LocalStack</strong>. Powered by <strong>Change-Risk Intelligence</strong> and fail-closed <strong>Checkov</strong> scanning, it proactively detects destructive state drops (RDS/S3/KMS) and IAM privilege broadening before issuing an immutable <strong>SHA-256 Attestation</strong>.
               </p>
 
               {/* Tech badges */}
@@ -358,18 +448,19 @@ export default function App() {
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Docker</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Terraform</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">LocalStack</span>
+                <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Checkov</span>
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">GitHub Actions</span>
               </div>
 
               {/* Action buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <MagneticButton as="a" href="https://hub.docker.com/r/goldsteatlh/shadowplane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 rounded-xl shadow-lg shadow-blue-950/20 transition-all duration-200">
-                    <i className="fa-brands fa-docker mr-2"></i> View on Docker Hub
-                  </MagneticButton>
-                  <MagneticButton as="a" href="https://github.com/GOLDSTEALTH/ShadowPlane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
-                    <i className="fa-brands fa-github mr-2"></i> Explore Codebase
-                  </MagneticButton>
-                </div>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <MagneticButton as="a" href="https://hub.docker.com/r/goldsteatlh/shadowplane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 rounded-xl shadow-lg shadow-blue-950/20 transition-all duration-200">
+                  <i className="fa-brands fa-docker mr-2"></i> View on Docker Hub
+                </MagneticButton>
+                <MagneticButton as="a" href="https://github.com/GOLDSTEALTH/ShadowPlane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
+                  <i className="fa-brands fa-github mr-2"></i> Explore Codebase
+                </MagneticButton>
+              </div>
 
             </div>
 
@@ -384,14 +475,14 @@ export default function App() {
                   <span className="text-[9px] text-slate-500">ENV: SANDBOX</span>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-slate-500">&gt; target-dir: ./infra</p>
-                  <p className="text-slate-500">[1] Initializing ephemeral LocalStack sandbox...</p>
-                  <p className="text-red-400">[2] terraform apply FAILED: Invalid IAM Policy.</p>
-                  <p className="text-blue-400">[3] AI Self-Healing Engine patching main.tf...</p>
-                  <p className="text-emerald-400">[4] terraform apply SUCCESS. Infrastructure verified.</p>
-                  <div className="bg-slate-900/60 p-2.5 rounded border border-slate-900 text-[11px] text-slate-200 mt-2 font-sans border-l-2 border-l-blue-500">
-                    Gatekeeper passed. Blast radius contained.
-                    <span className="block mt-1 text-[10px] font-mono font-bold text-blue-400">sys.exit(0)</span>
+                  <p className="text-slate-500">&gt; shadowplane --target-dir ./infra</p>
+                  <p className="text-slate-500">[1] Mounting isolated Docker sandbox container...</p>
+                  <p className="text-cyan-400">[2] Checkov static analysis: 0 violations (PASS).</p>
+                  <p className="text-amber-400">[3] Change-Risk Intelligence: Plan verified (LOW RISK).</p>
+                  <p className="text-emerald-400">[4] LocalStack apply complete. Evidence hash signed.</p>
+                  <div className="bg-slate-900/60 p-2.5 rounded border border-slate-900 text-[11px] text-slate-200 mt-2 font-sans border-l-2 border-l-emerald-500">
+                    Attestation passed. Blast radius contained.
+                    <span className="block mt-1 text-[10px] font-mono font-bold text-emerald-400">SHA-256: 3515fb25... | sys.exit(0)</span>
                   </div>
                 </div>
               </div>
@@ -403,7 +494,7 @@ export default function App() {
         {/* ==========================================
              IHATEATS PRODUCT SHOWCASE (Row 2)
              ========================================== */}
-                <InteractiveProjectCard id="ihateats"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 sm:p-8 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-950/10 group relative overflow-hidden">
+        <InteractiveProjectCard id="ihateats"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-950/10 group relative overflow-hidden">
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-indigo-500 to-violet-500"></div>
 
@@ -437,10 +528,10 @@ export default function App() {
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="https://ihateats.deenlabs.tech/" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-500 hover:to-violet-600 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200">
-                  <i className="fa-solid fa-rocket mr-2"></i> Launch Application
+                <MagneticButton as="a" href="https://ihateats.deenlabs.tech/" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-500 hover:to-violet-600 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200">
+                  <i className="fa-solid fa-arrow-up-right-from-square mr-2"></i> Visit Site
                 </MagneticButton>
-                <MagneticButton as="a" href="https://github.com/Deen-Labs/ihateATS" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
+                <MagneticButton as="a" href="https://github.com/Deen-Labs/ihateATS" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
                   <i className="fa-brands fa-github mr-2"></i> View Codebase
                 </MagneticButton>
               </div>
@@ -491,8 +582,8 @@ export default function App() {
        ========================================== */}
   <section id="consulting" className="py-24 border-t border-slate-900 relative">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="bg-slate-950/60 backdrop-blur-xl border border-slate-800/50 rounded-[2.5rem] p-8 sm:p-12 shadow-2xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <div className="bg-slate-950/60 backdrop-blur-xl border border-slate-800/50 rounded-3xl sm:rounded-[2.5rem] p-4 sm:p-8 md:p-12 shadow-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
         {/* Left Side: Copy details */}
             <div className="lg:col-span-7 flex flex-col space-y-6">
@@ -511,53 +602,53 @@ export default function App() {
                 
                 <motion.div 
                   whileHover={{ scale: 1.03, boxShadow: "0 0 20px rgba(226, 162, 59, 0.15)" }} 
-                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-amber-500/20 hover:bg-slate-900/50 transition-colors cursor-none"
+                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-amber-500/20 hover:bg-slate-900/50 transition-colors "
                 >
                   <div className="h-10 w-10 shrink-0 bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-brand-gold rounded-lg">
                     <i className="fa-solid fa-code-commit text-sm"></i>
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">Infrastructure as Code</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Using Terraform & CloudFormation to build declarative, version-controlled environments.</p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Using Terraform, Ansible & CloudFormation to build declarative, version-controlled multi-cloud environments.</p>
                   </div>
                 </motion.div>
     
                 <motion.div 
                   whileHover={{ scale: 1.03, boxShadow: "0 0 20px rgba(226, 162, 59, 0.15)" }} 
-                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-amber-500/20 hover:bg-slate-900/50 transition-colors cursor-none"
+                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-amber-500/20 hover:bg-slate-900/50 transition-colors "
                 >
                   <div className="h-10 w-10 shrink-0 bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-brand-gold rounded-lg">
                     <i className="fa-solid fa-rotate text-sm"></i>
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">CI/CD Pipeline Automation</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Engineering GitHub Actions & GitOps pipelines for secure, automated releases.</p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Engineering GitHub Actions, Jenkins, and FastMCP sandboxes for automated testing and secure releases.</p>
                   </div>
                 </motion.div>
     
                 <motion.div 
                   whileHover={{ scale: 1.03, boxShadow: "0 0 20px rgba(30, 143, 130, 0.15)" }} 
-                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-teal-500/20 hover:bg-slate-900/50 transition-colors cursor-none"
+                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-teal-500/20 hover:bg-slate-900/50 transition-colors "
                 >
                   <div className="h-10 w-10 shrink-0 bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 rounded-lg">
                     <i className="fa-solid fa-cubes text-sm"></i>
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">Container Orchestration</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Managing Dockerized microservices and highly available cluster deployments.</p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Managing Docker containers, LocalStack cloud simulations, and Kubernetes cluster foundations.</p>
                   </div>
                 </motion.div>
     
                 <motion.div 
                   whileHover={{ scale: 1.03, boxShadow: "0 0 20px rgba(59, 130, 246, 0.15)" }} 
-                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-blue-500/20 hover:bg-slate-900/50 transition-colors cursor-none"
+                  className="flex items-start space-x-3.5 p-3 rounded-xl border border-transparent hover:border-blue-500/20 hover:bg-slate-900/50 transition-colors "
                 >
                   <div className="h-10 w-10 shrink-0 bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 rounded-lg">
                     <i className="fa-solid fa-code text-sm"></i>
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">Full-Stack Engineering</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Developing end-to-end applications (Next.js, AI integration) to bridge software and infrastructure.</p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">Python, React, Kotlin Android systems, and RAG pipelines bridging software and cloud infrastructure.</p>
                   </div>
                 </motion.div>
     
@@ -566,7 +657,7 @@ export default function App() {
             
             {/* Right Side: Structured Team Info */}
         <div className="lg:col-span-5 flex justify-center items-center">
-          <div className="w-full max-w-[420px] bg-slate-950/60 border border-slate-800/80 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+          <div className="w-full max-w-[420px] bg-slate-950/60 border border-slate-800/80 rounded-3xl p-3 sm:p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
             {/* Glow background decoration */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-b from-brand-gold/10 to-transparent blur-[60px] rounded-full pointer-events-none -z-10"></div>
             
@@ -578,7 +669,7 @@ export default function App() {
             <div className="space-y-4">
               
               {/* Team Member 1 */}
-              <div className="group relative p-6 sm:p-8 bg-slate-900/40 hover:bg-slate-800/60 border border-slate-800 hover:border-amber-500/40 rounded-2xl transition-all duration-300 overflow-hidden cursor-none">
+              <div className="group relative p-4 sm:p-8 bg-slate-900/40 hover:bg-slate-800/60 border border-slate-800 hover:border-amber-500/40 rounded-2xl transition-all duration-300 overflow-hidden ">
                   {/* Background Hover Glow */}
                   <div className="absolute inset-0 bg-gradient-to-b from-amber-500/0 via-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-in-out pointer-events-none"></div>
                   
@@ -591,7 +682,7 @@ export default function App() {
                     
                     <div className="flex-1 w-full">
                       <h5 className="font-bold text-lg sm:text-xl text-white group-hover:text-amber-300 transition-colors tracking-tight">Syed Aamair Shareef Ahmed</h5>
-                      <p className="text-[11px] sm:text-xs text-brand-gold font-medium mt-1.5 uppercase tracking-wide">DevOps & Platform Engineer</p>
+                      <p className="text-[11px] sm:text-xs text-brand-gold font-medium mt-1.5 uppercase tracking-wide">Multi-Cloud & DevOps Engineer</p>
                         
                         
                       
@@ -599,16 +690,16 @@ export default function App() {
                         <div className="mt-6 flex flex-col gap-3 w-full sm:max-w-[340px] mx-auto">
                           
                           {/* Resume Button */}
-                          <a href="/assets/resume.pdf" download className="inline-flex items-center justify-center w-full px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold border border-amber-500/30 text-sm text-slate-950 font-bold transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(226,162,59,0.5)] cursor-none relative z-20">
+                          <a href="/assets/resume.pdf" download="Syed_Aamair_Resume.pdf" className="inline-flex items-center justify-center w-full px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold border border-amber-500/30 text-sm text-slate-950 font-bold transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(226,162,59,0.5)] relative z-20">
                             <i className="fa-solid fa-file-pdf text-lg mr-2.5"></i> Download Resume
                           </a>
                           
                           {/* Social Row */}
                           <div className="flex flex-wrap items-center justify-center gap-3 w-full">
-                            <a href="https://linkedin.com/in/syed-aamair" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex justify-center items-center px-4 py-2.5 rounded-xl bg-[#0a66c2]/10 hover:bg-[#0a66c2]/20 border border-[#0a66c2]/30 text-sm text-[#0a66c2] font-semibold transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(10,102,194,0.6)] cursor-none relative z-20">
+                            <a href="https://linkedin.com/in/syed-aamair" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex justify-center items-center px-4 py-2.5 rounded-xl bg-[#0a66c2]/10 hover:bg-[#0a66c2]/20 border border-[#0a66c2]/30 text-sm text-[#0a66c2] font-semibold transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(10,102,194,0.6)]  relative z-20">
                               <i className="fa-brands fa-linkedin text-lg mr-2"></i> syed-aamair
                             </a>
-                            <a href="https://github.com/GOLDSTEALTH" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex justify-center items-center px-4 py-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 text-sm text-slate-300 font-semibold transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-none relative z-20">
+                            <a href="https://github.com/GOLDSTEALTH" target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex justify-center items-center px-4 py-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 text-sm text-slate-300 font-semibold transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]  relative z-20">
                               <i className="fa-brands fa-github text-lg mr-2"></i> GOLDSTEALTH
                             </a>
                           </div>
@@ -629,7 +720,7 @@ export default function App() {
        ========================================== */}
   <section id="contact" className="py-20 bg-slate-950 border-t border-slate-900 mt-auto relative">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
         
         {/* Left: Quick Contact Info */}
         <div className="md:col-span-6 flex flex-col space-y-6">
@@ -653,7 +744,7 @@ export default function App() {
 
         {/* Right: Professional Contact Form Panel */}
         <div className="md:col-span-6">
-          <div className="bg-slate-900/30 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+          <div className="bg-slate-900/30 border border-slate-800 rounded-2xl p-4 sm:p-8 shadow-xl">
             <form id="contact-form" className="space-y-4" onSubmit={handleFormSubmit}>
               <div>
                 <label htmlFor="contact-name" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Your Name</label>

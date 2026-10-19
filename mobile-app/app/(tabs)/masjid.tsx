@@ -2,7 +2,8 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { getCurrentLocation, Coordinates } from "../../lib/location";
-import { getNearbyMasjids, Masjid, formatDistance, resolveSearchCenterAndQuery } from "../../lib/masjid";
+import { getNearbyMasjids, Masjid, formatDistance, resolveSearchCenterAndQuery, getCachedMasjidsSync } from "../../lib/masjid";
+import { subscribeToWarmup } from "../../lib/backgroundWarmup";
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android') {
@@ -12,13 +13,26 @@ if (Platform.OS === 'android') {
 }
 
 export default function MasjidScreen() {
-  const [masjids, setMasjids] = useState<Masjid[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = getCachedMasjidsSync();
+  const [masjids, setMasjids] = useState<Masjid[]>(cached || []);
+  const [loading, setLoading] = useState(!cached || cached.length === 0);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(null);
   const [selectedMasjidId, setSelectedMasjidId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Listen to background warm-up service
+  useEffect(() => {
+    const unsubscribe = subscribeToWarmup(() => {
+      const fresh = getCachedMasjidsSync();
+      if (fresh && fresh.length > 0) {
+        setMasjids(fresh);
+        setLoading(false);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const handleGlobalSearch = async () => {
     Keyboard.dismiss();
@@ -84,9 +98,9 @@ export default function MasjidScreen() {
       // Parse the query for location keywords (e.g., "in Tolichowki" or "near Charminar")
       const { searchCenter, cleanedQuery } = await resolveSearchCenterAndQuery(queryToSearch, location);
 
-      // Set optimized radius: 35km for global searches; 12km if locked to a localized search center; 15km for default views.
+      // Set optimized radius: 25km for global searches; 12km if locked to a localized search center; 1000m (1km) for default views.
       const hasSearchCenter = searchCenter.latitude !== location.latitude || searchCenter.longitude !== location.longitude;
-      const searchRadius = queryToSearch.trim().length > 0 ? (hasSearchCenter ? 12000 : 35000) : 15000;
+      const searchRadius = queryToSearch.trim().length > 0 ? (hasSearchCenter ? 12000 : 25000) : 1000;
 
       const nearbyMasjids = await getNearbyMasjids(location, searchRadius, cleanedQuery, searchCenter);
       setMasjids(nearbyMasjids);

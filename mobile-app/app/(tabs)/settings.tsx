@@ -1,9 +1,12 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Clipboard, Platform, Alert, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
+import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 import { loadSettings, saveSettings, CALCULATION_METHODS, AppSettings } from "../../lib/settings";
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const [settings, setSettings] = useState<AppSettings>({
     notificationsEnabled: true,
     autoLocation: true,
@@ -74,6 +77,14 @@ export default function SettingsScreen() {
       <ScrollView style={styles.scrollView}>
         {/* Header */}
         <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+          >
+            <Feather name="arrow-left" size={20} color="#e2a23b" />
+            <Text style={styles.backButtonText}>Back</Text>
+          </TouchableOpacity>
           <Text style={styles.title}>Settings</Text>
           <Text style={styles.subtitle}>
             Customize your Deen AI experience
@@ -236,6 +247,18 @@ const styles = StyleSheet.create({
   header: {
     padding: 20,
     paddingBottom: 10,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 6,
+    alignSelf: "flex-start",
+  },
+  backButtonText: {
+    fontSize: 15,
+    color: "#e2a23b",
+    fontWeight: "600",
   },
   title: {
     fontSize: 28,

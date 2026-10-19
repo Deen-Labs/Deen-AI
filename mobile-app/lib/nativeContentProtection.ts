@@ -72,20 +72,11 @@ class NativeContentProtection {
         return true;
       }
 
-      // Check permission
-      const hasPermission = await ContentProtectionNative.hasVPNPermission();
-      
-      if (!hasPermission) {
-        // Show explanation before requesting permission
-        await this.showPermissionDialog();
-      }
-
-      // Start VPN service (will request permission if needed)
+      // Start VPN service (will request native Android VPN permission intent if needed)
       const started = await ContentProtectionNative.startVPNService();
       
       if (started) {
-        console.log('✅ System-wide content protection activated');
-        this.showSuccessNotification();
+        console.log('[NativeContentProtection] System-wide content protection activated');
       }
       
       return started;
@@ -164,44 +155,6 @@ class NativeContentProtection {
     }
   }
 
-  /**
-   * Show permission explanation dialog
-   */
-  private showPermissionDialog(): Promise<void> {
-    return new Promise((resolve) => {
-      Alert.alert(
-        '🛡️ Enable System-Wide Protection',
-        'DEEN AI will create a VPN connection to filter inappropriate content across ALL apps on your device.\n\n' +
-        '✓ Blocks NSFW sites in any browser\n' +
-        '✓ Works in all apps system-wide\n' +
-        '✓ No tracking or data collection\n' +
-        '✓ All filtering happens on your device\n\n' +
-        'This requires VPN permission. Tap "Continue" to grant access.',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-            onPress: () => resolve(),
-          },
-          {
-            text: 'Continue',
-            onPress: () => resolve(),
-          },
-        ]
-      );
-    });
-  }
-
-  /**
-   * Show success notification
-   */
-  private showSuccessNotification(): void {
-    Alert.alert(
-      '✅ Protection Active',
-      'DEEN AI is now protecting your entire device from inappropriate content. You can browse safely in any app!',
-      [{ text: 'Great!' }]
-    );
-  }
 
   /**
    * Get status information

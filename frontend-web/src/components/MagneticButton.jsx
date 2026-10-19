@@ -20,6 +20,7 @@ export default function MagneticButton({
   const smoothY = useSpring(y, springConfig);
 
   const handlePointerMove = (e) => {
+    if (e.pointerType === 'touch') return;
     if (!ref.current) return;
     const { clientX, clientY } = e;
     const { height, width, left, top } = ref.current.getBoundingClientRect();
@@ -34,19 +35,27 @@ export default function MagneticButton({
     y.set(pullY);
   };
 
-  const handlePointerEnter = () => {
+  const handlePointerEnter = (e) => {
+    if (e && e.pointerType === 'touch') return;
     setCursorState('magnetic');
   };
 
-  const handlePointerLeave = () => {
-    setCursorState('default');
+  const handlePointerLeave = (e) => {
     x.set(0);
     y.set(0);
+
+    const target = e?.relatedTarget || (e?.clientX != null && document.elementFromPoint(e.clientX, e.clientY));
+    if (target && typeof target.closest === 'function' && target.closest('[data-cursor="card"], article')) {
+      setCursorState('card');
+    } else {
+      setCursorState('default');
+    }
   };
 
   return (
     <motion.div
       ref={ref}
+      data-cursor="magnetic"
       onPointerMove={handlePointerMove}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
@@ -55,7 +64,7 @@ export default function MagneticButton({
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       style={{ x: smoothX, y: smoothY, display: 'inline-flex', willChange: 'transform' }}
     >
-      <Component className={twMerge("cursor-none relative z-10 block w-full", className)} {...props}>
+      <Component className={twMerge("relative z-10 block w-full", className)} {...props}>
         {children}
       </Component>
     </motion.div>

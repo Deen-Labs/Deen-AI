@@ -6,6 +6,7 @@ import { Alert } from "react-native";
 import * as Linking from "expo-linking";
 import SplashScreen from "../components/SplashScreen";
 import { initializeContentProtection } from "../lib/contentProtection";
+import { warmUpAppData } from "../lib/backgroundWarmup";
 import PINModal from "../components/PINModal";
 import { verifyPIN } from "../lib/lock";
 import { NativeModules } from "react-native";
@@ -18,7 +19,10 @@ export default function RootLayout() {
   const [pinError, setPinError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Initialize content protection when app starts
+    // 1. Kick off background data warm-up immediately on app launch!
+    warmUpAppData();
+
+    // 2. Initialize content protection when app starts
     initializeContentProtection().catch(error => {
       console.error('Failed to initialize content protection:', error);
     });
