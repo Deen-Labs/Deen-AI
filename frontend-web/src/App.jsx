@@ -365,11 +365,11 @@ export default function App() {
                 </MagneticButton>
               </div>
 
-              {/* Warning Disclaimer */}
-              <div className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/10 p-3 rounded-xl max-w-xl">
-                <i className="fa-solid fa-triangle-exclamation text-brand-gold mt-0.5 text-xs"></i>
-                <p className="text-[11px] text-amber-200/80 leading-relaxed">
-                  <strong>Notice:</strong> This application is currently in an active development phase. The built-in AI may generate incorrect or unverified responses. Please use it for testing purposes only.
+              {/* Production Status Banner */}
+              <div className="flex items-start gap-2.5 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl max-w-xl">
+                <i className="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-xs"></i>
+                <p className="text-[11px] text-emerald-200/90 leading-relaxed">
+                  <strong>Fully Built & Actively Maintained:</strong> This application is fully built, production-ready, and regularly maintained with new features, performance optimizations, and verified Islamic data updated whenever required.
                 </p>
               </div>
             </div>
