@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
-  Linking,
 } from 'react-native';
+import * as Location from 'expo-location';
 import { Feather } from '@expo/vector-icons';
 import { getCurrentLocation, Coordinates } from '../lib/location';
 
@@ -74,12 +74,49 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
     distanceKm: 4240,
     userCoords: { latitude: 17.385044, longitude: 78.486671 }, // Hyderabad default
   });
+  const [compassHeading, setCompassHeading] = useState<number | null>(null);
+  const [sensorAvailable, setSensorAvailable] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let headingSub: Location.LocationSubscription | null = null;
+    let isMounted = true;
+
     if (visible) {
       loadLocationAndQibla();
+
+      const startSensorWatch = async () => {
+        try {
+          const { status } = await Location.getForegroundPermissionsAsync();
+          if (status === 'granted') {
+            headingSub = await Location.watchHeadingAsync((headingData) => {
+              if (!isMounted) return;
+              const h = headingData.trueHeading >= 0 ? headingData.trueHeading : headingData.magHeading;
+              if (typeof h === 'number' && !isNaN(h)) {
+                setCompassHeading(Math.round(h));
+                setSensorAvailable(true);
+              }
+            });
+          } else {
+            if (isMounted) setSensorAvailable(false);
+          }
+        } catch (err) {
+          console.warn('[QiblaCompass] Sensor heading error:', err);
+          if (isMounted) setSensorAvailable(false);
+        }
+      };
+
+      startSensorWatch();
+    } else {
+      setCompassHeading(null);
     }
+
+    return () => {
+      isMounted = false;
+      if (headingSub) {
+        headingSub.remove();
+      }
+    };
   }, [visible]);
 
   const loadLocationAndQibla = async () => {
@@ -97,6 +134,20 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
     }
   };
 
+  // Outer ring rotation (N points to real physical North)
+  const dialRotation = compassHeading !== null ? -compassHeading : 0;
+
+  // Needle angle relative to the top of the device screen pointing toward Kaaba
+  const needleRotation =
+    compassHeading !== null
+      ? (qibla.bearing - compassHeading + 360) % 360
+      : qibla.bearing;
+
+  // Check if device is aligned with Qibla (within +/- 6 degrees)
+  const isFacingQibla =
+    compassHeading !== null &&
+    (needleRotation <= 6 || needleRotation >= 354);
+
   return (
     <Modal
       visible={visible}
@@ -109,8 +160,8 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.titleRow}>
-              <View style={styles.iconCircle}>
-                <Feather name="compass" size={20} color="#00ff66" />
+              <View style={[styles.iconCircle, isFacingQibla && styles.iconCircleAligned]}>
+                <Feather name="compass" size={20} color={isFacingQibla ? "#00ff66" : "#e2a23b"} />
               </View>
               <View>
                 <Text style={styles.title}>Qibla Direction</Text>
@@ -124,41 +175,68 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
 
           {/* Compass Dial Display */}
           <View style={styles.compassWrapper}>
-            <View style={styles.outerRing}>
+            {/* Outer Cardinal Ring that rotates with device heading */}
+            <View
+              style={[
+                styles.outerRing,
+                isFacingQibla && styles.outerRingAligned,
+                { transform: [{ rotate: `${dialRotation}deg` }] },
+              ]}
+            >
               {/* Cardinal Markers */}
               <Text style={[styles.cardinalLabel, styles.north]}>N</Text>
               <Text style={[styles.cardinalLabel, styles.east]}>E</Text>
               <Text style={[styles.cardinalLabel, styles.south]}>S</Text>
               <Text style={[styles.cardinalLabel, styles.west]}>W</Text>
-
-              {/* Rotated Needle Dial pointing to Qibla bearing */}
-              <View
-                style={[
-                  styles.needleContainer,
-                  { transform: [{ rotate: `${qibla.bearing}deg` }] },
-                ]}
-              >
-                {/* Emerald arrow tip pointing to Kaaba */}
-                <View style={styles.needleTip}>
-                  <Text style={styles.kaabaSymbol}>🕋</Text>
-                </View>
-                <View style={styles.needleLine} />
-                <View style={styles.needleBase} />
-              </View>
-
-              {/* Center Hub */}
-              <View style={styles.centerHub}>
-                <Text style={styles.bearingText}>{qibla.bearing}°</Text>
-                <Text style={styles.cardinalText}>{qibla.cardinal}</Text>
-              </View>
             </View>
+
+            {/* Rotated Needle Dial pointing to Kaaba in real-time */}
+            <View
+              style={[
+                styles.needleContainer,
+                { transform: [{ rotate: `${needleRotation}deg` }] },
+              ]}
+              pointerEvents="none"
+            >
+              {/* Directional arrow tip pointing to Kaaba */}
+              <View style={[styles.needleTip, isFacingQibla && styles.needleTipAligned]}>
+                <Feather name="navigation" size={15} color={isFacingQibla ? "#00ff66" : "#e2a23b"} />
+              </View>
+              <View style={[styles.needleLine, isFacingQibla && styles.needleLineAligned]} />
+              <View style={styles.needleBase} />
+            </View>
+
+            {/* Center Hub */}
+            <View style={[styles.centerHub, isFacingQibla && styles.centerHubAligned]}>
+              <Text style={[styles.bearingText, isFacingQibla && styles.bearingTextAligned]}>
+                {qibla.bearing}°
+              </Text>
+              <Text style={styles.cardinalText}>{qibla.cardinal}</Text>
+            </View>
+          </View>
+
+          {/* Live Sensor Alignment Badge */}
+          <View style={[styles.alignmentBadge, isFacingQibla ? styles.alignmentBadgeActive : styles.alignmentBadgeInactive]}>
+            <Feather
+              name={isFacingQibla ? "check-circle" : (compassHeading !== null ? "compass" : "alert-circle")}
+              size={14}
+              color={isFacingQibla ? "#00ff66" : "#e2a23b"}
+              style={{ marginRight: 6 }}
+            />
+            <Text style={[styles.alignmentBadgeText, isFacingQibla && styles.alignmentBadgeTextActive]}>
+              {isFacingQibla
+                ? "Aligned with the Kaaba"
+                : (compassHeading !== null
+                    ? `Heading: ${compassHeading}° • Rotate toward ${qibla.bearing}°`
+                    : (sensorAvailable ? "Calibrating compass... Hold phone flat" : "Static bearing (sensors unavailable)"))}
+            </Text>
           </View>
 
           {/* Details Card */}
           <View style={styles.detailsCard}>
             <View style={styles.detailRow}>
               <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>BEARING</Text>
+                <Text style={styles.detailLabel}>QIBLA BEARING</Text>
                 <Text style={styles.detailValue}>
                   {qibla.bearing}° {qibla.cardinal}
                 </Text>
@@ -172,13 +250,15 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
               </View>
               <View style={styles.detailDivider} />
               <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>ORIENTATION</Text>
-                <Text style={styles.detailValue}>West-Northwest</Text>
+                <Text style={styles.detailLabel}>DEVICE</Text>
+                <Text style={styles.detailValue}>
+                  {compassHeading !== null ? `${compassHeading}°` : 'Flat'}
+                </Text>
               </View>
             </View>
 
             <Text style={styles.explanationText}>
-              From India and South Asia, the Qibla is oriented approximately 292° (West-Northwest, roughly 22° north of true west). Face this direction during Salah.
+              Turn your device until the needle points straight up. The dial will highlight emerald when facing the Kaaba.
             </Text>
           </View>
 
@@ -383,6 +463,64 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: '#0b1b1c',
     fontSize: 15,
+    fontWeight: '700',
+  },
+  iconCircleAligned: {
+    backgroundColor: 'rgba(0, 255, 102, 0.25)',
+  },
+  outerRingAligned: {
+    borderColor: '#00ff66',
+    shadowColor: '#00ff66',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  needleTipAligned: {
+    borderColor: '#00ff66',
+    backgroundColor: 'rgba(0, 255, 102, 0.35)',
+  },
+  needleLineAligned: {
+    backgroundColor: '#00ff66',
+    width: 4,
+  },
+  centerHubAligned: {
+    borderColor: '#00ff66',
+    shadowColor: '#00ff66',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+  },
+  bearingTextAligned: {
+    color: '#00ff66',
+  },
+  alignmentBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    marginTop: 10,
+    alignSelf: 'center',
+  },
+  alignmentBadgeActive: {
+    backgroundColor: 'rgba(0, 255, 102, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 102, 0.4)',
+  },
+  alignmentBadgeInactive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  alignmentBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#94a4a2',
+  },
+  alignmentBadgeTextActive: {
+    color: '#00ff66',
     fontWeight: '700',
   },
 });

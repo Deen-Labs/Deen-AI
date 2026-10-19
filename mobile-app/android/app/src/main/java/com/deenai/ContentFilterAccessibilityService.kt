@@ -34,8 +34,14 @@ class ContentFilterAccessibilityService : AccessibilityService() {
         "com.samsung.android.packageinstaller"
     )
 
-    private val protectedKeywords = setOf(
-        "deen ai", "com.deenai", "uninstall", "force stop", "clear data", "clear storage", "disable"
+    private val destructiveActions = setOf(
+        "uninstall", "force stop", "clear data", "clear storage", "delete data", "disable"
+    )
+
+    private val packageInstallerPackages = setOf(
+        "com.google.android.packageinstaller",
+        "com.android.packageinstaller",
+        "com.samsung.android.packageinstaller"
     )
 
     private val adultKeywords = setOf(
@@ -100,19 +106,65 @@ class ContentFilterAccessibilityService : AccessibilityService() {
 
         if (rootNode == null) return
 
-        // 1. Uninstall Protection
-        if (settingsPackages.contains(packageName) && isLockEnabled()) {
-            if (findTextInNodes(rootNode, protectedKeywords)) {
-                val prefs = getSharedPreferences("deen_ai_prefs", Context.MODE_PRIVATE)
-                val unlockExpiry = prefs.getLong("uninstall_unlock_expiry", 0)
-                if (System.currentTimeMillis() > unlockExpiry) {
-                    Log.d(TAG, "Blocked uninstall attempt. Redirecting to deep link!")
-                    val uri = android.net.Uri.parse("deenai://unlock-uninstall")
-                    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        // 1. Anti-Tamper & Streak Protection
+        // Allows users to manage permissions and inspect app settings,
+        // but strictly intercepts destructive actions (Uninstall, Force Stop, Clear Data).
+        if (isLockEnabled()) {
+            val prefs = getSharedPreferences("deen_ai_prefs", Context.MODE_PRIVATE)
+            val unlockExpiry = prefs.getLong("uninstall_unlock_expiry", 0)
+            if (System.currentTimeMillis() > unlockExpiry) {
+                val isSettings = packageName == "com.android.settings"
+                val isInstaller = packageInstallerPackages.contains(packageName)
+
+                if (isInstaller) {
+                    val hasUninstallPrompt = findTextInNodes(rootNode, setOf("uninstall", "deen ai", "com.deenai"))
+                    if (hasUninstallPrompt) {
+                        Log.d(TAG, "Blocked PackageInstaller uninstall prompt for Deen AI!")
+                        performGlobalAction(GLOBAL_ACTION_BACK)
+                        val uri = android.net.Uri.parse("deenai://unlock-uninstall")
+                        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
+                        return
                     }
-                    startActivity(intent)
-                    return
+                } else if (isSettings) {
+                    val isDeenContext = findTextInNodes(rootNode, setOf("deen ai", "com.deenai"))
+
+                    if (isDeenContext) {
+                        // Intercept destructive clicks (e.g. clicking "Force Stop", "Uninstall", "Clear Data")
+                        if (event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED) {
+                            val clickedNode = event.source
+                            val clickedText = ((event.text?.joinToString(" ") ?: "") + " " +
+                                              (event.contentDescription ?: "") + " " +
+                                              (clickedNode?.text ?: "") + " " +
+                                              (clickedNode?.contentDescription ?: "")).lowercase()
+
+                            if (destructiveActions.any { clickedText.contains(it) }) {
+                                Log.d(TAG, "Blocked destructive click on Deen AI in Settings: $clickedText")
+                                performGlobalAction(GLOBAL_ACTION_BACK)
+                                val uri = android.net.Uri.parse("deenai://unlock-uninstall")
+                                val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                }
+                                startActivity(intent)
+                                return
+                            }
+                        }
+
+                        // Intercept destructive confirmation dialogs (e.g. "If you force stop an app...", "Delete app data?")
+                        val hasDestructiveDialog = findTextInNodes(rootNode, setOf("if you force stop", "delete app data", "permanently delete"))
+                        if (hasDestructiveDialog) {
+                            Log.d(TAG, "Blocked destructive confirmation dialog for Deen AI!")
+                            performGlobalAction(GLOBAL_ACTION_BACK)
+                            val uri = android.net.Uri.parse("deenai://unlock-uninstall")
+                            val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            }
+                            startActivity(intent)
+                            return
+                        }
+                    }
                 }
             }
         }

@@ -9,10 +9,13 @@ import {
     saveSession as saveSessionDb,
     deleteSession as deleteSessionDb,
     setActiveSessionId as setActiveSessionIdDb,
+    generateSessionTitle,
+    getSessionDisplayTitle,
     INITIAL_WELCOME_MESSAGE,
 } from './chatSessions';
 
 export type { ChatSession };
+export { getSessionDisplayTitle };
 
 export interface ChatSource {
     title: string;
@@ -249,7 +252,7 @@ CRITICAL INSTRUCTIONS ON LENGTH AND CITATION:
    - FIRST-LINE SEARCH & VERIFICATION: If a user asks for a specific Hadith index number (e.g., "Hadith 3465 in Sahih al-Bukhari"), you MUST first attempt to retrieve and output the actual, legitimate, and authenticated text of the Hadith from your extensive scholarly knowledge base (acting as the ultimate Hadith reference).
    - When providing the actual text, you MUST clearly state which numbering system you are citing from (e.g., Darussalam, Fath al-Bari, or USC-MSA) so the user is perfectly clear on its exact place in publications.
    - INSUFFICIENT DATA / FAILURE FALLBACK: If the query data is too vague (e.g., no book specified) or if you cannot confidently verify or retrieve the authentic text for that exact index from your pre-trained resources, only then must you admit the limitation honestly and output the structured cross-reference guide:
-     "🔍 **How to Cross-Reference this Hadith**
+     " **How to Cross-Reference this Hadith**
      I could not verify the exact text for Index [Number] in Sahih al-Bukhari due to numbering system differences (USC-MSA vs. Darussalam). To find the exact text in your library or preferred online database:
      1. Search for keywords: [Provide 2-3 specific Arabic/English keywords]
      2. Check Chapter: [Provide the specific Kitab/Book name, e.g., 'Kitab Ahadith al-Anbiya' or 'Kitab al-Buyu']
@@ -274,12 +277,12 @@ IMPORTANT SECURITY RULE: You do NOT have admin access. If a setting is PIN-locke
 
 Examples:
 - User: "Find Azizia masjid" or "Where is Masjid Al-Noor?"
-  Response: "I have located Azizia Masjid for you. You can see its details, distance, and tap below to start Google Maps directions! 🕌
+  Response: "I have located Azizia Masjid for you. You can see its details, distance, and tap below to start Google Maps directions! 
   ---COMMAND---
   {"action": "find_masjid", "query": "Azizia"}"
 
 - User: "Start a focus mode timer for 10 mins"
-  Response: "I am starting a 10-minute focus session for you now. May Allah grant you focus and barakah in your time! 🎯
+  Response: "I am starting a 10-minute focus session for you now. May Allah grant you focus and barakah in your time! 
   ---COMMAND---
   {"action": "start_focus", "minutes": 10}"
 
@@ -387,7 +390,7 @@ export async function matchAgenticIntent(text: string): Promise<ChatMessage | nu
     ) {
         return {
             id: (Date.now() + 1).toString(),
-            text: `Here are the daily obligatory prayer timings. May Allah accept your prayers and grant you steadfastness! 🕌\n\nTap the **Prayer** tab below for live second-by-second countdowns and full athan schedules for your current location.\n\n---COMMAND---\n{"action": "get_prayer_times"}`,
+            text: `Here are the daily obligatory prayer timings. May Allah accept your prayers and grant you steadfastness! \n\nTap the **Prayer** tab below for live second-by-second countdowns and full athan schedules for your current location.\n\n---COMMAND---\n{"action": "get_prayer_times"}`,
             sender: 'ai',
             timestamp: new Date(),
             actionCommand: { action: 'get_prayer_times' },
@@ -405,7 +408,7 @@ export async function matchAgenticIntent(text: string): Promise<ChatMessage | nu
             const streak = await getStreak();
             return {
                 id: (Date.now() + 1).toString(),
-                text: `Masha'Allah! Your current consistency streak is **${streak.currentStreak} Days** 🔥. Keep maintaining your spiritual discipline, daily prayers, and digital purity!\n\n---COMMAND---\n{"action": "get_streak"}`,
+                text: `Masha'Allah! Your current consistency streak is **${streak.currentStreak} Days** . Keep maintaining your spiritual discipline, daily prayers, and digital purity!\n\n---COMMAND---\n{"action": "get_streak"}`,
                 sender: 'ai',
                 timestamp: new Date(),
                 actionCommand: { action: 'get_streak' },
@@ -551,13 +554,24 @@ export function useChat() {
         setMessages(updatedMessages);
         setIsTyping(true);
 
+        // Derive and immediately apply title from first user query so drawer reflects title without delay
+        const isFirstUserMsg = !messagesRef.current.some(m => m.sender === 'user');
+        if (isFirstUserMsg) {
+            const immediateTitle = generateSessionTitle(text);
+            setSessions(prev =>
+                prev.map(s => (s.id === activeId ? { ...s, title: immediateTitle, updatedAt: Date.now() } : s))
+            );
+        }
+
         const persistConversation = async (finalMsgs: ChatMessage[]) => {
             try {
                 const all = await getAllSessions();
                 const curr = all.find(s => s.id === activeId);
+                const firstUser = finalMsgs.find(m => m.sender === 'user');
+                const title = firstUser ? generateSessionTitle(firstUser.text) : (curr?.title || 'New Conversation');
                 await saveSessionDb({
                     id: activeId,
-                    title: curr?.title || 'New Conversation',
+                    title,
                     createdAt: curr?.createdAt || Date.now(),
                     updatedAt: Date.now(),
                     messages: finalMsgs,

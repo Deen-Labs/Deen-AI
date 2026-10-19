@@ -4,16 +4,16 @@ The official mobile client for **Deen AI**, built with **React Native (0.86.2)**
 
 ---
 
-## Features (v2.1.1)
+## Features (v2.1.5)
 
-- **Multi-Session Imam AI**: Complete on-device conversation drawer and session history persistence (`AsyncStorage`) with auto-generated contextual titles.
+- **Multi-Session Imam AI**: Complete on-device conversation drawer and session history persistence (`AsyncStorage`) with instant dynamic titles generated from the user's first question.
 - **Deterministic String Fast-Path Recall**: Sub-300ms execution of in-app agent actions (timers, masjids, prayer timings) with $0 token overhead and strict secular guardrails.
-- **Precision Qibla Compass**: Great-circle spherical azimuth calculation with live bearing and distance to the Kaaba in Makkah.
+- **Live Qibla Sensor Compass**: Native accelerometer and magnetometer sensor fusion (`expo-location` `watchHeadingAsync`) driving real-time 360-degree compass rotation with emerald alignment targets.
 - **Zero-Latency Background Warm-Up**: Concurrently pre-fetches prayer times and nearby masjids into memory on app launch (`lib/backgroundWarmup.ts`).
 - **5-Tab Ergonomic Navigation**: Bottom navigation (`Home`, `Prayer`, `Focus`, `Imam AI`, `Masjid`) with settings shortcut.
 - **Live Azan Countdown Ticker**: Real-time ticker to the exact next prayer with 7-minute pre-prayer notification alerts.
 - **30-Day Non-Repeating Daily Inspiration**: Authenticated Hadith & Ayah library with verified citations and refresh capability.
-- **Native Android Protection & Mandatory PIN**: Device-level `VpnService` content shielding with enforced 4-digit PIN setup.
+- **Action-Level Anti-Tamper & Privacy Controls**: Intercepts destructive Force Stop, Uninstall, and Clear Storage attempts while allowing complete user control over Android system permissions and privacy.
 
 ---
 
