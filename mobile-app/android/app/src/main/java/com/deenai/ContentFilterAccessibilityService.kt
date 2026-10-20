@@ -153,14 +153,20 @@ class ContentFilterAccessibilityService : AccessibilityService() {
                     val isDeenAccessibilityContext = findTextInNodes(rootNode, setOf("deen ai system-wide protection", "deen ai"))
                     val hasAccessibilityToggleText = findTextInNodes(rootNode, setOf("use service", "use deen ai", "turn off", "stop"))
                     if (isDeenAccessibilityContext && hasAccessibilityToggleText) {
-                        Log.d(TAG, "Blocked attempt to disable Deen AI Accessibility Service!")
-                        performGlobalAction(GLOBAL_ACTION_BACK)
-                        val uri = android.net.Uri.parse("deenai://unlock-uninstall")
-                        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        val hasConfirmDialog = findTextInNodes(rootNode, setOf("stop deen ai?", "turn off deen ai?", "stop service?", "turn off?"))
+                        val isClicked = (event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED)
+                        if (isClicked || hasConfirmDialog) {
+                            if (BuildConfig.DEBUG) {
+                                Log.d(TAG, "Blocked attempt to disable Deen AI Accessibility Service!")
+                            }
+                            performGlobalAction(GLOBAL_ACTION_BACK)
+                            val uri = android.net.Uri.parse("deenai://unlock-uninstall")
+                            val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            }
+                            startActivity(intent)
+                            return
                         }
-                        startActivity(intent)
-                        return
                     }
 
                     val isDeenContext = findTextInNodes(rootNode, setOf("deen ai", "com.deenai"))

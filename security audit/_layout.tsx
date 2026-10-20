@@ -8,7 +8,7 @@ import SplashScreen from "../components/SplashScreen";
 import { initializeContentProtection } from "../lib/contentProtection";
 import { warmUpAppData } from "../lib/backgroundWarmup";
 import PINModal from "../components/PINModal";
-import { verifyPIN } from "../lib/lock";
+import { verifyPIN, isLocked } from "../lib/lock";
 import { NativeModules } from "react-native";
 
 const { ContentProtection } = NativeModules;
@@ -28,18 +28,22 @@ export default function RootLayout() {
     });
 
     // Listen for Accessibility Service blocked deep links
-    const handleDeepLink = (event: Linking.EventType) => {
+    const handleDeepLink = async (event: Linking.EventType) => {
       const data = Linking.parse(event.url);
       if (data.hostname === 'blocked') {
-        const blockedUrl = data.queryParams?.url || "Unknown Site";
+        const rawUrl = String(data.queryParams?.url || "Unknown Site");
+        const safeUrl = rawUrl.replace(/[\r\n\t<>]/g, '').slice(0, 80);
         Alert.alert(
           '🛡️ Content Blocked by DEEN AI',
-          `Access to ${blockedUrl} has been automatically blocked to protect your spiritual well-being.`,
+          `Access to ${safeUrl} has been automatically blocked to protect your spiritual well-being.`,
           [{ text: 'I Understand', style: 'default' }],
           { cancelable: false }
         );
       } else if (data.hostname === 'unlock-uninstall') {
-        setShowUninstallPin(true);
+        const locked = await isLocked();
+        if (locked) {
+          setShowUninstallPin(true);
+        }
       } else if (data.hostname === 'blocked-keyword') {
         Alert.alert(
           '🛡️ Blocked Word Detected',
@@ -70,9 +74,9 @@ export default function RootLayout() {
     if (valid) {
       setShowUninstallPin(false);
       if (ContentProtection && ContentProtection.temporarilyUnlockUninstall) {
-        // Unlock for 2 minutes (120000 ms)
-        ContentProtection.temporarilyUnlockUninstall(120000);
-        Alert.alert("Unlocked", "Uninstall protection paused for 2 minutes. You can now uninstall the app via Settings.");
+        // Unlock for 1 minute (60000 ms)
+        ContentProtection.temporarilyUnlockUninstall(60000);
+        Alert.alert("Unlocked", "Uninstall and protection changes paused for 1 minute. You can now modify settings or uninstall the app.");
       }
     } else {
       setPinError("Invalid PIN");

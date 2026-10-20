@@ -296,10 +296,7 @@ export function generateFallbackMasjids(latitude: number, longitude: number): Ma
  * Strips syntax delimiters and quotes, and escapes regex metacharacters.
  */
 function sanitizeOverpassRegex(input: string): string {
-  return input
-    .replace(/["\\;]/g, '')
-    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    .trim();
+  return input.replace(/[^a-zA-Z0-9\s-]/g, '').trim().slice(0, 64);
 }
 
 /**

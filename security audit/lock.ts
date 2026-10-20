@@ -250,6 +250,7 @@ export async function verifyPIN(attempt: string): Promise<boolean> {
       // Reset failed attempts on success
       await AsyncStorage.setItem(FAILED_ATTEMPTS_KEY, '0');
       await AsyncStorage.removeItem(LOCKOUT_UNTIL_KEY);
+      await nativeContentProtection.temporarilyUnlockUninstall(60000);
       return true;
     } else {
       // Track failed attempt
