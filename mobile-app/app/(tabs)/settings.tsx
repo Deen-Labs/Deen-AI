@@ -239,7 +239,7 @@ export default function SettingsScreen() {
           
           <View style={styles.settingCard}>
             <Text style={styles.settingLabel}>Version</Text>
-            <Text style={styles.settingValue}>3.1.1</Text>
+            <Text style={styles.settingValue}>3.2.0</Text>
           </View>
 
           <View style={styles.settingCard}>

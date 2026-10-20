@@ -64,6 +64,10 @@ export interface Masjid {
   jummah?: string;
   suhoor?: string;
   iftar?: string;
+  isLocalUpdate?: boolean;
+  isCustomAdded?: boolean;
+  isMuazzinVerified?: boolean;
+  lastUpdated?: number;
 }
 
 function getDeterministicHash(str: string): number {

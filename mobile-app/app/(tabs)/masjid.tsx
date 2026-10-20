@@ -5,6 +5,13 @@ import { getCurrentLocation, getQuickLocation, Coordinates } from "../../lib/loc
 import { getNearbyMasjids, Masjid, formatDistance, resolveSearchCenterAndQuery, getCachedMasjidsSync, calculateDistance } from "../../lib/masjid";
 import { subscribeToWarmup } from "../../lib/backgroundWarmup";
 import { Feather } from "@expo/vector-icons";
+import UpdateMasjidTimingModal, { TimingFormData } from "../../components/UpdateMasjidTimingModal";
+import {
+  applyTimingOverridesToMasjids,
+  saveLocalTimingOverride,
+  saveCustomAddedMasjid,
+  submitTimingUpdateToBackend,
+} from "../../lib/masjidTimingSync";
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android') {
@@ -13,7 +20,7 @@ if (Platform.OS === 'android') {
   }
 }
 // Configure your Google Form URL here (replace with your published Google Form link)
-export const MASJID_UPDATE_FORM_URL: string = "";
+export const MASJID_UPDATE_FORM_URL: string = "https://docs.google.com/forms/d/e/1FAIpQLScEZdkbOjZG98Be0TuVvZDaDDq58SVmivTJ-3zBtrgO2OPEKQ/viewform";
 
 export default function MasjidScreen() {
   const cached = getCachedMasjidsSync();
@@ -24,18 +31,22 @@ export default function MasjidScreen() {
   const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(null);
   const [selectedMasjidId, setSelectedMasjidId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [timingModalVisible, setTimingModalVisible] = useState(false);
+  const [modalMode, setModalMode] = useState<'update' | 'add'>('update');
+  const [masjidToUpdate, setMasjidToUpdate] = useState<Masjid | null>(null);
 
   // Listen to background warm-up service
   useEffect(() => {
-    const unsubscribe = subscribeToWarmup(() => {
+    const unsubscribe = subscribeToWarmup(async () => {
       const fresh = getCachedMasjidsSync();
       if (fresh && fresh.length > 0) {
-        setMasjids(fresh);
+        const withOverrides = await applyTimingOverridesToMasjids(fresh, currentLocation);
+        setMasjids(withOverrides);
         setLoading(false);
       }
     });
     return unsubscribe;
-  }, []);
+  }, [currentLocation]);
 
   const handleGlobalSearch = async () => {
     Keyboard.dismiss();
@@ -114,7 +125,8 @@ export default function MasjidScreen() {
       const searchRadius = queryToSearch.trim().length > 0 ? (hasSearchCenter ? 12000 : 25000) : 3500;
 
       const nearbyMasjids = await getNearbyMasjids(location, searchRadius, cleanedQuery, searchCenter);
-      setMasjids(nearbyMasjids);
+      const withOverrides = await applyTimingOverridesToMasjids(nearbyMasjids, location);
+      setMasjids(withOverrides);
       setLoading(false);
 
       // In the background, request fresh high-accuracy GPS coordinates and update distance
@@ -123,7 +135,8 @@ export default function MasjidScreen() {
           setCurrentLocation(freshLoc);
           if (Math.abs(freshLoc.latitude - location.latitude) > 0.01 || Math.abs(freshLoc.longitude - location.longitude) > 0.01) {
             const freshMasjids = await getNearbyMasjids(freshLoc, searchRadius, cleanedQuery, searchCenter);
-            setMasjids(freshMasjids);
+            const freshWithOverrides = await applyTimingOverridesToMasjids(freshMasjids, freshLoc);
+            setMasjids(freshWithOverrides);
           }
         }
       }).catch(() => {});
@@ -150,18 +163,190 @@ export default function MasjidScreen() {
     setSelectedMasjidId(prevId => prevId === masjidId ? null : masjidId);
   };
 
+  const handleOpenAddMasjid = () => {
+    setMasjidToUpdate(null);
+    setModalMode('add');
+    setTimingModalVisible(true);
+  };
+
   const handleUpdateTimings = (item: Masjid) => {
-    if (MASJID_UPDATE_FORM_URL && MASJID_UPDATE_FORM_URL.trim().length > 0) {
-      const sep = MASJID_UPDATE_FORM_URL.includes("?") ? "&" : "?";
-      const formUrl = `${MASJID_UPDATE_FORM_URL}${sep}entry.1000001=${encodeURIComponent(item.id)}&entry.1000002=${encodeURIComponent(item.name)}&entry.1000003=${encodeURIComponent(item.address)}`;
-      Linking.openURL(formUrl).catch(() => {
-        Alert.alert("Error", "Could not open the update form.");
+    setMasjidToUpdate(item);
+    setModalMode('update');
+    setTimingModalVisible(true);
+  };
+
+  const handleSaveTimings = async (formData: TimingFormData) => {
+    const now = Date.now();
+    const isMuazzinVerified = Boolean(
+      formData.muazzinPasscode && formData.muazzinPasscode.trim().length >= 4
+    );
+
+    if (modalMode === 'add') {
+      const coords = currentLocation || { latitude: 17.385044, longitude: 78.486671 };
+      const newMasjidId = `custom-user-${now}`;
+
+      const athanTimes = formData.athanTimes;
+      const iqamahTimes = formData.iqamahTimes;
+      const jummah = formData.jummah;
+      const sunrise = formData.sunrise;
+      const sahar = formData.sahar;
+      const iftar = formData.iftar;
+
+      const newMasjid: Masjid = {
+        id: newMasjidId,
+        name: formData.name || 'Local Masjid',
+        address: formData.address || 'Local Community, Hyderabad',
+        distance: 0,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        school: formData.school || 'Ahle Sunnah (Hanafi)',
+        isOpen: true,
+        athanTimes,
+        iqamahTimes,
+        jummah,
+        sunrise,
+        suhoor: sahar,
+        iftar,
+        isCustomAdded: true,
+        isLocalUpdate: true,
+        isMuazzinVerified,
+        lastUpdated: now,
+      };
+
+      // 1. Instant Optimistic UI Update: Prepend directly to list
+      setMasjids(prev => [newMasjid, ...prev.filter(m => m.id !== newMasjidId)]);
+
+      // 2. Persist custom masjid
+      await saveCustomAddedMasjid(newMasjid);
+
+      // 3. Persist local timing override
+      await saveLocalTimingOverride({
+        masjidId: newMasjidId,
+        name: newMasjid.name,
+        address: `${newMasjid.address} (GPS: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)})`,
+        athanTimes,
+        iqamahTimes,
+        jummah,
+        jummahAthan: formData.jummahAthan,
+        sunrise,
+        sahar,
+        iftar,
+        notes: `NEW MASJID - School: ${newMasjid.school}. ${formData.notes || ''}`.trim(),
+        muazzinPasscode: formData.muazzinPasscode?.trim(),
+        isMuazzinVerified,
+        updatedAt: now,
+        syncStatus: 'pending',
+        isCustomAdded: true,
       });
+
+      // 4. Background submission to the backend / Webhook
+      submitTimingUpdateToBackend({
+        masjidId: newMasjidId,
+        name: newMasjid.name,
+        address: `${newMasjid.address} (GPS: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)})`,
+        athanTimes,
+        iqamahTimes,
+        jummah,
+        sunrise,
+        sahar,
+        iftar,
+        notes: `NEW MASJID - School: ${newMasjid.school}. ${formData.notes || ''}`.trim(),
+        muazzinPasscode: formData.muazzinPasscode?.trim(),
+        isMuazzinVerified,
+        updatedAt: now,
+        syncStatus: 'pending',
+        isCustomAdded: true,
+      }, {
+        googleFormUrl: MASJID_UPDATE_FORM_URL,
+      }).catch(() => {});
+
+      if (isMuazzinVerified) {
+        Alert.alert(
+          "Verified by Official Muazzin 🕌",
+          `"${newMasjid.name}" has been added with Official Muazzin Verification status. JazakAllah Khair!`,
+          [{ text: "Alhamdulillah" }]
+        );
+      } else {
+        Alert.alert(
+          "JazakAllah Khair! 🕌",
+          `"${newMasjid.name}" has been added to your app and submitted for community verification.`,
+          [{ text: "OK" }]
+        );
+      }
     } else {
-      Alert.alert(
-        "Update Masjid Timings",
-        `To submit verified prayer times for ${item.name}, set your Google Form link in MASJID_UPDATE_FORM_URL in masjid.tsx.`
-      );
+      if (!masjidToUpdate) return;
+
+      // 1. Instant Optimistic UI Update on device
+      setMasjids(prev => prev.map(m => {
+        if (m.id === masjidToUpdate.id) {
+          return {
+            ...m,
+            athanTimes: formData.athanTimes,
+            iqamahTimes: formData.iqamahTimes,
+            jummah: formData.jummah,
+            sunrise: formData.sunrise || m.sunrise,
+            suhoor: formData.sahar || m.suhoor,
+            iftar: formData.iftar || m.iftar,
+            isLocalUpdate: true,
+            isMuazzinVerified: isMuazzinVerified || m.isMuazzinVerified,
+            lastUpdated: now,
+          };
+        }
+        return m;
+      }));
+
+      // 2. Persist locally to storage
+      await saveLocalTimingOverride({
+        masjidId: masjidToUpdate.id,
+        name: masjidToUpdate.name,
+        address: masjidToUpdate.address || masjidToUpdate.vicinity || '',
+        athanTimes: formData.athanTimes,
+        iqamahTimes: formData.iqamahTimes,
+        jummah: formData.jummah,
+        jummahAthan: formData.jummahAthan,
+        sunrise: formData.sunrise,
+        sahar: formData.sahar,
+        iftar: formData.iftar,
+        notes: formData.notes,
+        muazzinPasscode: formData.muazzinPasscode?.trim(),
+        isMuazzinVerified: isMuazzinVerified,
+        updatedAt: now,
+        syncStatus: 'pending',
+      });
+
+      // 3. Silent background submission
+      submitTimingUpdateToBackend({
+        masjidId: masjidToUpdate.id,
+        name: masjidToUpdate.name,
+        address: masjidToUpdate.address || masjidToUpdate.vicinity || '',
+        athanTimes: formData.athanTimes,
+        iqamahTimes: formData.iqamahTimes,
+        jummah: formData.jummah,
+        sunrise: formData.sunrise,
+        sahar: formData.sahar,
+        iftar: formData.iftar,
+        notes: formData.notes,
+        muazzinPasscode: formData.muazzinPasscode?.trim(),
+        isMuazzinVerified: isMuazzinVerified,
+        updatedAt: now,
+        syncStatus: 'pending',
+      }, {
+        googleFormUrl: MASJID_UPDATE_FORM_URL,
+      }).catch(() => {});
+
+      if (isMuazzinVerified) {
+        Alert.alert(
+          "Verified by Official Muazzin 🕌",
+          `Official timings for ${masjidToUpdate.name} have been published with Muazzin Verification status. JazakAllah Khair!`,
+          [{ text: "Alhamdulillah" }]
+        );
+      } else {
+        Alert.alert(
+          "JazakAllah Khair! ✨",
+          `Timings for ${masjidToUpdate.name} have been updated on your device and queued for community verification.`,
+          [{ text: "OK" }]
+        );
+      }
     }
   };
 
@@ -229,6 +414,24 @@ export default function MasjidScreen() {
                 {item.school}
               </Text>
             )}
+            {item.isMuazzinVerified ? (
+              <View style={[styles.localUpdateBadge, styles.muazzinVerifiedBadge]}>
+                <Feather name="shield" size={10} color="#f59e0b" style={{ marginRight: 3 }} />
+                <Text style={[styles.localUpdateBadgeText, styles.muazzinVerifiedBadgeText]}>
+                  Verified by Muazzin 🕌
+                </Text>
+              </View>
+            ) : item.isCustomAdded ? (
+              <View style={[styles.localUpdateBadge, styles.customAddedBadge]}>
+                <Feather name="plus-circle" size={10} color="#e2a23b" />
+                <Text style={[styles.localUpdateBadgeText, { color: '#e2a23b' }]}>Added by you</Text>
+              </View>
+            ) : item.isLocalUpdate ? (
+              <View style={styles.localUpdateBadge}>
+                <Feather name="check" size={10} color="#10b981" />
+                <Text style={styles.localUpdateBadgeText}>Updated by you</Text>
+              </View>
+            ) : null}
           </View>
           <Text style={styles.distance}>{formatDistance(item.distance)}</Text>
         </View>
@@ -258,6 +461,12 @@ export default function MasjidScreen() {
               {/* Calligraphy Header Banner */}
               <View style={styles.ledBanner}>
                 <Text style={styles.ledCalligraphy}>لَا إِلٰهَ إِلَّا ٱللَّٰهُ مُحَمَّدٌ رَسُولُ ٱللَّٰهِ</Text>
+                {item.isMuazzinVerified && (
+                  <View style={styles.muazzinBoardBanner}>
+                    <Feather name="shield" size={10} color="#f59e0b" style={{ marginRight: 4 }} />
+                    <Text style={styles.muazzinBoardBannerText}>Official Timings • Verified by Muazzin</Text>
+                  </View>
+                )}
               </View>
 
               {/* Column Header Titles */}
@@ -398,10 +607,22 @@ export default function MasjidScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Nearby Masjid</Text>
-        <Text style={styles.subtitle}>
-          Find and connect to local masajid
-        </Text>
+        <View style={styles.headerTopRow}>
+          <View style={{ flex: 1, marginRight: 12 }}>
+            <Text style={styles.title}>Nearby Masjid</Text>
+            <Text style={styles.subtitle}>
+              Find and connect to local masajid
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.headerAddBtn}
+            onPress={handleOpenAddMasjid}
+            activeOpacity={0.8}
+          >
+            <Feather name="plus" size={14} color="#0f172a" style={{ marginRight: 4 }} />
+            <Text style={styles.headerAddBtnText}>Add Masjid</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Sleek Search Bar */}
         <View style={styles.searchBarContainer}>
@@ -455,13 +676,23 @@ export default function MasjidScreen() {
         </View>
       ) : masjids.length === 0 ? (
         <View style={styles.centerContent}>
+          <Feather name="map-pin" size={32} color="#64748b" style={{ marginBottom: 10 }} />
           <Text style={styles.emptyText}>No masjids found nearby</Text>
-          <Text style={styles.emptySubtext}>Try expanding your search radius</Text>
+          <Text style={styles.emptySubtext}>Can't find your local masjid? Add it to help the community.</Text>
+          <TouchableOpacity style={styles.emptyAddBtn} onPress={handleOpenAddMasjid} activeOpacity={0.8}>
+            <Feather name="plus" size={14} color="#0f172a" style={{ marginRight: 6 }} />
+            <Text style={styles.emptyAddBtnText}>Add Missing Masjid</Text>
+          </TouchableOpacity>
         </View>
       ) : filteredMasjids.length === 0 ? (
         <View style={styles.centerContent}>
+          <Feather name="search" size={32} color="#64748b" style={{ marginBottom: 10 }} />
           <Text style={styles.emptyText}>No matching masjids found</Text>
-          <Text style={styles.emptySubtext}></Text>
+          <Text style={styles.emptySubtext}>Can't find your local masjid? Add it now to help everyone.</Text>
+          <TouchableOpacity style={styles.emptyAddBtn} onPress={handleOpenAddMasjid} activeOpacity={0.8}>
+            <Feather name="plus" size={14} color="#0f172a" style={{ marginRight: 6 }} />
+            <Text style={styles.emptyAddBtnText}>Add Missing Masjid</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -478,6 +709,16 @@ export default function MasjidScreen() {
           }
         />
       )}
+
+      {/* In-App Timing Update & Add Modal */}
+      <UpdateMasjidTimingModal
+        visible={timingModalVisible}
+        masjid={masjidToUpdate}
+        mode={modalMode}
+        currentLocation={currentLocation}
+        onClose={() => setTimingModalVisible(false)}
+        onSubmit={handleSaveTimings}
+      />
     </SafeAreaView>
   );
 }
@@ -837,5 +1078,97 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#94a4a2",
     lineHeight: 16,
+  },
+  localUpdateBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(16, 185, 129, 0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.3)",
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    marginTop: 4,
+  },
+  localUpdateBadgeText: {
+    color: "#10b981",
+    fontSize: 10,
+    fontWeight: "700",
+    marginLeft: 4,
+  },
+  headerTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 2,
+  },
+  headerAddBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#e2a23b",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    shadowColor: "#e2a23b",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  headerAddBtnText: {
+    color: "#0f172a",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  emptyAddBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#e2a23b",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginTop: 14,
+    shadowColor: "#e2a23b",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  emptyAddBtnText: {
+    color: "#0f172a",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  customAddedBadge: {
+    backgroundColor: "rgba(226, 162, 59, 0.14)",
+    borderColor: "rgba(226, 162, 59, 0.35)",
+  },
+  muazzinVerifiedBadge: {
+    backgroundColor: "rgba(245, 158, 11, 0.16)",
+    borderColor: "rgba(245, 158, 11, 0.45)",
+  },
+  muazzinVerifiedBadgeText: {
+    color: "#fbbf24",
+    fontWeight: "700",
+  },
+  muazzinBoardBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 4,
+    backgroundColor: "rgba(245, 158, 11, 0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(245, 158, 11, 0.3)",
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    alignSelf: "center",
+  },
+  muazzinBoardBannerText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#f59e0b",
+    letterSpacing: 0.3,
   },
 });
