@@ -44,8 +44,9 @@ class ContentFilterAccessibilityService : AccessibilityService() {
         "com.samsung.android.packageinstaller"
     )
 
-    private val adultKeywords = setOf(
-        "porn", "xxx", "xvideos", "xnxx", "xhamster", "brazzers", "nude", "sex"
+    private val adultKeywordRegex = Regex(
+        "\\b(porn|pornhub|xxx|xvideos|xnxx|xhamster|brazzers|nude|nudes|sex|onlyfans|redtube|youporn)\\b",
+        RegexOption.IGNORE_CASE
     )
 
     private var lastBrowserContentScanTime: Long = 0L
@@ -60,6 +61,31 @@ class ContentFilterAccessibilityService : AccessibilityService() {
         return prefs.getBoolean("is_locked", false)
     }
 
+    private fun findRegexInNodes(
+        node: AccessibilityNodeInfo?,
+        regex: Regex,
+        currentDepth: Int = 0,
+        maxDepth: Int = 12
+    ): Boolean {
+        if (node == null || currentDepth > maxDepth) return false
+        val nodeText = node.text?.toString()
+        if (!nodeText.isNullOrBlank() && regex.containsMatchIn(nodeText)) {
+            return true
+        }
+        val nodeDesc = node.contentDescription?.toString()
+        if (!nodeDesc.isNullOrBlank() && regex.containsMatchIn(nodeDesc)) {
+            return true
+        }
+
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i)
+            if (findRegexInNodes(child, regex, currentDepth + 1, maxDepth)) {
+                return true
+            }
+        }
+        return false
+    }
+
     private fun findTextInNodes(
         node: AccessibilityNodeInfo?,
         searchTexts: Set<String>,
@@ -67,15 +93,18 @@ class ContentFilterAccessibilityService : AccessibilityService() {
         maxDepth: Int = 12
     ): Boolean {
         if (node == null || currentDepth > maxDepth) return false
-        val nodeText = node.text?.toString()?.lowercase() ?: ""
-        val nodeDesc = node.contentDescription?.toString()?.lowercase() ?: ""
-        
-        for (text in searchTexts) {
-            if (nodeText.contains(text) || nodeDesc.contains(text)) {
-                return true
+        val nodeText = node.text?.toString()?.lowercase()
+        val nodeDesc = node.contentDescription?.toString()?.lowercase()
+
+        if (nodeText != null || nodeDesc != null) {
+            for (text in searchTexts) {
+                if ((nodeText != null && nodeText.contains(text)) ||
+                    (nodeDesc != null && nodeDesc.contains(text))) {
+                    return true
+                }
             }
         }
-        
+
         for (i in 0 until node.childCount) {
             val child = node.getChild(i)
             if (findTextInNodes(child, searchTexts, currentDepth + 1, maxDepth)) {
@@ -95,8 +124,8 @@ class ContentFilterAccessibilityService : AccessibilityService() {
             event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
             
             // Check the specific text changed event text
-            val eventText = event.text?.joinToString(" ")?.lowercase() ?: ""
-            if (eventText.isNotBlank() && adultKeywords.any { eventText.contains(it) }) {
+            val eventText = event.text?.joinToString(" ") ?: ""
+            if (eventText.isNotBlank() && adultKeywordRegex.containsMatchIn(eventText)) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Aggressive Text Block Triggered by eventText: $eventText")
                 }
@@ -111,7 +140,7 @@ class ContentFilterAccessibilityService : AccessibilityService() {
                     if (event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
                         lastBrowserContentScanTime = now
                     }
-                    if (findTextInNodes(rootNode, adultKeywords)) {
+                    if (findRegexInNodes(rootNode, adultKeywordRegex)) {
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Aggressive Text Block Triggered by node text")
                         }
@@ -153,14 +182,20 @@ class ContentFilterAccessibilityService : AccessibilityService() {
                     val isDeenAccessibilityContext = findTextInNodes(rootNode, setOf("deen ai system-wide protection", "deen ai"))
                     val hasAccessibilityToggleText = findTextInNodes(rootNode, setOf("use service", "use deen ai", "turn off", "stop"))
                     if (isDeenAccessibilityContext && hasAccessibilityToggleText) {
-                        Log.d(TAG, "Blocked attempt to disable Deen AI Accessibility Service!")
-                        performGlobalAction(GLOBAL_ACTION_BACK)
-                        val uri = android.net.Uri.parse("deenai://unlock-uninstall")
-                        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        val hasConfirmDialog = findTextInNodes(rootNode, setOf("stop deen ai?", "turn off deen ai?", "stop service?", "turn off?"))
+                        val isClicked = (event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED)
+                        if (isClicked || hasConfirmDialog) {
+                            if (BuildConfig.DEBUG) {
+                                Log.d(TAG, "Blocked attempt to disable Deen AI Accessibility Service!")
+                            }
+                            performGlobalAction(GLOBAL_ACTION_BACK)
+                            val uri = android.net.Uri.parse("deenai://unlock-uninstall")
+                            val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            }
+                            startActivity(intent)
+                            return
                         }
-                        startActivity(intent)
-                        return
                     }
 
                     val isDeenContext = findTextInNodes(rootNode, setOf("deen ai", "com.deenai"))

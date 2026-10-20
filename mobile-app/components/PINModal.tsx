@@ -144,7 +144,7 @@ export default function PINModal({
             triggerShake();
             return;
           }
-          onSubmit(pin);
+          setTimeout(() => onSubmit(pin), 16);
         }
       } else {
         if (pin.length < 4) {
@@ -159,7 +159,7 @@ export default function PINModal({
           triggerShake();
           return;
         }
-        onSubmit(pin);
+        setTimeout(() => onSubmit(pin), 16);
       }
       return;
     }

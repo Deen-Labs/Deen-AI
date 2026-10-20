@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import { nativeContentProtection } from './nativeContentProtection';
 
 export interface FocusSession {
   id: string;
@@ -177,6 +178,12 @@ export async function getBlockingSettings(): Promise<BlockingSettings> {
 export async function saveBlockingSettings(settings: BlockingSettings): Promise<void> {
   try {
     await AsyncStorage.setItem(BLOCKING_SETTINGS_KEY, JSON.stringify(settings));
+
+    const isActive = await isFocusModeActive();
+    const enabledPackageNames = settings.enableAppBlocking
+      ? settings.blockedApps.filter(a => a.enabled).map(a => a.packageName)
+      : [];
+    await nativeContentProtection.syncFocusBlocking(isActive, enabledPackageNames);
   } catch (error) {
     console.error('Error saving blocking settings:', error);
   }
@@ -221,6 +228,12 @@ export async function removeBlockedApp(appId: string): Promise<void> {
 export async function setFocusModeActive(isActive: boolean): Promise<void> {
   try {
     await AsyncStorage.setItem(ACTIVE_FOCUS_KEY, JSON.stringify(isActive));
+
+    const settings = await getBlockingSettings();
+    const enabledPackageNames = settings.enableAppBlocking
+      ? settings.blockedApps.filter(a => a.enabled).map(a => a.packageName)
+      : [];
+    await nativeContentProtection.syncFocusBlocking(isActive, enabledPackageNames);
   } catch (error) {
     console.error('Error setting focus mode active:', error);
   }

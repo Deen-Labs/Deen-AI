@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, AppState } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   saveFocusSession, 
   getFocusStats, 
@@ -24,6 +24,7 @@ import { Feather } from "@expo/vector-icons";
 export default function FocusScreen() {
   const [isActive, setIsActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(25 * 60); // 25 minutes in seconds
+  const targetEndTimeRef = useRef<number | null>(null);
   const [selectedDuration, setSelectedDuration] = useState(25);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   const [stats, setStats] = useState<FocusStats>({
@@ -102,21 +103,34 @@ export default function FocusScreen() {
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
+    let appStateSubscription: { remove: () => void } | null = null;
 
     if (isActive && timeRemaining > 0) {
       interval = setInterval(() => {
-        setTimeRemaining((time) => time - 1);
+        const remaining = targetEndTimeRef.current
+          ? Math.max(0, Math.round((targetEndTimeRef.current - Date.now()) / 1000))
+          : 0;
+        setTimeRemaining(remaining);
       }, 1000);
+
+      appStateSubscription = AppState.addEventListener('change', (nextAppState) => {
+        if (nextAppState === 'active' && targetEndTimeRef.current) {
+          const remaining = Math.max(0, Math.round((targetEndTimeRef.current - Date.now()) / 1000));
+          setTimeRemaining(remaining);
+        }
+      });
     } else if (timeRemaining === 0 && isActive) {
       completeSession(true);
     }
 
     return () => {
       if (interval) clearInterval(interval);
+      if (appStateSubscription) appStateSubscription.remove();
     };
   }, [isActive, timeRemaining]);
 
   const completeSession = async (completed: boolean) => {
+    targetEndTimeRef.current = null;
     if (sessionStartTime) {
       await saveFocusSession({
         id: Date.now().toString(),
@@ -147,18 +161,21 @@ export default function FocusScreen() {
   };
 
   const startFocus = async () => {
+    targetEndTimeRef.current = Date.now() + timeRemaining * 1000;
     setIsActive(true);
     setSessionStartTime(new Date());
     await setFocusModeActive(true);
   };
 
   const pauseFocus = async () => {
+    targetEndTimeRef.current = null;
     setIsActive(false);
     await setFocusModeActive(false);
     await completeSession(false);
   };
 
   const resetFocus = async () => {
+    targetEndTimeRef.current = null;
     if (isActive && sessionStartTime) {
       await completeSession(false);
     }
@@ -243,6 +260,7 @@ export default function FocusScreen() {
   };
 
   const selectDuration = (minutes: number) => {
+    targetEndTimeRef.current = null;
     setSelectedDuration(minutes);
     setTimeRemaining(minutes * 60);
     setIsActive(false);

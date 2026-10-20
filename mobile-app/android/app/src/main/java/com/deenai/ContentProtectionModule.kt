@@ -127,6 +127,20 @@ class ContentProtectionModule(reactContext: ReactApplicationContext) :
         }
     }
 
+    @ReactMethod
+    fun syncFocusBlocking(isFocusActive: Boolean, blockedPackagesCsv: String, promise: Promise) {
+        try {
+            val prefs = context.getSharedPreferences("deen_ai_prefs", Context.MODE_PRIVATE)
+            prefs.edit()
+                .putBoolean("is_focus_mode_active", isFocusActive)
+                .putString("focus_blocked_packages", blockedPackagesCsv)
+                .apply()
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("WRITE_ERROR", "Failed to sync focus blocking: ${e.message}", e)
+        }
+    }
+
     private fun isAccessibilityServiceEnabled(context: Context, accessibilityService: Class<out AccessibilityService>): Boolean {
         val expectedComponentName = ComponentName(context, accessibilityService)
         val enabledServicesSetting = Settings.Secure.getString(

@@ -425,42 +425,44 @@ export default function DashboardScreen() {
             style={styles.streakCircle}
             activeOpacity={0.9}
             onPress={() => {
-              devTapCount.current += 1;
-              if (devTapTimer.current) clearTimeout(devTapTimer.current);
-              devTapTimer.current = setTimeout(() => {
-                devTapCount.current = 0;
-              }, 1000);
+              if (typeof __DEV__ !== 'undefined' && __DEV__) {
+                devTapCount.current += 1;
+                if (devTapTimer.current) clearTimeout(devTapTimer.current);
+                devTapTimer.current = setTimeout(() => {
+                  devTapCount.current = 0;
+                }, 1000);
 
-              if (devTapCount.current >= 7) {
-                devTapCount.current = 0;
-                const handleUpdate = (val?: string) => {
-                  const num = parseInt(val || '0');
-                  if (!isNaN(num)) {
-                    const { setStreakOverride } = require('../../lib/streak');
-                    setStreakOverride(num).then(() => {
-                      setStreakDays(num);
-                    });
-                  }
-                };
+                if (devTapCount.current >= 7) {
+                  devTapCount.current = 0;
+                  const handleUpdate = (val?: string) => {
+                    const num = parseInt(val || '0');
+                    if (!isNaN(num)) {
+                      const { setStreakOverride } = require('../../lib/streak');
+                      setStreakOverride(num).then(() => {
+                        setStreakDays(num);
+                      });
+                    }
+                  };
 
-                if (Platform.OS === 'web') {
-                  const val = window.prompt('Developer Tools\nEnter new streak days manually:');
-                  if (val !== null) handleUpdate(val);
-                } else if (Platform.OS === 'ios') {
-                  Alert.prompt('Developer Tools', 'Enter new streak days manually:', [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Update', onPress: handleUpdate },
-                  ]);
-                } else {
-                  Alert.alert(
-                    'Developer Tools',
-                    'Dev override quick actions:',
-                    [
+                  if (Platform.OS === 'web') {
+                    const val = window.prompt('Developer Tools\nEnter new streak days manually:');
+                    if (val !== null) handleUpdate(val);
+                  } else if (Platform.OS === 'ios') {
+                    Alert.prompt('Developer Tools', 'Enter new streak days manually:', [
                       { text: 'Cancel', style: 'cancel' },
-                      { text: 'Reset to 0', onPress: () => handleUpdate('0') },
-                      { text: 'Add 10 Days', onPress: () => handleUpdate(String(streakDays + 10)) },
-                    ]
-                  );
+                      { text: 'Update', onPress: handleUpdate },
+                    ]);
+                  } else {
+                    Alert.alert(
+                      'Developer Tools',
+                      'Dev override quick actions:',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Reset to 0', onPress: () => handleUpdate('0') },
+                        { text: 'Add 10 Days', onPress: () => handleUpdate(String(streakDays + 10)) },
+                      ]
+                    );
+                  }
                 }
               }
             }}

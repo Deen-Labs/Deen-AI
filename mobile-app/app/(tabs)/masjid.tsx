@@ -166,6 +166,16 @@ export default function MasjidScreen() {
   };
 
   const openInMaps = async (masjid: Masjid) => {
+    if (masjid.id.startsWith('fallback-') || masjid.id.startsWith('simulated-')) {
+      const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(masjid.name + ' Masjid Hyderabad')}`;
+      try {
+        await Linking.openURL(searchUrl);
+      } catch (err) {
+        Alert.alert("Error", "Unable to open maps application");
+      }
+      return;
+    }
+
     if (!currentLocation) {
       Alert.alert("Error", "Current location not available");
       return;

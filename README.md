@@ -4,9 +4,23 @@ Deen AI is an Islamic-focused AI assistant and digital wellness companion by **D
 
 ---
 
-## Latest Release (v2.2.1) - Critical Security Hardening, Multi-Round SHA-256 PBKDF2 PIN Shield, Anti-Tamper Guardrails & RAG Injection Defense
+## Latest Release (v3.1.1) - Scunthorpe Problem Elimination, Native SharedPreferences Focus Blocking, Background-Safe Timers & Spatial Accuracy
 
-### Critical Security Hardening & Remediation (v2.2.1)
+### Key Enhancements & Upgrades (v3.1.1)
+- **Scunthorpe Problem Elimination & Bounded Regex Content Filter**: Replaced naive substring matching in `ContentFilterAccessibilityService` with compiled word-boundary regular expressions, preventing false positive blocks on legitimate words (e.g. "Essex", "Sussex", "sextant", "sixth").
+- **Native SharedPreferences Focus Mode App Blocking**: Added `@ReactMethod syncFocusBlocking` in `ContentProtectionModule` bridging React Native focus sessions directly to Android's `AccessibilityService` via `deen_ai_prefs` (`is_focus_mode_active`, `focus_blocked_packages`), intercepting unauthorized app launches in real time and routing to `focus-blocked` deep link banner.
+- **Background-Safe Focus Mode Countdown Timer**: Implemented wall-clock timestamp synchronization (`targetEndTimeRef` based on `Date.now() + remaining`) with `AppState` change listeners in `focus.tsx` to ensure timers remain accurate and never freeze or drift when switching apps or locking the device.
+- **Prayer Calculation Method Parameter Plumbing & Live Chat Integration**: Fixed calculation method parsing in `prayerTimes.ts` (`PRAYER_TIMES_${todayStr}_${lat}_${lng}_M${method}`) and wired dynamic cached prayer times directly into the AI Imam chat command response.
+- **Masjid Spatial Accuracy & Navigation Safety**: Replaced synthetic/fake coordinate generation in `masjid.ts` with filtered fallback masjids, and patched `masjid.tsx` & `chat.tsx` navigation handlers to redirect fallback/simulated IDs to genuine Google Maps search queries by masjid name instead of misleading GPS routing.
+- **Non-Blocking UI Feedback & PIN Submissions**: Wrapped PIN submission verification in `PINModal` within a micro-task delay (`setTimeout(..., 16)`) to ensure ripple and button press feedback renders smoothly on the UI thread without JS hitching.
+- **Direct Sideload Production APK (`Deen-AI-v3.1.1.apk`)**: Packaged standalone release APK with Proguard/R8 optimization, Hermes JS bytecode compilation, updated version codes (`versionCode 11`, `versionName "3.1.1"`), and zero external dependency on Expo Go.
+- **Unified Website Distribution**: Integrated directly into the [Deen Labs](https://deenlabs.tech) showcase website with instant 1-click download (`Download App (v3.1.1)`).
+
+---
+
+## Previous Releases
+
+### v2.2.1 - Critical Security Hardening, Multi-Round SHA-256 PBKDF2 PIN Shield, Anti-Tamper Guardrails & RAG Injection Defense
 - **Multi-Round Iterative SHA-256 PIN Shield (VULN-05)**: Replaced legacy bitwise hashing with a hardened 10,000-round pure JS SHA-256 hash combined with a per-device cryptographically random 16-byte salt (`@deen_ai_pin_salt`), featuring transparent automatic legacy migration.
 - **Progressive Brute-Force Rate Limiting (VULN-08)**: Enforced anti-automation lockout cooldowns (60s at 5 failures, 120s at 10, 300s at 15+) with a dynamic real-time lockout countdown in `PINModal`.
 - **RAG Context Isolation & Prompt Injection Defense (VULN-02)**: Strict isolation of untrusted external reference material inside `<reference_context>` tags in user turns; `SYSTEM_INSTRUCTION` remains immutable, and all metadata fields are sanitized.
@@ -17,7 +31,6 @@ Deen AI is an Islamic-focused AI assistant and digital wellness companion by **D
 - **Component Attack Surface Reduction (VULN-12, VULN-13)**: Closed `ContentFilterVPNService` to third-party apps (`android:exported="false"`), disabled ADB backup (`android:allowBackup="false"`), and turned off network inspection in production configurations.
 - **Production PII Privacy Gate (VULN-14)**: Gated all sensitive user typing, clicked nodes, and URL logs behind `if (BuildConfig.DEBUG)`.
 - **Direct Sideload Production APK (`Deen-AI-v2.2.1.apk`)**: Packaged standalone release APK with Proguard/R8 optimization, Hermes JS bytecode compilation, and full security hardening.
-- **Unified Website Distribution**: Integrated directly into the [Deen Labs](https://deenlabs.tech) showcase website with instant 1-click download (`Download App (v2.2.1)`).
 
 ---
 

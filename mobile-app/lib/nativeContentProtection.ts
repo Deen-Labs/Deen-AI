@@ -13,6 +13,8 @@ interface ContentProtectionNative {
   getLastBlockTimestamp(): Promise<number>;
   getTotalBlockCount(): Promise<number>;
   setLockEnabled(enabled: boolean): Promise<boolean>;
+  temporarilyUnlockUninstall(durationMs: number): Promise<boolean>;
+  syncFocusBlocking(isFocusActive: boolean, blockedPackagesCsv: string): Promise<boolean>;
 }
 
 const LINKING_ERROR =
@@ -33,6 +35,8 @@ const ContentProtectionNative: ContentProtectionNative = NativeModules.ContentPr
       getLastBlockTimestamp: () => Promise.resolve(0),
       getTotalBlockCount: () => Promise.resolve(0),
       setLockEnabled: () => Promise.resolve(false),
+      temporarilyUnlockUninstall: () => Promise.resolve(false),
+      syncFocusBlocking: () => Promise.resolve(false),
     };
 
 /**
@@ -224,6 +228,35 @@ class NativeContentProtection {
    * Sync the JS lock state to Android SharedPreferences
    * so the Accessibility Service can read it for uninstall protection.
    */
+
+  /**
+   * Temporarily grant an unlock grace window on the native side (in milliseconds)
+   * to allow stopping protection or modifying settings.
+   */
+  async temporarilyUnlockUninstall(durationMs: number): Promise<boolean> {
+    if (!this.isAvailable()) return false;
+    try {
+      return await ContentProtectionNative.temporarilyUnlockUninstall(durationMs);
+    } catch (error) {
+      console.error('Failed to set temporary unlock:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Sync focus mode active state and list of blocked app package names to native SharedPreferences.
+   */
+  async syncFocusBlocking(isFocusActive: boolean, blockedPackages: string[]): Promise<boolean> {
+    if (!this.isAvailable()) return false;
+    try {
+      const csv = blockedPackages.join(',');
+      return await ContentProtectionNative.syncFocusBlocking(isFocusActive, csv);
+    } catch (error) {
+      console.error('Failed to sync focus blocking state:', error);
+      return false;
+    }
+  }
+
   async syncLockState(enabled: boolean): Promise<boolean> {
     if (!this.isAvailable()) return false;
     try {

@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
   // 1. Shared Client Header Check
   const clientHeader = req.headers["x-deen-client"];
-  if (clientHeader !== "deen-ai-v2.1.5" && clientHeader !== "deen-ai-v2.2.1") {
+  if (clientHeader !== "deen-ai-v2.1.5" && clientHeader !== "deen-ai-v2.2.1" && clientHeader !== "deen-ai-v3.1.1") {
     return res.status(401).json({ error: "Unauthorized: Invalid or missing client header" });
   }
 
