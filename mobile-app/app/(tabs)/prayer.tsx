@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { format } from "date-fns";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { getCurrentLocation } from "../../lib/location";
+import { getCurrentLocation, getQuickLocation } from "../../lib/location";
 import { getPrayerTimes, formatTime, getNextPrayer, PrayerTimings, getCachedPrayerTimesSync } from "../../lib/prayerTimes";
 import { loadSettings } from "../../lib/settings";
 import { subscribeToWarmup } from "../../lib/backgroundWarmup";
@@ -128,26 +128,31 @@ export default function PrayerTimesScreen() {
     try {
       setError(null);
       const settings = await loadSettings();
-      const location = await getCurrentLocation();
+      const location = await getQuickLocation();
+      const lat = location?.latitude ?? 17.385044;
+      const lng = location?.longitude ?? 78.486671;
 
-      if (!location) {
-        const { timings, source: pSource } = await getPrayerTimes(
-          40.7128,
-          -74.006,
-          String(settings.calculationMethodValue)
-        );
-        setPrayerTimes(timings);
-        setSource(pSource.type);
-        setError("Using default location. Enable location for precision.");
-      } else {
-        const { timings, source: pSource } = await getPrayerTimes(
-          location.latitude,
-          location.longitude,
-          String(settings.calculationMethodValue)
-        );
-        setPrayerTimes(timings);
-        setSource(pSource.type);
-      }
+      const { timings, source: pSource } = await getPrayerTimes(
+        lat,
+        lng,
+        String(settings.calculationMethodValue)
+      );
+      setPrayerTimes(timings);
+      setSource(pSource.type);
+      setLoading(false);
+
+      // Revalidate in the background with high-accuracy GPS if available
+      getCurrentLocation().then(async (freshLoc) => {
+        if (freshLoc && (Math.abs(freshLoc.latitude - lat) > 0.05 || Math.abs(freshLoc.longitude - lng) > 0.05)) {
+          const freshData = await getPrayerTimes(
+            freshLoc.latitude,
+            freshLoc.longitude,
+            String(settings.calculationMethodValue)
+          );
+          setPrayerTimes(freshData.timings);
+          setSource(freshData.source.type);
+        }
+      }).catch(() => {});
     } catch (err) {
       console.error("Error loading prayer times:", err);
       setError("Failed to load prayer times. Pull down to retry.");

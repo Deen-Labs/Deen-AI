@@ -10,6 +10,8 @@ import {
   Vibration,
 } from 'react-native';
 
+import { getLockoutRemainingSeconds } from '../lib/lock';
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface PINModalProps {
@@ -35,10 +37,12 @@ export default function PINModal({
   const [confirmPin, setConfirmPin] = useState('');
   const [phase, setPhase] = useState<'enter' | 'confirm'>('enter');
   const [localError, setLocalError] = useState<string | null>(null);
+  const [lockoutRemaining, setLockoutRemaining] = useState<number>(0);
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
     if (visible) {
       setPin('');
       setConfirmPin('');
@@ -50,14 +54,44 @@ export default function PINModal({
         tension: 65,
         friction: 11,
       }).start();
+
+      const checkLockout = async () => {
+        const remaining = await getLockoutRemainingSeconds();
+        setLockoutRemaining(remaining);
+        if (remaining > 0) {
+          setLocalError(`Too many failed attempts. Try again in ${remaining}s`);
+        }
+      };
+      checkLockout();
+
+      interval = setInterval(async () => {
+        const remaining = await getLockoutRemainingSeconds();
+        setLockoutRemaining(remaining);
+        if (remaining > 0) {
+          setLocalError(`Too many failed attempts. Try again in ${remaining}s`);
+        } else {
+          setLocalError(prev => (prev && prev.includes('Too many failed attempts') ? null : prev));
+        }
+      }, 1000);
     } else {
       slideAnim.setValue(0);
+      setLockoutRemaining(0);
     }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [visible]);
 
   useEffect(() => {
     if (error) {
-      setLocalError(error);
+      getLockoutRemainingSeconds().then(remaining => {
+        if (remaining > 0) {
+          setLockoutRemaining(remaining);
+          setLocalError(`Too many failed attempts. Try again in ${remaining}s`);
+        } else {
+          setLocalError(error);
+        }
+      });
       triggerShake();
     }
   }, [error]);
@@ -73,7 +107,15 @@ export default function PINModal({
     ]).start();
   };
 
-  const handleKeyPress = (key: string) => {
+  const handleKeyPress = async (key: string) => {
+    const remaining = await getLockoutRemainingSeconds();
+    if (remaining > 0) {
+      setLockoutRemaining(remaining);
+      setLocalError(`Too many failed attempts. Try again in ${remaining}s`);
+      triggerShake();
+      return;
+    }
+
     setLocalError(null);
 
     if (key === 'delete') {
@@ -107,6 +149,13 @@ export default function PINModal({
       } else {
         if (pin.length < 4) {
           setLocalError('PIN must be exactly 4 digits');
+          triggerShake();
+          return;
+        }
+        const remainingNow = await getLockoutRemainingSeconds();
+        if (remainingNow > 0) {
+          setLockoutRemaining(remainingNow);
+          setLocalError(`Too many failed attempts. Try again in ${remainingNow}s`);
           triggerShake();
           return;
         }

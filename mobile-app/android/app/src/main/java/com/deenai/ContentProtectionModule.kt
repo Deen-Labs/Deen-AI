@@ -35,7 +35,31 @@ class ContentProtectionModule(reactContext: ReactApplicationContext) :
     
     @ReactMethod
     fun stopVPNService(promise: Promise) {
-        promise.resolve(true)
+        try {
+            val prefs = context.getSharedPreferences("deen_ai_prefs", Context.MODE_PRIVATE)
+            val isLocked = prefs.getBoolean("is_locked", false)
+            val unlockExpiry = prefs.getLong("uninstall_unlock_expiry", 0)
+
+            if (isLocked && System.currentTimeMillis() > unlockExpiry) {
+                promise.reject("LOCKED", "Cannot stop protection while PIN lock is active")
+                return
+            }
+
+            val vpnIntent = Intent(context, ContentFilterVPNService::class.java)
+            context.stopService(vpnIntent)
+
+            val isAccessibilityEnabled = isAccessibilityServiceEnabled(context, ContentFilterAccessibilityService::class.java)
+            if (isAccessibilityEnabled) {
+                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+                promise.resolve(false)
+            } else {
+                promise.resolve(true)
+            }
+        } catch (e: Exception) {
+            promise.reject("STOP_ERROR", "Failed to stop protection: ${e.message}", e)
+        }
     }
     
     @ReactMethod

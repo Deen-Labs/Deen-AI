@@ -92,8 +92,8 @@ android {
         applicationId 'com.deenai'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 9
-        versionName "2.1.5"
+        versionCode 10
+        versionName "2.2.1"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
@@ -104,15 +104,32 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            def storeFilePath = project.findProperty('DEEN_UPLOAD_STORE_FILE') ?: System.getenv('DEEN_UPLOAD_STORE_FILE')
+            def storePwd = project.findProperty('DEEN_UPLOAD_STORE_PASSWORD') ?: System.getenv('DEEN_UPLOAD_STORE_PASSWORD')
+            def keyAl = project.findProperty('DEEN_UPLOAD_KEY_ALIAS') ?: System.getenv('DEEN_UPLOAD_KEY_ALIAS')
+            def keyPwd = project.findProperty('DEEN_UPLOAD_KEY_PASSWORD') ?: System.getenv('DEEN_UPLOAD_KEY_PASSWORD')
+
+            if (storeFilePath && file(storeFilePath).exists() && storePwd && keyAl && keyPwd) {
+                storeFile file(storeFilePath)
+                storePassword storePwd
+                keyAlias keyAl
+                keyPassword keyPwd
+            } else {
+                // Fallback to debug keystore only during local dev builds when release signing keys are absent
+                storeFile file('debug.keystore')
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds

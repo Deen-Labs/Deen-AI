@@ -4,44 +4,32 @@ Deen AI is an Islamic-focused AI assistant and digital wellness companion by **D
 
 ---
 
-## Latest Release (v2.1.5) - Standalone Android Production Packaging, Live Sensor Qibla Compass & Privacy Anti-Tamper Shield
+## Latest Release (v2.2.1) - Critical Security Hardening, Multi-Round SHA-256 PBKDF2 PIN Shield, Anti-Tamper Guardrails & RAG Injection Defense
 
-### Standalone Release Packaging (v2.1.5)
-- **Direct Sideload Production APK (`Deen-AI-v2.1.5.apk`)**: Packaged standalone release APK pre-optimized with R8/Proguard, Hermes JavaScript bytecode compilation, and zero external dependency on Expo Go for immediate physical device installation.
-- **Unified Website Distribution**: Integrated directly into the [Deen Labs](https://deenlabs.tech) showcase website with instant 1-click download (`Download App (v2.1.5)`).
-
-### Multi-Session Client-Side Chat Engine
-- **Independent Conversation Sessions**: Imam AI supports full multi-session chats stored securely on-device via `AsyncStorage` (`@deen_imam_chat_sessions_v1`). Users can start new conversations, switch between previous discussions without context overloading, and delete past sessions.
-- **Immediate Contextual Question Titles**: Each session automatically names itself from the user's initial inquiry immediately upon submission (e.g. *"Tahajjud timings and rulings"*, *"Masjid Azizia direction"*).
-- **Session History Drawer Modal**: Clean dark-emerald modal displays conversation titles, last-active timestamps, query counts, and delete actions.
-
-### String-Based Fast-Path Recall ($0 Token Cost & <300ms Latency)
-- **Zero-Latency In-App Agent Actions**: Queries like *"start a focus timer for 10 mins"*, *"find Azizia masjid"*, *"what are today's prayer times"*, *"show my streak"*, or *"disable protection"* are intercepted directly via deterministic regex fast-paths and local APIs without invoking remote LLM tokens.
-- **Strict Guardrail Direct Refusal**: Secular programming, coding, math, and homework queries are courteously declined instantly via on-device checks, preserving reverence and saving API quota.
-
-### High-Quota Cascading Gemini Hierarchy
-- **Optimized Model Selection**: Tailored strictly to available Google Cloud API quota tiers:
-  - **Primary Default**: `gemini-3.5-flash-lite` (500 Requests/Day, 15 RPM, 250K TPM)
-  - **Tier 1 Fallback**: `gemini-3.1-flash-lite` (500 Requests/Day, 15 RPM, 250K TPM)
-  - **Tier 2 Fallback**: `gemini-3-flash` (20 Requests/Day, 5 RPM)
-  - **Tier 3 Fallback**: `gemini-2.5-flash` (20 Requests/Day, 5 RPM)
-- **Automatic HTTP 429 Cascade**: If a model hits a rate or quota limit, requests cascade seamlessly down the hierarchy without error alerts.
-
-### Live Sensor Qibla Compass
-- **Native Motion Sensor Fusion**: Connects `expo-location` `watchHeadingAsync` with device accelerometer and magnetometer sensors for continuous 360-degree rotation.
-- **Dynamic Orientation & Kaaba Alignment**: The compass dial tracks physical True North while the needle tracks the Great-Circle bearing (`21.422487° N, 39.826206° E`), highlighting in glowing emerald when aligned with the Kaaba within ±6°.
-
-### Action-Level Anti-Tamper & Privacy Protection
-- **Selective Destruction Interception**: Blocks unauthorized attempts to Force Stop, Uninstall, or Clear Storage in Android Settings, requiring 4-digit PIN verification to pause protection.
-- **Full System Permissions Freedom**: Users can freely access App Info and toggle Location, Notification, and Camera permissions anytime for complete privacy control.
-
-### Daily Inspiration Panel (30-Day Non-Repeating FIFO)
-- **Extensive Authenticated Library**: Authenticated library of 22+ Hadiths and Quranic Ayahs with verified references (Sahih al-Bukhari, Sahih Muslim, Sunan Abi Dawud, Surah Al-Baqarah, etc.).
-- **30-Day Non-Repeating Persistence**: Tracks seen history in `AsyncStorage` (`@deen_daily_inspiration_v2`) so users never see repeats across a full month, with an instant refresh roll button.
+### Critical Security Hardening & Remediation (v2.2.1)
+- **Multi-Round Iterative SHA-256 PIN Shield (VULN-05)**: Replaced legacy bitwise hashing with a hardened 10,000-round pure JS SHA-256 hash combined with a per-device cryptographically random 16-byte salt (`@deen_ai_pin_salt`), featuring transparent automatic legacy migration.
+- **Progressive Brute-Force Rate Limiting (VULN-08)**: Enforced anti-automation lockout cooldowns (60s at 5 failures, 120s at 10, 300s at 15+) with a dynamic real-time lockout countdown in `PINModal`.
+- **RAG Context Isolation & Prompt Injection Defense (VULN-02)**: Strict isolation of untrusted external reference material inside `<reference_context>` tags in user turns; `SYSTEM_INSTRUCTION` remains immutable, and all metadata fields are sanitized.
+- **Protected Anti-Tamper & Accessibility Self-Disable Interception (VULN-04)**: Fixed PackageInstaller detection logic to require both target app ID and uninstall actions; intercepts settings navigation attempting to disable Deen AI Accessibility Service.
+- **Service State Integrity & Secure Teardown (VULN-09)**: `stopVPNService` validates active PIN lock status, stops the VPN service, directs to Accessibility settings, and persists lifecycle states.
+- **Bounded DOM Tree Scanning & Throttling (VULN-10)**: Implemented strict 12-level depth limit (`maxDepth = 12`) on node and URL traversal with 350ms debouncing on browser DOM updates to eliminate UI freezes and ANRs.
+- **Overpass QL Regex Sanitization (VULN-06)**: Added `sanitizeOverpassRegex()` to strip syntax terminators and escape regex metacharacters in spatial Masjid searches.
+- **Component Attack Surface Reduction (VULN-12, VULN-13)**: Closed `ContentFilterVPNService` to third-party apps (`android:exported="false"`), disabled ADB backup (`android:allowBackup="false"`), and turned off network inspection in production configurations.
+- **Production PII Privacy Gate (VULN-14)**: Gated all sensitive user typing, clicked nodes, and URL logs behind `if (BuildConfig.DEBUG)`.
+- **Direct Sideload Production APK (`Deen-AI-v2.2.1.apk`)**: Packaged standalone release APK with Proguard/R8 optimization, Hermes JS bytecode compilation, and full security hardening.
+- **Unified Website Distribution**: Integrated directly into the [Deen Labs](https://deenlabs.tech) showcase website with instant 1-click download (`Download App (v2.2.1)`).
 
 ---
 
 ## Previous Releases
+
+### v2.1.5 - Standalone Android Production Packaging, Live Sensor Qibla Compass & Privacy Anti-Tamper Shield
+- **Direct Sideload Production APK (`Deen-AI-v2.1.5.apk`)**: Packaged standalone release APK pre-optimized with R8/Proguard, Hermes JavaScript bytecode compilation, and zero external dependency on Expo Go.
+- **Multi-Session Client-Side Chat Engine**: Independent conversation sessions with immediate contextual titles and drawer history modal.
+- **String-Based Fast-Path Recall**: Sub-300ms in-app agent actions with $0 LLM token cost.
+- **Live Sensor Qibla Compass**: Native motion sensor fusion with dynamic orientation and Kaaba alignment.
+- **Action-Level Anti-Tamper Protection**: Selective destruction interception in Settings.
+- **Daily Inspiration Panel**: 30-day non-repeating FIFO with authenticated Hadith and Quranic Ayahs.
 
 ### v1.5.3 - Multi-Session Imam AI & Fast-Path Engine
 - Integrated on-device conversation drawer and session history persistence.

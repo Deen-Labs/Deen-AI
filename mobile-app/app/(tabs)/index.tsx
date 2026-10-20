@@ -20,7 +20,7 @@ import { getStreak, checkAndUpdateStreak, recordVPNDisabled } from '../../lib/st
 import { isLocked, hasPIN, setPIN, verifyPIN } from '../../lib/lock';
 import { nativeContentProtection } from '../../lib/nativeContentProtection';
 import { getNextPrayer, formatTime, getPrayerTimes } from '../../lib/prayerTimes';
-import { getCurrentLocation } from '../../lib/location';
+import { getCurrentLocation, getQuickLocation } from '../../lib/location';
 import { requestNotificationPermissions, scheduleSalahNotifications } from '../../lib/salahNotifications';
 import { loadSettings } from '../../lib/settings';
 import { getFocusStats, FocusStats } from '../../lib/focus';
@@ -190,9 +190,9 @@ export default function DashboardScreen() {
   const loadNextPrayer = async () => {
     try {
       const settings = await loadSettings();
-      const location = await getCurrentLocation();
-      const lat = location?.latitude ?? 40.7128;
-      const lng = location?.longitude ?? -74.006;
+      const location = await getQuickLocation();
+      const lat = location?.latitude ?? 17.385044;
+      const lng = location?.longitude ?? 78.486671;
       const { timings } = await getPrayerTimes(lat, lng, String(settings.calculationMethodValue));
       const next = getNextPrayer(timings);
       setNextPrayerInfo(next);
@@ -202,6 +202,18 @@ export default function DashboardScreen() {
       if (hasPermission) {
         await scheduleSalahNotifications(timings);
       }
+
+      // Revalidate with fresh GPS in background if available
+      getCurrentLocation().then(async (freshLoc) => {
+        if (freshLoc && (Math.abs(freshLoc.latitude - lat) > 0.05 || Math.abs(freshLoc.longitude - lng) > 0.05)) {
+          const freshData = await getPrayerTimes(freshLoc.latitude, freshLoc.longitude, String(settings.calculationMethodValue));
+          const updatedNext = getNextPrayer(freshData.timings);
+          setNextPrayerInfo(updatedNext);
+          if (hasPermission) {
+            await scheduleSalahNotifications(freshData.timings);
+          }
+        }
+      }).catch(() => {});
     } catch {
       // Silently fail — prayer card will show fallback or hide
     }
@@ -339,20 +351,10 @@ export default function DashboardScreen() {
     if (streakDays === 0) return 'Start your pure journey today';
     if (streakDays < 3) return 'Every day counts, keep going!';
     if (streakDays < 7) return 'MashaAllah, building momentum!';
-    if (streakDays < 14) return 'SubhanAllah, one week strong! 💪';
+    if (streakDays < 14) return 'SubhanAllah, one week strong!';
     if (streakDays < 30) return 'AlhamduLillah, amazing discipline!';
-    if (streakDays < 90) return 'You are a warrior of faith! 🏆';
-    return 'Legendary. May Allah reward your steadfastness! 🌟';
-  };
-
-  const getStreakEmoji = () => {
-    if (streakDays === 0) return '🌱';
-    if (streakDays < 3) return '🔥';
-    if (streakDays < 7) return '⭐';
-    if (streakDays < 14) return '🌟';
-    if (streakDays < 30) return '💎';
-    if (streakDays < 90) return '🏆';
-    return '👑';
+    if (streakDays < 90) return 'You are a warrior of faith!';
+    return 'Legendary. May Allah reward your steadfastness!';
   };
 
   return (
@@ -463,7 +465,7 @@ export default function DashboardScreen() {
               }
             }}
           >
-            <Text style={styles.streakEmoji}>{getStreakEmoji()}</Text>
+            <Feather name="shield" size={24} color="#00ff66" style={{ marginBottom: 6 }} />
             <Text style={styles.streakNumber}>{streakDays}</Text>
             <Text style={styles.streakLabel}>
               {streakDays === 1 ? 'Day Clean' : 'Days Clean'}
@@ -514,7 +516,7 @@ export default function DashboardScreen() {
             activeOpacity={0.7}
           >
             <Text style={styles.lockButtonText}>
-              {appLocked ? '🔒 PIN Locked — Tap to Unlock' : '🔓 Tap to Set Uninstall PIN'}
+              {appLocked ? 'PIN Locked - Tap to Unlock' : 'Tap to Set Uninstall PIN'}
             </Text>
           </TouchableOpacity>
         </Animated.View>

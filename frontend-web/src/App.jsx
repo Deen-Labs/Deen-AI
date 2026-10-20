@@ -354,8 +354,8 @@ export default function App() {
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="/assets/deen-app-v2.1.5.apk" download="Deen-AI-v2.1.5.apk" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
-                  <i className="fa-solid fa-download mr-2"></i> Download App (v2.1.5)
+                <MagneticButton as="a" href="/assets/deen-app-v2.2.1.apk" download="Deen-AI-v2.2.1.apk" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
+                  <i className="fa-solid fa-download mr-2"></i> Download App (v2.2.1)
                 </MagneticButton>
                 <MagneticButton as="a" href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
                   <i className="fa-brands fa-github mr-2"></i> Explore Codebase

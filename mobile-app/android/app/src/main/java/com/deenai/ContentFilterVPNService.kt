@@ -8,8 +8,22 @@ import android.util.Log
 class ContentFilterVPNService : VpnService() {
     private val TAG = "DeenAI_VPN"
 
+    companion object {
+        @Volatile
+        var isRunning: Boolean = false
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "VPN Service Started")
+        isRunning = true
+        val prefs = getSharedPreferences("deen_ai_prefs", Context.MODE_PRIVATE)
+        prefs.edit()
+            .putBoolean("is_vpn_running", true)
+            .putLong("last_vpn_started", System.currentTimeMillis())
+            .apply()
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "VPN Service Started")
+        }
         return START_STICKY
     }
 
@@ -23,8 +37,12 @@ class ContentFilterVPNService : VpnService() {
     }
 
     override fun onDestroy() {
+        isRunning = false
         val prefs = getSharedPreferences("deen_ai_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putLong("last_vpn_stopped", System.currentTimeMillis()).apply()
+        prefs.edit()
+            .putBoolean("is_vpn_running", false)
+            .putLong("last_vpn_stopped", System.currentTimeMillis())
+            .apply()
         super.onDestroy()
     }
 }
