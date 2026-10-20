@@ -23,6 +23,7 @@ import { setFocusModeActive } from '../../lib/focus';
 import { nativeContentProtection } from '../../lib/nativeContentProtection';
 import { getStreak, recordVPNDisabled } from '../../lib/streak';
 import PINModal from '../../components/PINModal';
+import { getCachedPrayerTimesSync, formatTime } from '../../lib/prayerTimes';
 
 const SUGGESTED_QUESTIONS = [
     "How to maintain consistency in Fajr prayer?",
@@ -190,12 +191,26 @@ export default function ChatScreen() {
                 Alert.alert("Streak", `Your current streak is ${streak.currentStreak} days!`);
                 break;
             case 'get_prayer_times':
-                Alert.alert("Prayer Times", "Fajr: 5:00 AM\nDhuhr: 1:30 PM\nAsr: 5:00 PM\nMaghrib: 8:00 PM\nIsha: 9:30 PM");
+                const { timings } = getCachedPrayerTimesSync();
+                Alert.alert(
+                  "Today's Prayer Times",
+                  `Fajr: ${formatTime(timings.Fajr)}\nSunrise: ${formatTime(timings.Sunrise)}\nDhuhr: ${formatTime(timings.Dhuhr)}\nAsr: ${formatTime(timings.Asr)}\nMaghrib: ${formatTime(timings.Maghrib)}\nIsha: ${formatTime(timings.Isha)}`
+                );
                 break;
         }
     };
 
     const openMasjidInMaps = async (masjid: Masjid) => {
+        if (masjid.id.startsWith('fallback-') || masjid.id.startsWith('simulated-')) {
+            const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(masjid.name + ' Masjid Hyderabad')}`;
+            try {
+                await Linking.openURL(searchUrl);
+            } catch (e) {
+                Alert.alert("Directions", `Unable to open Google Maps search.`);
+            }
+            return;
+        }
+
         const destLat = masjid.latitude;
         const destLng = masjid.longitude;
         let url = Platform.OS === 'ios'

@@ -444,9 +444,13 @@ out center;
   try {
     const result = await tryAny();
     
-    // If successful query returned 0 elements and we had a valid name query, trigger our dynamic generator fallback!
+    // If successful query returned 0 elements and we had a valid name query, filter fallback masjids
     if (result.length === 0 && nameQuery && nameQuery.trim().length > 0) {
-      return generateSimulatedSearchMatches(nameQuery, centerLat, centerLon, coordinates);
+      const q = nameQuery.trim().toLowerCase();
+      const fallbackList = generateFallbackMasjids(latitude, longitude);
+      return fallbackList.filter(m => 
+        m.name.toLowerCase().includes(q) || m.address.toLowerCase().includes(q)
+      );
     }
 
     let finalMasjids = [...result];
@@ -477,9 +481,13 @@ out center;
   } catch (error: any) {
     console.warn('All Overpass servers failed or timed out. Activating dynamic fallback.');
     
-    // If a search query is active, always generate matching results!
+    // If a search query is active, filter fallback masjids
     if (nameQuery && nameQuery.trim().length > 0) {
-      return generateSimulatedSearchMatches(nameQuery, centerLat, centerLon, coordinates);
+      const q = nameQuery.trim().toLowerCase();
+      const fallbackList = generateFallbackMasjids(latitude, longitude);
+      return fallbackList.filter(m => 
+        m.name.toLowerCase().includes(q) || m.address.toLowerCase().includes(q)
+      );
     }
     
     const fallbackList = generateFallbackMasjids(latitude, longitude);

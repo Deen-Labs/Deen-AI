@@ -14,6 +14,7 @@ interface ContentProtectionNative {
   getTotalBlockCount(): Promise<number>;
   setLockEnabled(enabled: boolean): Promise<boolean>;
   temporarilyUnlockUninstall(durationMs: number): Promise<boolean>;
+  syncFocusBlocking(isFocusActive: boolean, blockedPackagesCsv: string): Promise<boolean>;
 }
 
 const LINKING_ERROR =
@@ -35,6 +36,7 @@ const ContentProtectionNative: ContentProtectionNative = NativeModules.ContentPr
       getTotalBlockCount: () => Promise.resolve(0),
       setLockEnabled: () => Promise.resolve(false),
       temporarilyUnlockUninstall: () => Promise.resolve(false),
+      syncFocusBlocking: () => Promise.resolve(false),
     };
 
 /**
@@ -237,6 +239,20 @@ class NativeContentProtection {
       return await ContentProtectionNative.temporarilyUnlockUninstall(durationMs);
     } catch (error) {
       console.error('Failed to set temporary unlock:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Sync focus mode active state and list of blocked app package names to native SharedPreferences.
+   */
+  async syncFocusBlocking(isFocusActive: boolean, blockedPackages: string[]): Promise<boolean> {
+    if (!this.isAvailable()) return false;
+    try {
+      const csv = blockedPackages.join(',');
+      return await ContentProtectionNative.syncFocusBlocking(isFocusActive, csv);
+    } catch (error) {
+      console.error('Failed to sync focus blocking state:', error);
       return false;
     }
   }

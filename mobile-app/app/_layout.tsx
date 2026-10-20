@@ -44,6 +44,12 @@ export default function RootLayout() {
         if (locked) {
           setShowUninstallPin(true);
         }
+      } else if (data.hostname === 'focus-blocked') {
+        Alert.alert(
+          '🎯 Focus Mode Active',
+          'This app is temporarily blocked while your Focus session is running. Stay mindful and focused!',
+          [{ text: 'Back to Focus', style: 'default' }]
+        );
       } else if (data.hostname === 'blocked-keyword') {
         Alert.alert(
           '🛡️ Blocked Word Detected',
