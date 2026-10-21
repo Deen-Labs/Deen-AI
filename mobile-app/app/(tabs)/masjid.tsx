@@ -5,7 +5,7 @@ import { getCurrentLocation, getQuickLocation, Coordinates } from "../../lib/loc
 import { getNearbyMasjids, Masjid, formatDistance, resolveSearchCenterAndQuery, getCachedMasjidsSync, calculateDistance } from "../../lib/masjid";
 import { subscribeToWarmup } from "../../lib/backgroundWarmup";
 import { Feather } from "@expo/vector-icons";
-import UpdateMasjidTimingModal, { TimingFormData } from "../../components/UpdateMasjidTimingModal";
+// UpdateMasjidTimingModal bypassed in favor of direct Google Form sync
 import {
   applyTimingOverridesToMasjids,
   saveLocalTimingOverride,
@@ -31,9 +31,21 @@ export default function MasjidScreen() {
   const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(null);
   const [selectedMasjidId, setSelectedMasjidId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [timingModalVisible, setTimingModalVisible] = useState(false);
-  const [modalMode, setModalMode] = useState<'update' | 'add'>('update');
-  const [masjidToUpdate, setMasjidToUpdate] = useState<Masjid | null>(null);
+  const handleOpenAddMasjid = async () => {
+    try {
+      await Linking.openURL(MASJID_UPDATE_FORM_URL);
+    } catch (err) {
+      Alert.alert("Unable to Open Form", "Please check your internet connection.");
+    }
+  };
+
+  const handleUpdateTimings = async (item?: Masjid) => {
+    try {
+      await Linking.openURL(MASJID_UPDATE_FORM_URL);
+    } catch (err) {
+      Alert.alert("Unable to Open Form", "Please check your internet connection.");
+    }
+  };
 
   // Listen to background warm-up service
   useEffect(() => {
@@ -161,193 +173,6 @@ export default function MasjidScreen() {
   const toggleMasjidTimings = (masjidId: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSelectedMasjidId(prevId => prevId === masjidId ? null : masjidId);
-  };
-
-  const handleOpenAddMasjid = () => {
-    setMasjidToUpdate(null);
-    setModalMode('add');
-    setTimingModalVisible(true);
-  };
-
-  const handleUpdateTimings = (item: Masjid) => {
-    setMasjidToUpdate(item);
-    setModalMode('update');
-    setTimingModalVisible(true);
-  };
-
-  const handleSaveTimings = async (formData: TimingFormData) => {
-    const now = Date.now();
-    const isMuazzinVerified = Boolean(
-      formData.muazzinPasscode && formData.muazzinPasscode.trim().length >= 4
-    );
-
-    if (modalMode === 'add') {
-      const coords = currentLocation || { latitude: 17.385044, longitude: 78.486671 };
-      const newMasjidId = `custom-user-${now}`;
-
-      const athanTimes = formData.athanTimes;
-      const iqamahTimes = formData.iqamahTimes;
-      const jummah = formData.jummah;
-      const sunrise = formData.sunrise;
-      const sahar = formData.sahar;
-      const iftar = formData.iftar;
-
-      const newMasjid: Masjid = {
-        id: newMasjidId,
-        name: formData.name || 'Local Masjid',
-        address: formData.address || 'Local Community, Hyderabad',
-        distance: 0,
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        school: formData.school || 'Ahle Sunnah (Hanafi)',
-        isOpen: true,
-        athanTimes,
-        iqamahTimes,
-        jummah,
-        sunrise,
-        suhoor: sahar,
-        iftar,
-        isCustomAdded: true,
-        isLocalUpdate: true,
-        isMuazzinVerified,
-        lastUpdated: now,
-      };
-
-      // 1. Instant Optimistic UI Update: Prepend directly to list
-      setMasjids(prev => [newMasjid, ...prev.filter(m => m.id !== newMasjidId)]);
-
-      // 2. Persist custom masjid
-      await saveCustomAddedMasjid(newMasjid);
-
-      // 3. Persist local timing override
-      await saveLocalTimingOverride({
-        masjidId: newMasjidId,
-        name: newMasjid.name,
-        address: `${newMasjid.address} (GPS: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)})`,
-        athanTimes,
-        iqamahTimes,
-        jummah,
-        jummahAthan: formData.jummahAthan,
-        sunrise,
-        sahar,
-        iftar,
-        notes: `NEW MASJID - School: ${newMasjid.school}. ${formData.notes || ''}`.trim(),
-        muazzinPasscode: formData.muazzinPasscode?.trim(),
-        isMuazzinVerified,
-        updatedAt: now,
-        syncStatus: 'pending',
-        isCustomAdded: true,
-      });
-
-      // 4. Background submission to the backend / Webhook
-      submitTimingUpdateToBackend({
-        masjidId: newMasjidId,
-        name: newMasjid.name,
-        address: `${newMasjid.address} (GPS: ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)})`,
-        athanTimes,
-        iqamahTimes,
-        jummah,
-        sunrise,
-        sahar,
-        iftar,
-        notes: `NEW MASJID - School: ${newMasjid.school}. ${formData.notes || ''}`.trim(),
-        muazzinPasscode: formData.muazzinPasscode?.trim(),
-        isMuazzinVerified,
-        updatedAt: now,
-        syncStatus: 'pending',
-        isCustomAdded: true,
-      }, {
-        googleFormUrl: MASJID_UPDATE_FORM_URL,
-      }).catch(() => {});
-
-      if (isMuazzinVerified) {
-        Alert.alert(
-          "Verified by Official Muazzin 🕌",
-          `"${newMasjid.name}" has been added with Official Muazzin Verification status. JazakAllah Khair!`,
-          [{ text: "Alhamdulillah" }]
-        );
-      } else {
-        Alert.alert(
-          "JazakAllah Khair! 🕌",
-          `"${newMasjid.name}" has been added to your app and submitted for community verification.`,
-          [{ text: "OK" }]
-        );
-      }
-    } else {
-      if (!masjidToUpdate) return;
-
-      // 1. Instant Optimistic UI Update on device
-      setMasjids(prev => prev.map(m => {
-        if (m.id === masjidToUpdate.id) {
-          return {
-            ...m,
-            athanTimes: formData.athanTimes,
-            iqamahTimes: formData.iqamahTimes,
-            jummah: formData.jummah,
-            sunrise: formData.sunrise || m.sunrise,
-            suhoor: formData.sahar || m.suhoor,
-            iftar: formData.iftar || m.iftar,
-            isLocalUpdate: true,
-            isMuazzinVerified: isMuazzinVerified || m.isMuazzinVerified,
-            lastUpdated: now,
-          };
-        }
-        return m;
-      }));
-
-      // 2. Persist locally to storage
-      await saveLocalTimingOverride({
-        masjidId: masjidToUpdate.id,
-        name: masjidToUpdate.name,
-        address: masjidToUpdate.address || masjidToUpdate.vicinity || '',
-        athanTimes: formData.athanTimes,
-        iqamahTimes: formData.iqamahTimes,
-        jummah: formData.jummah,
-        jummahAthan: formData.jummahAthan,
-        sunrise: formData.sunrise,
-        sahar: formData.sahar,
-        iftar: formData.iftar,
-        notes: formData.notes,
-        muazzinPasscode: formData.muazzinPasscode?.trim(),
-        isMuazzinVerified: isMuazzinVerified,
-        updatedAt: now,
-        syncStatus: 'pending',
-      });
-
-      // 3. Silent background submission
-      submitTimingUpdateToBackend({
-        masjidId: masjidToUpdate.id,
-        name: masjidToUpdate.name,
-        address: masjidToUpdate.address || masjidToUpdate.vicinity || '',
-        athanTimes: formData.athanTimes,
-        iqamahTimes: formData.iqamahTimes,
-        jummah: formData.jummah,
-        sunrise: formData.sunrise,
-        sahar: formData.sahar,
-        iftar: formData.iftar,
-        notes: formData.notes,
-        muazzinPasscode: formData.muazzinPasscode?.trim(),
-        isMuazzinVerified: isMuazzinVerified,
-        updatedAt: now,
-        syncStatus: 'pending',
-      }, {
-        googleFormUrl: MASJID_UPDATE_FORM_URL,
-      }).catch(() => {});
-
-      if (isMuazzinVerified) {
-        Alert.alert(
-          "Verified by Official Muazzin 🕌",
-          `Official timings for ${masjidToUpdate.name} have been published with Muazzin Verification status. JazakAllah Khair!`,
-          [{ text: "Alhamdulillah" }]
-        );
-      } else {
-        Alert.alert(
-          "JazakAllah Khair! ✨",
-          `Timings for ${masjidToUpdate.name} have been updated on your device and queued for community verification.`,
-          [{ text: "OK" }]
-        );
-      }
-    }
   };
 
   const openInMaps = async (masjid: Masjid) => {
@@ -710,15 +535,7 @@ export default function MasjidScreen() {
         />
       )}
 
-      {/* In-App Timing Update & Add Modal */}
-      <UpdateMasjidTimingModal
-        visible={timingModalVisible}
-        masjid={masjidToUpdate}
-        mode={modalMode}
-        currentLocation={currentLocation}
-        onClose={() => setTimingModalVisible(false)}
-        onSubmit={handleSaveTimings}
-      />
+      {/* Rerouting to Google Form directly for seamless sync and zero location bias */}
     </SafeAreaView>
   );
 }
