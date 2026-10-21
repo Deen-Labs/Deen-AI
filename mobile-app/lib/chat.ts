@@ -41,7 +41,7 @@ export interface ChatMessage {
 // ─── AI Proxy & Model Hierarchy ────────────────────────────────────────
 // Production calls route through our serverless proxy endpoint to protect API keys.
 const AI_PROXY_URL = process.env.EXPO_PUBLIC_AI_PROXY_URL || 'https://deenlabs.tech/api/imam-chat';
-const CLIENT_VERSION_HEADER = 'deen-ai-v3.1.1';
+const CLIENT_VERSION_HEADER = 'deen-ai-v3.2.0';
 
 // Local development fallback only if __DEV__ is true
 const DEV_GEMINI_API_KEY = typeof __DEV__ !== 'undefined' && __DEV__ ? (process.env.EXPO_PUBLIC_GEMINI_API_KEY || '') : '';

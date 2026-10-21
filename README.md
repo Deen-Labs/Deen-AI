@@ -4,9 +4,22 @@ Deen AI is an Islamic-focused AI assistant and digital wellness companion by **D
 
 ---
 
-## Latest Release (v3.1.1) - Scunthorpe Problem Elimination, Native SharedPreferences Focus Blocking, Background-Safe Timers & Spatial Accuracy
+## Latest Release (v3.2.0) - Verified Muazzin Passkey, Digital LED Timing Board, Add Masjid & Release Bundle
 
-### Key Enhancements & Upgrades (v3.1.1)
+### Key Enhancements & Upgrades (v3.2.0)
+- **Verified Muazzin Passcode & Official Verification Badge**: In-person verified Muazzins and Masjid committee members can enter their 4-digit verification code directly in the timing board modal to instantly publish official verified timings (`Verified by Muazzin 🕌`), featured prominently on the Masjid card and inside the digital LED board header.
+- **In-App Digital LED Timing Board (Mahmood Watch Co. Replica)**: Rebuilt the masjid timing editor to mirror physical LED prayer clocks with simultaneous green Athan and red Jama'at digital columns, locked `:` colons, and number-pad inputs.
+- **Glitch-Free Split Digit Time Input & Smooth Modal Scrolling**: Eliminated backspace glitches and restored smooth modal scrolling by moving touch dismiss handlers to a dedicated background layer.
+- **In-App Missing Masjid Addition**: Users can add missing masjids with automatic GPS tagging, school of thought selection, and instant optimistic local persistence.
+- **Google Sheets / Apps Script Webhook Integration**: Background synchronization pipeline with support for Google Apps Script Webhook directly writing prayer time updates and new masjids to Google Sheets without authentication blocks.
+- **Direct Sideload Production APK (`deen-app-v3.2.0.apk`)**: Packaged standalone release APK with Proguard/R8 optimization, Hermes JS bytecode compilation, updated version codes (`versionCode 12`, `versionName "3.2.0"`), and zero external dependency on Expo Go.
+- **Unified Website Distribution**: Integrated directly into the [Deen Labs](https://deenlabs.tech) showcase website with instant 1-click download (`Download App (v3.2.0)`).
+
+---
+
+## Previous Releases
+
+### v3.1.1 - Scunthorpe Problem Elimination, Native SharedPreferences Focus Blocking, Background-Safe Timers & Spatial Accuracy
 - **Scunthorpe Problem Elimination & Bounded Regex Content Filter**: Replaced naive substring matching in `ContentFilterAccessibilityService` with compiled word-boundary regular expressions, preventing false positive blocks on legitimate words (e.g. "Essex", "Sussex", "sextant", "sixth").
 - **Native SharedPreferences Focus Mode App Blocking**: Added `@ReactMethod syncFocusBlocking` in `ContentProtectionModule` bridging React Native focus sessions directly to Android's `AccessibilityService` via `deen_ai_prefs` (`is_focus_mode_active`, `focus_blocked_packages`), intercepting unauthorized app launches in real time and routing to `focus-blocked` deep link banner.
 - **Background-Safe Focus Mode Countdown Timer**: Implemented wall-clock timestamp synchronization (`targetEndTimeRef` based on `Date.now() + remaining`) with `AppState` change listeners in `focus.tsx` to ensure timers remain accurate and never freeze or drift when switching apps or locking the device.

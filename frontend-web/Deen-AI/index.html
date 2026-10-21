@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deen-AI — Islamic Digital Guardian & Interactive App Simulator</title>
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Deen-AI — Islamic Digital Guardian & Interactive App Simulator" />
+  <meta name="description" content="Experience Deen-AI live in your browser. 1:1 pixel-accurate interactive mobile simulator featuring astronomical Salah, Scunthorpe-proof content shielding, verified Internet Archive RAG, and authentic Mahmood Watch Co. digital LED masjid clocks." />
+  <meta name="keywords" content="Deen-AI, Deen Labs, Islamic mobile app, prayer times, qibla compass, mahmood watch co led board, halal app blocker, verified hadith AI" />
+  <meta name="author" content="Deen Labs" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://deenlabs.tech/Deen-AI" />
+  <meta property="og:title" content="Deen-AI — Islamic Digital Guardian & Interactive App Simulator" />
+  <meta property="og:description" content="Test drive Deen-AI directly inside a 1:1 animated, scroll-synchronized 3D phone simulator." />
+  <meta property="og:image" content="https://deenlabs.tech/assets/favicon.PNG" />
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://deenlabs.tech/Deen-AI" />
+  <meta property="twitter:title" content="Deen-AI — Islamic Digital Guardian & Interactive App Simulator" />
+  <meta property="twitter:description" content="Test drive Deen-AI directly inside a 1:1 animated, scroll-synchronized 3D phone simulator." />
+  <meta property="twitter:image" content="https://deenlabs.tech/assets/favicon.PNG" />
+
+  <!-- Canonical link -->
+  <link rel="canonical" href="https://deenlabs.tech/Deen-AI" />
+  <link rel="icon" type="image/png" href="/assets/favicon.PNG" />
+
+  <!-- Ensure page loads strictly from the Hero top on navigation -->
+  <script>
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    if (!window.location.hash) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  </script>
+
+  <!-- Custom Typography: Plus Jakarta Sans (UI) + Outfit (Headings) + Share Tech Mono (Crisp LED) + Orbitron + Amiri (Quranic Arabic) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&family=Orbitron:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["'Plus Jakarta Sans'", "sans-serif"],
+            display: ["'Outfit'", "sans-serif"],
+            arabic: ["'Amiri'", "serif"],
+            digital: ["'Share Tech Mono'", "'Orbitron'", "monospace"],
+          },
+          colors: {
+            deen: {
+              bg: "#081315",
+              card: "#0c2326",
+              cardBorder: "rgba(255, 255, 255, 0.07)",
+              gold: "#e2a23b",
+              goldsoft: "#ffdda8",
+              emerald: "#00ff66",
+              red: "#ff2a2a",
+              wood: "#4a3321",
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Base Reset & Custom Theme */
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background-color: #081315;
+      color: #f3f7f6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #060e10; }
+    ::-webkit-scrollbar-thumb { background: #15373a; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #e2a23b; }
+
+    /* Ambient background glow */
+    .deen-bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 15%, rgba(226, 162, 59, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 30%, rgba(30, 143, 130, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 40% 90%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
+        #081315;
+    }
+
+    /* Scrollytelling Sections Sizing & Locking: Keeps phone locked in place */
+    #scrolly-sections-wrapper {
+      scroll-snap-type: y proximity;
+    }
+    .feature-deepdive-card {
+      scroll-margin-top: 6rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .feature-deepdive-card.active-section {
+      border-color: rgba(226, 162, 59, 0.55);
+      background: linear-gradient(135deg, rgba(12, 35, 38, 0.9) 0%, rgba(8, 19, 21, 0.98) 100%);
+      box-shadow: 0 10px 30px -5px rgba(226, 162, 59, 0.15);
+    }
+
+    /* Breathing Effect Scroll Indicator */
+    @keyframes scrollBreathe {
+      0%, 100% {
+        transform: translateY(0);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(7px);
+        opacity: 0.85;
+      }
+    }
+    .animate-breathe-arrow {
+      animation: scrollBreathe 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Modern Phone Simulator Frame — Perfectly Fitting Viewports */
+    .phone-simulator-frame {
+      width: 320px;
+      max-width: calc(100vw - 2rem);
+      height: 590px;
+      max-height: min(590px, calc(100vh - 5.5rem));
+      border-radius: 42px;
+      background: #081517;
+      border: 3.5px solid #16363a;
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.9), 0 0 35px rgba(22, 54, 58, 0.35), inset 0 0 2px 1px rgba(255, 255, 255, 0.12);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Sticky phone simulator pinned ONLY on desktop viewports */
+    @media (min-width: 1024px) {
+      .desktop-sticky-phone {
+        position: sticky !important;
+        top: max(4.5rem, calc(50vh - 295px)) !important;
+      }
+    }
+    @media (max-width: 1023px) {
+      .desktop-sticky-phone {
+        position: static !important;
+      }
+    }
+
+    /* Screen Viewport with strict overflow containment & ZERO empty bottom void */
+    .phone-screen-viewport {
+      flex: 1;
+      height: calc(100% - 30px - 50px);
+      position: relative;
+      overflow: hidden;
+      background: #081517;
+    }
+
+    /* Screen Panes: Prevent child collapse / squishing and guarantee immediate visibility */
+    .phone-screen-pane {
+      display: none !important;
+      height: 100%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 12px;
+      padding-bottom: 24px;
+    }
+    .phone-screen-pane > * {
+      flex-shrink: 0 !important;
+    }
+    .phone-screen-pane::-webkit-scrollbar { width: 3px; }
+    .phone-screen-pane::-webkit-scrollbar-track { background: transparent; }
+    .phone-screen-pane::-webkit-scrollbar-thumb { background: #16363a; border-radius: 2px; }
+    .phone-screen-pane.active {
+      display: flex !important;
+      flex-direction: column !important;
+      animation: paneFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes paneFadeIn {
+      from {
+        opacity: 0.3;
+        transform: scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Mahmood Watch Co LED Display styling */
+    .led-board-chassis {
+      background: #080808;
+      border: 3.5px solid #4a3321;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.95), inset 0 0 10px rgba(0, 0, 0, 0.95);
+      position: relative;
+    }
+    .led-green {
+      color: #00ff66;
+      text-shadow: 0 0 2px rgba(0, 255, 102, 0.8), 0 0 5px rgba(0, 255, 102, 0.35);
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+    .led-red {
+      color: #ff3333;
+      text-shadow: 0 0 2px rgba(255, 51, 51, 0.8), 0 0 5px rgba(255, 51, 51, 0.35);
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    /* Compass Needle Transition */
+    .compass-dial-ring {
+      border: 1.5px solid rgba(0, 255, 102, 0.35);
+      background: #07191b;
+      border-radius: 9999px;
+      box-shadow: 0 0 25px rgba(0, 255, 102, 0.15), inset 0 0 15px rgba(0, 255, 102, 0.08);
+    }
+
+    /* Circular SVG Timer Animation */
+    .timer-ring-circle {
+      transition: stroke-dashoffset 0.35s linear;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Strict Modal Overlay Shield: 100% Solid & Isolated */
+    .phone-modal-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      background-color: #0c2124;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .phone-modal-overlay.hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-deen-gold/30 selection:text-white">
+
+  <!-- Ambient lighting layer -->
+  <div class="deen-bg-glow" aria-hidden="true"></div>
+
+  <!-- =========================================================================
+       1. TOP NAVIGATION BAR
+       ========================================================================= -->
+  <header class="sticky top-0 z-50 w-full backdrop-blur-md bg-[#081315]/90 border-b border-white/10 transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Left: Back to Portfolio & Deen-AI Brand -->
+        <div class="flex items-center space-x-2 sm:space-x-4 min-w-0">
+          <a href="/" class="flex items-center text-xs sm:text-sm font-medium text-slate-300 hover:text-white group transition-colors shrink-0">
+            <i class="fa-solid fa-arrow-left mr-1.5 sm:mr-2 group-hover:-translate-x-1 transition-transform"></i>
+            <span class="hidden sm:inline">Deen-Labs Portfolio</span>
+            <span class="sm:hidden">Portfolio</span>
+          </a>
+
+          <div class="h-4 w-px bg-slate-800 shrink-0"></div>
+
+          <a href="/Deen-AI" class="flex items-center space-x-2 group py-1 shrink-0" title="Deen-AI Showcase">
+            <img src="/assets/favicon.PNG" alt="Deen-AI" class="h-8 sm:h-10 w-auto object-contain rounded-xl drop-shadow-[0_0_12px_rgba(16,185,129,0.35)] group-hover:scale-105 transition-all duration-300" />
+            <span class="hidden sm:inline-flex px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40 shadow-sm">v3.2.0</span>
+          </a>
+        </div>
+
+        <!-- Right: Actions (GitHub + Primary APK CTA) -->
+        <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+          <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors">
+            <i class="fa-brands fa-github text-sm mr-1.5"></i>
+            <span>GitHub</span>
+          </a>
+
+          <a href="/assets/deen-app-v3.2.0.apk" download="Deen-AI-v3.2.0.apk" class="inline-flex items-center px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-deen-gold to-[#ffd175] hover:from-[#c28424] hover:to-deen-gold rounded-lg shadow-md shadow-amber-950/30 transition-all hover:scale-[1.02] whitespace-nowrap">
+            <i class="fa-brands fa-android text-sm mr-1 sm:mr-1.5"></i>
+            <span>Download APK</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       2. HERO HEADER SECTION
+       ========================================================================= -->
+  <section class="min-h-[calc(100vh-4rem)] flex flex-col justify-between pt-6 pb-6 sm:pt-10 sm:pb-8 border-b border-slate-900/80 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex-1 flex flex-col justify-center">
+      
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-3 mx-auto">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>1:1 Native App Simulator • Zero Installation Required</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white tracking-tight leading-[1.12] max-w-4xl mx-auto">
+        Your Islamic Digital Guardian — <span class="text-transparent bg-clip-text bg-gradient-to-r from-deen-gold via-amber-200 to-emerald-400">Experience Deen-AI Live</span> in Your Browser
+      </h1>
+
+      <p class="mt-3 text-xs sm:text-sm text-slate-300/90 max-w-2xl mx-auto leading-relaxed">
+        Test-drive all 5 core modules inside the interactive 3D phone simulator below. Scroll through the deep-dives or tap directly on the phone screen and bottom tabs to interact.
+      </p>
+
+      <!-- Quick Jump Module Selector Pills -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto" id="quick-jump-container">
+        <button data-jump="0" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved text-deen-gold text-xs"></i>
+          <span>1. Shield & Guardian</span>
+        </button>
+        <button data-jump="1" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-clock text-deen-gold text-xs"></i>
+          <span>2. Astronomical Salah</span>
+        </button>
+        <button data-jump="2" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-bullseye text-deen-gold text-xs"></i>
+          <span>3. Mindful Focus</span>
+        </button>
+        <button data-jump="3" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-comment-dots text-deen-gold text-xs"></i>
+          <span>4. Imam AI & RAG</span>
+        </button>
+        <button data-jump="4" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-mosque text-deen-gold text-xs"></i>
+          <span>5. Masjid & LED Board</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Breathing Scroll Down Indicator & Spacious Section Break (Framed with Semi-Transparent Gold Lines) -->
+    <div class="mt-8 sm:mt-10 mb-2 flex flex-col items-center justify-center w-full px-4">
+      <!-- Semi-transparent yellow line ABOVE the scroll section -->
+      <div class="w-48 sm:w-72 h-[1px] bg-gradient-to-r from-transparent via-deen-gold/40 to-transparent mx-auto mb-3" aria-hidden="true"></div>
+
+      <a 
+        href="#phone-container" 
+        onclick="event.preventDefault(); (window.innerWidth < 1024 ? document.getElementById('phone-container') : document.querySelector('[data-screen=\'0\']')).scrollIntoView({ behavior: 'smooth' });" 
+        class="group flex flex-col items-center gap-1.5 select-none cursor-pointer text-slate-400/60 hover:text-deen-gold transition-colors duration-300 py-1"
+        title="Scroll down to test-drive Deen-AI"
+      >
+        <span class="text-[9.5px] font-mono uppercase tracking-[0.22em] text-slate-400/50 group-hover:text-deen-goldsoft transition-colors">
+          Scroll to Test Drive App
+        </span>
+        <div class="animate-breathe-arrow flex flex-col items-center">
+          <svg class="w-4 h-6 text-deen-gold/50 group-hover:text-deen-gold transition-colors" fill="none" viewBox="0 0 24 32" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v20m0 0l-5-5m5 5l5-5" />
+          </svg>
+        </div>
+      </a>
+
+      <!-- Semi-transparent yellow line BELOW the scroll section -->
+      <div class="w-48 sm:w-72 h-[1px] bg-gradient-to-r from-transparent via-deen-gold/40 to-transparent mx-auto mt-3" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       3. INTERACTIVE SCROLLYTELLING + STICKY 3D PHONE SIMULATOR
+       ========================================================================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 flex-1">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      
+      <!-- ==========================================
+           TECHNICAL FEATURE DEEP-DIVES (Column 1 on Desktop, Below Phone on Mobile)
+           ========================================== -->
+      <div class="lg:col-span-7 order-2 lg:order-1 space-y-10 sm:space-y-16" id="scrolly-sections-wrapper">
+
+        <!-- Mobile Section Heading: Architectural Deep-Dives -->
+        <div class="block lg:hidden pt-4 pb-2 text-center">
+          <div class="flex items-center justify-center gap-3 mb-2">
+            <div class="h-px bg-slate-800 flex-1"></div>
+            <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-deen-gold px-3 py-1 bg-slate-900/90 rounded-full border border-slate-800">
+              Technical Specifications Below ↓
+            </span>
+            <div class="h-px bg-slate-800 flex-1"></div>
+          </div>
+          <p class="text-xs text-slate-400">
+            Scroll down to explore the engineering specs for each module.
+          </p>
+        </div>
+
+        <!-- SCREEN 0: HOME / DIGITAL GUARDIAN -->
+        <article data-screen="0" class="feature-deepdive-card active-section bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 01 / Core Shield</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">67 DAYS CLEAN</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Digital Guardian & Streak Habit Shield
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            Engineered to safeguard spiritual mindfulness through device-level defense. Combines a native Android Accessibility Service with compiled word-boundary regular expressions to eliminate Scunthorpe false positives, alongside a local DNS sinkhole for adult content isolation.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-shield-halved text-deen-gold text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">10k-Round PBKDF2 PIN</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Settings and anti-tamper triggers are locked behind 10,000-round pure SHA-256 PBKDF2 with progressive lockout rate limiting.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-arrows-rotate text-emerald-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">FIFO Hadith Rotation</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                30-day non-repeating FIFO memory cycle displaying authenticated Quranic Ayahs and Sahih Hadiths without duplicate fatigue.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(0)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>Preview in Simulator</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="simulatePinUnlock()" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-key text-deen-gold text-xs"></i>
+              <span>Test 4-Digit Security PIN</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- SCREEN 1: PRAYER / ASTRONOMICAL SALAH -->
+        <article data-screen="1" class="feature-deepdive-card bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 02 / Salah Engine</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">ASTRONOMICAL</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Offline Astronomical Salah & Live Countdown
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            High-precision solar calculation engine adhering to exact celestial declination and twilight angles. Runs 100% offline with zero cloud dependency. Dual Hanafi and Shafi'i/Standard shadow-ratio computation with live per-second countdown and precise Hijri calendar synchronization.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-clock text-deen-gold text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Ticking Countdown</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Dynamic countdown targeting the next upcoming Salah (Fajr, Dhuhr, Asr, Maghrib, Isha) with visual alert states.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-moon text-emerald-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Night Portions</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Calculates astronomical Midnight, First Third, and Last Third (Tahajjud & Qiyam al-Layl) based on solar sunset-to-fajr divide.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(1)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>View Prayer Times</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="openPhoneQiblaCompass()" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-compass text-deen-gold text-xs"></i>
+              <span>Launch 1:1 Qibla Compass</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- SCREEN 2: FOCUS / CONTENT CALM & APP BLOCKER -->
+        <article data-screen="2" class="feature-deepdive-card bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 03 / Productivity</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">CONTENT CALM</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Mindful Content Calm & Distraction Lockdown
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            Enter deep spiritual study and uninterrupted productivity. Configurable 15, 25, 45, or 60-minute Pomodoro sessions with smooth circular countdown SVG dials. Integrates with the native Android UsageStats manager to enforce hard lockouts on algorithmically addictive social media feeds.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-circle-notch text-deen-gold text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Interactive Dial</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Clean circular progress dial calibrated to elapsed seconds with pause, resume, and completion triggers.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-ban text-red-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Package Lockdown</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Immediate foreground package interception targeting Instagram Reels, TikTok, and YouTube Shorts during active sessions.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(2)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>Open Focus Dial</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="togglePhoneFocusTimer()" id="left-focus-toggle-btn" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-play text-emerald-400 text-xs"></i>
+              <span>Start 25:00 Focus Session</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- SCREEN 3: IMAM AI / RAG & CITATIONS -->
+        <article data-screen="3" class="feature-deepdive-card bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 04 / Scholarly AI</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">CONTROLLED LOCAL RAG</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Imam AI — Curated Scholarly Inquiries
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            A specialized conversational interface restricted to verified Islamic texts. Queries are matched locally via Retrieval-Augmented Generation against curated collections from the Internet Archive (Sahih al-Bukhari, Sahih Muslim, and classical Fiqh treatises) with 100% instant local execution and zero cloud relay.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-book-bookmark text-deen-gold text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">100% Local & Controlled</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Guaranteed zero external API reliance, immediate 0ms responses, and strictly authenticated scholarly content.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-archive text-emerald-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Expandable Citations</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Every scholarly answer includes an expandable citations tray with direct references to authentic Hadith compilations and page scans.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(3)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>Test Imam AI Inquiries</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="askPhoneQuestion('What is the ruling on fasting while traveling?')" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt text-deen-gold text-xs"></i>
+              <span>Ask: Travel Fasting</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- SCREEN 4: MASJID FINDER & MAHMOOD WATCH CO. LED BOARD (DEDICATED LOCKING PIN TRACK) -->
+        <article data-screen="4" class="feature-deepdive-card bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 05 / Community</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40">MAHMOOD WATCH CO.</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Hyderabad Masjid Finder & Authentic Digital LED Boards
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            Discover neighborhood masajid across Hyderabad (Bazar Ghat, Charminar, Mehdipatnam, Masab Tank). Features an authentic in-card recreation of the iconic Mahmood Watch Co. digital LED timing boards—complete with glowing green Athan indicators, glowing red Jama'at times, and Arabic calligraphy.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-tv text-deen-gold text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">In-Card LED Board</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                View the authentic wood-bordered digital LED board right inside each masjid card with verified Muazzin passkey credentials.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-location-dot text-emerald-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Direct Navigation</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Instant Google Maps integration with accurate GPS radius calculations and Ahle Sunnah / Ahle Hadees fiqh methodology tags.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(4)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>Explore Masajid</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="expandMasjidBoard(1)" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-clock text-deen-gold text-xs"></i>
+              <span>View Digital LED Board</span>
+            </button>
+            <button onclick="openPhoneQiblaCompass()" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-compass text-deen-gold text-xs"></i>
+              <span>Launch Qibla Compass</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Clean bottom scroll buffer for sticky phone preview -->
+        <div class="h-24 sm:h-32 pointer-events-none" aria-hidden="true"></div>
+
+      </div>
+
+      <!-- ==========================================
+           INTERACTIVE 3D PHONE SIMULATOR (Front & Center on Mobile, Sticky on Desktop)
+           ========================================== -->
+      <div class="lg:col-span-5 order-1 lg:order-2 z-30 flex flex-col items-center justify-center self-start w-full desktop-sticky-phone">
+        
+        <!-- Subtle Floating Glow Behind Phone -->
+        <div class="absolute -inset-4 bg-gradient-to-b from-deen-gold/15 via-emerald-500/10 to-transparent blur-2xl rounded-full opacity-60 pointer-events-none -z-10"></div>
+
+        <!-- THE 1:1 PHONE SIMULATOR BEZEL -->
+        <div class="phone-simulator-frame select-none" id="phone-container">
+          
+          <!-- Top Phone Speaker & Live Status Bar -->
+          <div class="h-7 bg-[#081517] flex items-center justify-between px-5 pt-1.5 z-20 border-b border-white/5">
+            <!-- Left: Clock & Date -->
+            <div class="flex items-center space-x-1.5 text-[10px] font-semibold text-slate-300">
+              <span id="phone-status-time">3:16 am</span>
+              <span class="text-[8.5px] text-slate-500">21/10</span>
+            </div>
+
+            <!-- Center: Speaker Notch -->
+            <div class="w-12 h-1 bg-slate-800 rounded-full mx-auto"></div>
+
+            <!-- Right: Status Icons (WiFi + Battery) -->
+            <div class="flex items-center space-x-1.5 text-[9.5px] text-slate-300">
+              <i class="fa-solid fa-wifi text-[8.5px]"></i>
+              <span class="text-[8.5px] font-mono">49%</span>
+              <i class="fa-solid fa-battery-half text-[10px] text-emerald-400"></i>
+            </div>
+          </div>
+
+          <!-- Phone Viewport Screen Container (Strict containment & NO blank void) -->
+          <div class="phone-screen-viewport" id="phone-viewport">
+            
+            <!-- ==========================================================
+                 SCREEN 0: HOME / DIGITAL GUARDIAN & 67 DAYS CLEAN (1:1 REPLICA)
+                 ========================================================== -->
+            <div class="phone-screen-pane active space-y-3" data-pane="0" id="pane-home">
+              
+              <!-- Screen 0 Header -->
+              <div class="flex items-center justify-between pt-0.5 flex-shrink-0">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <h3 class="text-base font-bold text-white tracking-tight leading-tight">Deen AI</h3>
+                    <span id="phone-online-status-badge" class="px-2 py-0.5 rounded-full text-[8px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition-colors">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>ONLINE</span>
+                    </span>
+                  </div>
+                  <p class="text-[9.5px] text-slate-400 mt-0.5">Your Islamic Digital Guardian</p>
+                </div>
+                <button onclick="simulatePinUnlock()" class="w-8 h-8 rounded-full bg-[#0c2326] border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors" title="Settings">
+                  <i class="fa-solid fa-gear text-xs"></i>
+                </button>
+              </div>
+
+              <!-- 67 Days Clean Streak Shield Card (1:1 with Native App Screenshot) -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-3.5 text-center relative shadow-sm flex-shrink-0">
+                <div class="mx-auto relative flex items-center justify-center my-0.5" style="width: 92px; height: 92px;">
+                  <!-- Full Symmetrical Glowing Gold Ring matching native app -->
+                  <svg viewBox="0 0 100 100" style="width: 92px; height: 92px; filter: drop-shadow(0 0 8px rgba(226, 162, 59, 0.45));">
+                    <circle cx="50" cy="50" r="44" fill="none" stroke="#e2a23b" stroke-width="3.5" />
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none py-1">
+                    <i class="fa-solid fa-shield-halved text-emerald-400 text-xs mb-0.5"></i>
+                    <span class="text-2xl font-extrabold text-[#e2a23b] leading-tight" id="streak-number">67</span>
+                    <span class="text-[7.5px] uppercase tracking-wider text-slate-100 font-bold mt-0.5">DAYS CLEAN</span>
+                  </div>
+                </div>
+                <p class="text-[9.5px] text-slate-300 mt-1">You are a warrior of faith!</p>
+              </div>
+
+              <!-- System-Wide Protection Toggle Card -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-3 space-y-2 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 rounded-lg bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-[10px]">
+                      <i class="fa-solid fa-shield"></i>
+                    </div>
+                    <div>
+                      <p class="text-[11px] font-bold text-white">System-Wide Protection</p>
+                      <p class="text-[8.5px] text-emerald-400 font-medium" id="home-protection-status">Active — Shield Protected</p>
+                    </div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggle-home-shield" class="sr-only peer" checked onchange="toggleHomeShieldProtection(this)">
+                    <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                  </label>
+                </div>
+
+                <button onclick="simulatePinUnlock()" class="w-full py-1.5 rounded-xl bg-[#081517] border border-white/10 hover:border-deen-gold/50 text-slate-300 hover:text-white text-[10px] font-medium flex items-center justify-center gap-1.5 transition-colors">
+                  <i class="fa-solid fa-lock text-deen-gold text-xs"></i>
+                  <span>Tap to Set Uninstall PIN</span>
+                </button>
+              </div>
+
+              <!-- Next Azan Card -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-3 flex-shrink-0">
+                <div class="flex items-center justify-between text-[9px] mb-1">
+                  <span class="text-slate-400 font-bold uppercase tracking-wider">NEXT AZAN</span>
+                  <span class="px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-slate-300 text-[8.5px] font-mono">in 1h 39m 44s</span>
+                </div>
+                <div class="flex items-baseline justify-between mt-1">
+                  <span class="text-lg font-bold font-display text-white">Fajr</span>
+                  <span class="text-lg font-bold font-display text-deen-gold">4:56 AM</span>
+                </div>
+                <button onclick="handleTriggerPhoneTab(1)" class="text-deen-gold text-[9.5px] font-semibold mt-1 hover:underline flex items-center gap-1">
+                  <span>Schedule</span>
+                  <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                </button>
+              </div>
+
+              <!-- Daily Hadith Card (FIFO Authenticated) -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-3 space-y-1.5 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-[9.5px] font-bold text-deen-gold uppercase tracking-wider flex items-center gap-1">
+                    <i class="fa-solid fa-book-open text-[10px]"></i>
+                    <span>DAILY HADITH</span>
+                  </span>
+                  <div class="flex items-center space-x-1.5">
+                    <button onclick="cycleDailyInspiration()" class="text-[10px] text-slate-400 hover:text-white transition-colors" title="Next Hadith">
+                      <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                  </div>
+                </div>
+                <p class="font-arabic text-amber-200 text-xs text-right leading-relaxed my-1" dir="rtl" id="home-hadith-arabic">
+                  الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ
+                </p>
+                <p class="text-[10px] text-slate-200 leading-relaxed italic" id="daily-inspiration-text">
+                  "A Muslim is the one from whose tongue and hands the Muslims are safe."
+                </p>
+                <p class="text-[9px] font-semibold text-slate-400" id="daily-inspiration-source">
+                  — Sahih al-Bukhari 10
+                </p>
+              </div>
+
+              <!-- 2-Column Action Grid -->
+              <div class="grid grid-cols-2 gap-2 flex-shrink-0">
+                <button onclick="handleTriggerPhoneTab(2)" class="bg-[#0c2326] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2.5 text-left transition-all group">
+                  <div class="w-6 h-6 rounded-lg bg-deen-gold/20 flex items-center justify-center text-deen-gold mb-1.5 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-bullseye text-xs"></i>
+                  </div>
+                  <h4 class="text-[11px] font-bold text-white leading-tight">Focus Mode</h4>
+                  <p class="text-[8.5px] text-slate-400 mt-0.5">0 min tracked</p>
+                </button>
+
+                <button onclick="handleTriggerPhoneTab(4)" class="bg-[#0c2326] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2.5 text-left transition-all group">
+                  <div class="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 mb-1.5 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-location-dot text-xs"></i>
+                  </div>
+                  <h4 class="text-[11px] font-bold text-white leading-tight">Nearby Masajids</h4>
+                  <p class="text-[8.5px] text-slate-400 mt-0.5">1km radius locator</p>
+                </button>
+              </div>
+
+              <!-- Spiritual Question Banner Link to Imam AI -->
+              <button onclick="handleTriggerPhoneTab(3)" class="w-full bg-[#0c2326] border border-deen-gold/30 hover:border-deen-gold rounded-xl p-2.5 flex items-center gap-2.5 text-left transition-all flex-shrink-0">
+                <div class="w-7 h-7 rounded-full bg-deen-gold/20 flex items-center justify-center text-deen-gold flex-shrink-0">
+                  <i class="fa-solid fa-comment-dots text-xs"></i>
+                </div>
+                <div>
+                  <h4 class="text-[10.5px] font-bold text-white leading-tight">Have a spiritual question?</h4>
+                  <p class="text-[8.5px] text-deen-gold font-medium mt-0.5">Ask Imam AI with Internet Archive verified citations →</p>
+                </div>
+              </button>
+
+            </div>
+
+            <!-- ==========================================================
+                 SCREEN 1: PRAYER / ASTRONOMICAL SALAH (1:1 REPLICA)
+                 ========================================================== -->
+            <div class="phone-screen-pane space-y-2.5" data-pane="1" id="pane-prayer">
+              
+              <!-- Screen 1 Top Bar -->
+              <div class="flex items-center justify-between pt-0.5 flex-shrink-0">
+                <button onclick="handleTriggerPhoneTab(0)" class="text-deen-gold text-xs font-semibold flex items-center gap-1 hover:underline">
+                  <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                  <span>Back</span>
+                </button>
+                <button onclick="openPhoneQiblaCompass()" class="px-2.5 py-1 rounded-full bg-deen-gold/15 border border-deen-gold/40 text-deen-gold text-[9.5px] font-semibold flex items-center gap-1 hover:bg-deen-gold/25 transition-colors">
+                  <i class="fa-solid fa-compass text-xs"></i>
+                  <span>Find Qibla</span>
+                </button>
+              </div>
+
+              <!-- Title & Date -->
+              <div class="flex-shrink-0">
+                <h3 class="text-lg font-bold font-display text-white tracking-tight">Prayer Times</h3>
+                <p class="text-[9.5px] text-slate-400">Wednesday, October 21, 2026</p>
+              </div>
+
+              <!-- Dual Hijri Date Pill -->
+              <div class="bg-[#0c2326] border border-white/10 rounded-xl px-3 py-1.5 flex items-center justify-between text-[10px] flex-shrink-0">
+                <span class="text-slate-200">Jumada I 10, 1448 AH</span>
+                <span class="text-deen-gold font-arabic text-xs" dir="rtl">١٠ جمادى الأولى ١٤٤٨ هـ</span>
+              </div>
+
+              <!-- Upcoming Salah Hero Card -->
+              <div class="bg-gradient-to-br from-[#0c2326] to-[#07191b] border border-deen-gold/50 rounded-2xl p-3.5 relative shadow-md flex-shrink-0">
+                <div class="flex items-center justify-between text-[9px] mb-1">
+                  <span class="text-deen-gold font-bold tracking-wider flex items-center gap-1">
+                    <i class="fa-solid fa-clock text-[9.5px]"></i>
+                    <span>UPCOMING SALAH</span>
+                  </span>
+                  <span class="px-2 py-0.5 rounded-full bg-slate-900/90 border border-white/10 text-slate-300 text-[8.5px] font-mono" id="prayer-countdown-timer">in 1h 39m 02s</span>
+                </div>
+
+                <div class="flex items-baseline justify-between mt-1">
+                  <div>
+                    <h4 class="text-xl font-extrabold font-display text-white">Fajr</h4>
+                    <p class="text-[10px] text-slate-400 font-arabic">الفجر</p>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xl font-extrabold font-display text-deen-gold">4:56 AM</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Today's Schedule Section Title -->
+              <div class="pt-0.5 flex-shrink-0">
+                <span class="text-[9.5px] font-bold text-deen-gold uppercase tracking-wider">TODAY'S SCHEDULE</span>
+              </div>
+
+              <!-- Schedule Rows (1:1 Matching Real App) -->
+              <div class="space-y-1.5 text-[11px] flex-shrink-0">
+                
+                <!-- Fajr (Active Highlight Card) -->
+                <div class="bg-[#0c2326] border border-deen-gold/60 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 rounded-lg bg-deen-gold/20 flex items-center justify-center text-deen-gold text-xs">
+                      <i class="fa-solid fa-sun text-[10px]"></i>
+                    </div>
+                    <div>
+                      <div class="flex items-center space-x-1.5">
+                        <span class="font-bold text-white">Fajr</span>
+                        <span class="text-[10px] text-slate-400 font-arabic">الفجر</span>
+                      </div>
+                      <p class="text-[8.5px] text-slate-400">Dawn prayer</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="font-bold text-deen-gold block">4:56 AM</span>
+                    <span class="px-1.5 py-0.2 rounded text-[7.5px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">NEXT</span>
+                  </div>
+                </div>
+
+                <!-- Sunrise -->
+                <div class="bg-[#0c2326]/60 border border-white/5 rounded-xl p-2 flex items-center justify-between text-slate-300">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-5 h-5 rounded bg-slate-900 flex items-center justify-center text-slate-400 text-[10px]">
+                      <i class="fa-solid fa-sun text-[9px]"></i>
+                    </div>
+                    <div>
+                      <span class="font-medium text-white">Sunrise</span>
+                      <span class="text-[9.5px] text-slate-400 font-arabic ml-1">الشروق</span>
+                      <p class="text-[8px] text-slate-400">Post-fajr sunrise</p>
+                    </div>
+                  </div>
+                  <span class="font-semibold text-slate-200">6:10 AM</span>
+                </div>
+
+                <!-- Dhuhr -->
+                <div class="bg-[#0c2326]/60 border border-white/5 rounded-xl p-2 flex items-center justify-between text-slate-300">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-5 h-5 rounded bg-slate-900 flex items-center justify-center text-slate-400 text-[10px]">
+                      <i class="fa-solid fa-sun text-[9px]"></i>
+                    </div>
+                    <div>
+                      <span class="font-medium text-white">Dhuhr</span>
+                      <span class="text-[9.5px] text-slate-400 font-arabic ml-1">الظهر</span>
+                      <p class="text-[8px] text-slate-400">Noon prayer</p>
+                    </div>
+                  </div>
+                  <span class="font-semibold text-slate-200">12:01 PM</span>
+                </div>
+
+                <!-- Asr -->
+                <div class="bg-[#0c2326]/60 border border-white/5 rounded-xl p-2 flex items-center justify-between text-slate-300">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-5 h-5 rounded bg-slate-900 flex items-center justify-center text-slate-400 text-[10px]">
+                      <i class="fa-solid fa-clock text-[9px]"></i>
+                    </div>
+                    <div>
+                      <span class="font-medium text-white">Asr</span>
+                      <span class="text-[9.5px] text-slate-400 font-arabic ml-1">العصر</span>
+                      <p class="text-[8px] text-slate-400">Afternoon prayer</p>
+                    </div>
+                  </div>
+                  <span class="font-semibold text-slate-200">3:22 PM</span>
+                </div>
+
+                <!-- Maghrib -->
+                <div class="bg-[#0c2326]/60 border border-white/5 rounded-xl p-2 flex items-center justify-between text-slate-300">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-5 h-5 rounded bg-slate-900 flex items-center justify-center text-slate-400 text-[10px]">
+                      <i class="fa-solid fa-cloud-sun text-[9px]"></i>
+                    </div>
+                    <div>
+                      <span class="font-medium text-white">Maghrib</span>
+                      <span class="text-[9.5px] text-slate-400 font-arabic ml-1">المغرب</span>
+                      <p class="text-[8px] text-slate-400">Sunset prayer</p>
+                    </div>
+                  </div>
+                  <span class="font-semibold text-slate-200">5:51 PM</span>
+                </div>
+
+                <!-- Isha -->
+                <div class="bg-[#0c2326]/60 border border-white/5 rounded-xl p-2 flex items-center justify-between text-slate-300">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-5 h-5 rounded bg-slate-900 flex items-center justify-center text-slate-400 text-[10px]">
+                      <i class="fa-solid fa-moon text-[9px]"></i>
+                    </div>
+                    <div>
+                      <span class="font-medium text-white">Isha</span>
+                      <span class="text-[9.5px] text-slate-400 font-arabic ml-1">العشاء</span>
+                      <p class="text-[8px] text-slate-400">Night prayer</p>
+                    </div>
+                  </div>
+                  <span class="font-semibold text-slate-200">7:21 PM</span>
+                </div>
+
+                <!-- Tahajjud / Last Third -->
+                <div class="bg-[#0c2326]/60 border border-white/5 rounded-xl p-2 flex items-center justify-between text-slate-300">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-5 h-5 rounded bg-slate-900 flex items-center justify-center text-slate-400 text-[10px]">
+                      <i class="fa-solid fa-star text-[9px]"></i>
+                    </div>
+                    <div>
+                      <span class="font-medium text-white">Last Third</span>
+                      <span class="text-[9.5px] text-slate-400 font-arabic ml-1">الثلث الأخير</span>
+                      <p class="text-[8px] text-slate-400">Tahajjud / Qiyam</p>
+                    </div>
+                  </div>
+                  <span class="font-semibold text-deen-gold">2:04 AM</span>
+                </div>
+
+              </div>
+
+              <!-- Astronomical Calculation Note Card -->
+              <div class="bg-[#0c2326]/40 border border-white/5 rounded-xl p-2.5 flex-shrink-0">
+                <p class="text-[9.5px] font-bold text-deen-gold flex items-center gap-1">
+                  <i class="fa-solid fa-circle-info text-[9px]"></i>
+                  <span>Calculated Astronomical Times</span>
+                </p>
+                <p class="text-[8.5px] text-slate-400 mt-0.5 leading-relaxed">
+                  Times are precisely calculated based on your solar coordinates with offline astronomical fallback.
+                </p>
+              </div>
+
+            </div>
+
+            <!-- ==========================================================
+                 SCREEN 2: FOCUS / CONTENT CALM (1:1 REPLICA & CLEAN SANS-SERIF DIAL)
+                 ========================================================== -->
+            <div class="phone-screen-pane space-y-3" data-pane="2" id="pane-focus">
+              
+              <!-- Screen 2 Top Bar -->
+              <div class="flex items-center justify-between pt-0.5 flex-shrink-0">
+                <div>
+                  <h3 class="text-base font-bold font-display text-white tracking-tight">Content Calm</h3>
+                  <p class="text-[9px] text-slate-400">Focus mode to minimize distractions</p>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 flex items-center gap-1">
+                  <i class="fa-solid fa-fire text-[8px]"></i>
+                  <span>67 Days</span>
+                </span>
+              </div>
+
+              <!-- 3-Column Metrics Row -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-xl p-2.5 flex items-center justify-around text-center flex-shrink-0">
+                <div>
+                  <span class="text-base font-bold font-display text-white block">0</span>
+                  <span class="text-[8px] text-slate-400 uppercase tracking-wider">Today (min)</span>
+                </div>
+                <div class="w-px h-5 bg-white/10"></div>
+                <div>
+                  <span class="text-base font-bold font-display text-white block">0</span>
+                  <span class="text-[8px] text-slate-400 uppercase tracking-wider">Completed</span>
+                </div>
+                <div class="w-px h-5 bg-white/10"></div>
+                <div>
+                  <span class="text-base font-bold font-display text-white block">0</span>
+                  <span class="text-[8px] text-slate-400 uppercase tracking-wider">Total (min)</span>
+                </div>
+              </div>
+
+              <!-- Circular Progress SVG Dial Card (Clean, Modern, Uncrowded Sans-Serif) -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-3.5 text-center flex-shrink-0">
+                <div class="mx-auto relative flex items-center justify-center my-1" style="width: 124px; height: 124px;">
+                  <svg viewBox="0 0 128 128" style="width: 124px; height: 124px;">
+                    <circle cx="64" cy="64" r="54" fill="none" stroke="#16373a" stroke-width="5.5" />
+                    <circle id="timer-progress-circle" class="timer-ring-circle" cx="64" cy="64" r="54" fill="none" stroke="#e2a23b" stroke-width="5.5" stroke-dasharray="339" stroke-dashoffset="0" stroke-linecap="round" />
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span class="font-display text-2xl font-bold text-white tracking-tight leading-none" id="focus-display-timer">25:00</span>
+                    <span class="text-[9.5px] text-slate-400 font-medium mt-1.5 leading-none" id="focus-state-label">Ready to Focus</span>
+                  </div>
+                </div>
+
+                <!-- Duration Selector Pills -->
+                <div class="flex items-center justify-center gap-1.5 my-2.5">
+                  <button onclick="setFocusDuration(15)" class="duration-pill px-2.5 py-0.5 text-[9px] font-semibold rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:border-deen-gold transition-colors">15 min</button>
+                  <button onclick="setFocusDuration(25)" class="duration-pill active px-2.5 py-0.5 text-[9px] font-semibold rounded-lg bg-deen-gold text-slate-950 font-bold border border-deen-gold">25 min</button>
+                  <button onclick="setFocusDuration(45)" class="duration-pill px-2.5 py-0.5 text-[9px] font-semibold rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:border-deen-gold transition-colors">45 min</button>
+                  <button onclick="setFocusDuration(60)" class="duration-pill px-2.5 py-0.5 text-[9px] font-semibold rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:border-deen-gold transition-colors">1 hour</button>
+                </div>
+
+                <!-- Start / Pause Button -->
+                <button onclick="togglePhoneFocusTimer()" id="phone-focus-action-btn" class="w-full py-2 rounded-xl bg-deen-gold hover:bg-[#c28424] text-slate-950 font-bold text-[11px] uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-play text-xs"></i>
+                  <span>Start Focus</span>
+                </button>
+              </div>
+
+              <!-- Section: CONTENT PROTECTION -->
+              <div class="flex-shrink-0">
+                <span class="text-[9.5px] font-bold text-deen-gold uppercase tracking-wider">CONTENT PROTECTION</span>
+              </div>
+
+              <!-- System-Wide Protection Item (Synchronized with Home Screen Toggle) -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-xl p-2.5 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                  <div class="w-6 h-6 rounded bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-[10px]">
+                    <i class="fa-solid fa-shield"></i>
+                  </div>
+                  <div>
+                    <h5 class="text-[10.5px] font-bold text-white">System-Wide Protection</h5>
+                    <p class="text-[8.5px] text-emerald-400 font-medium" id="focus-protection-status">Active — Accessibility & DNS Guard</p>
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="toggle-focus-shield" class="sr-only peer" checked onchange="toggleFocusShieldProtection(this)">
+                  <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+              </div>
+
+              <!-- Yellow App Lockdown Drawer Accordion -->
+              <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 space-y-1.5 flex-shrink-0">
+                <button onclick="toggleAppBlockerDrawer()" class="w-full flex items-center justify-between text-left">
+                  <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-amber-400 text-xs"></i>
+                    <div>
+                      <h5 class="text-[10.5px] font-bold text-amber-200">Block Distracting Apps</h5>
+                      <p class="text-[8.5px] text-amber-300/80">3 apps configured for focus lockdown</p>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-chevron-down text-amber-300 text-[9px] transition-transform" id="app-blocker-arrow"></i>
+                </button>
+
+                <div class="space-y-1.5 pt-1 text-[10px]" id="app-blocker-list">
+                  <div class="flex items-center justify-between text-slate-300 bg-black/20 p-1.5 rounded-lg">
+                    <span class="flex items-center gap-1.5"><i class="fa-brands fa-instagram text-pink-400 text-xs"></i> Instagram Reels</span>
+                    <span class="text-emerald-400 font-bold text-[8.5px]">BLOCKED</span>
+                  </div>
+                  <div class="flex items-center justify-between text-slate-300 bg-black/20 p-1.5 rounded-lg">
+                    <span class="flex items-center gap-1.5"><i class="fa-brands fa-youtube text-red-500 text-xs"></i> YouTube Shorts</span>
+                    <span class="text-emerald-400 font-bold text-[8.5px]">BLOCKED</span>
+                  </div>
+                  <div class="flex items-center justify-between text-slate-300 bg-black/20 p-1.5 rounded-lg">
+                    <span class="flex items-center gap-1.5"><i class="fa-brands fa-tiktok text-slate-200 text-xs"></i> TikTok Feeds</span>
+                    <span class="text-emerald-400 font-bold text-[8.5px]">BLOCKED</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ==========================================================
+                 SCREEN 3: IMAM AI / 100% LOCAL & CONTROLLED SCHOLARLY INQUIRIES
+                 ========================================================== -->
+            <div class="phone-screen-pane flex flex-col h-full space-y-2" data-pane="3" id="pane-chat">
+              
+              <!-- Screen 3 Header -->
+              <div class="flex items-center justify-between border-b border-white/5 pb-2 flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                  <div class="w-7 h-7 rounded-full bg-deen-gold/20 flex items-center justify-center text-deen-gold text-xs">
+                    <i class="fa-solid fa-comment-dots"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-xs font-bold font-display text-white">Imam AI</h3>
+                    <p class="text-[8.5px] text-slate-400">Verified Scholarly RAG via Intern...</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="clearPhoneChatHistory()" class="w-6 h-6 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-[10px]" title="Reset Inquiries">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                  </button>
+                  <button onclick="clearPhoneChatHistory()" class="w-6 h-6 rounded-lg bg-deen-gold text-slate-950 flex items-center justify-center text-[10px] font-bold" title="New Inquiry">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Clickable Suggested Inquiries Card -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-xl p-2.5 space-y-1.5 flex-shrink-0" id="suggested-inquiries-card">
+                <span class="text-[9px] font-bold text-deen-gold uppercase tracking-wider block">🧭 SUGGESTED INQUIRIES</span>
+                
+                <button onclick="askPhoneQuestion('How to maintain consistency in Fajr prayer?')" class="w-full text-left text-[9.5px] text-slate-200 hover:text-deen-gold flex items-center justify-between py-1 border-b border-white/5 transition-colors">
+                  <span>How to maintain consistency in Fajr prayer?</span>
+                  <span class="text-deen-gold text-xs">↗</span>
+                </button>
+
+                <button onclick="askPhoneQuestion('What is the ruling on fasting while traveling?')" class="w-full text-left text-[9.5px] text-slate-200 hover:text-deen-gold flex items-center justify-between py-1 border-b border-white/5 transition-colors">
+                  <span>What is the ruling on fasting while traveling?</span>
+                  <span class="text-deen-gold text-xs">↗</span>
+                </button>
+
+                <button onclick="askPhoneQuestion('Dua for overcoming anxiety and intrusive doubts')" class="w-full text-left text-[9.5px] text-slate-200 hover:text-deen-gold flex items-center justify-between py-1 border-b border-white/5 transition-colors">
+                  <span>Dua for overcoming anxiety and intrusive doubts</span>
+                  <span class="text-deen-gold text-xs">↗</span>
+                </button>
+
+                <button onclick="askPhoneQuestion('Explain the virtues and timings of Tahajjud')" class="w-full text-left text-[9.5px] text-slate-200 hover:text-deen-gold flex items-center justify-between py-1 transition-colors">
+                  <span>Explain the virtues and timings of Tahajjud</span>
+                  <span class="text-deen-gold text-xs">↗</span>
+                </button>
+              </div>
+
+              <!-- Chat Message Scroll Container -->
+              <div class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs" id="chat-messages-container" style="max-height: 230px;">
+                
+                <!-- Initial AI Greeting Bubble -->
+                <div class="flex items-start space-x-1.5">
+                  <div class="w-5 h-5 rounded-full bg-deen-gold/20 flex items-center justify-center text-deen-gold text-[9px] flex-shrink-0 mt-0.5">
+                    <i class="fa-solid fa-comment-dots"></i>
+                  </div>
+                  <div class="bg-[#0c2326] border border-white/10 rounded-2xl rounded-tl-none p-2.5 text-slate-200 text-[10.5px] leading-relaxed shadow-sm">
+                    <p>As-salamu alaykum! I am your Imam AI Assistant. Tap any of the authenticated scholarly questions above for immediate verified answers.</p>
+                    <span class="text-[8px] text-slate-500 mt-1 block text-right">1:29 am</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Controlled Inquiry Action Row (100% Local, Zero Cloud API, Immediate Response) -->
+              <div class="pt-1 mt-auto border-t border-white/5 space-y-1.5 flex-shrink-0">
+                <!-- Quick Topic Selector Chips -->
+                <div class="flex items-center justify-between gap-1 overflow-x-auto py-0.5">
+                  <button onclick="askPhoneQuestion('How to maintain consistency in Fajr prayer?')" class="px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 hover:border-deen-gold text-slate-300 hover:text-white text-[8.5px] whitespace-nowrap transition-colors flex-shrink-0">
+                    Fajr Habit
+                  </button>
+                  <button onclick="askPhoneQuestion('What is the ruling on fasting while traveling?')" class="px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 hover:border-deen-gold text-slate-300 hover:text-white text-[8.5px] whitespace-nowrap transition-colors flex-shrink-0">
+                    Travel Fasting
+                  </button>
+                  <button onclick="askPhoneQuestion('Dua for overcoming anxiety and intrusive doubts')" class="px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 hover:border-deen-gold text-slate-300 hover:text-white text-[8.5px] whitespace-nowrap transition-colors flex-shrink-0">
+                    Anxiety Dua
+                  </button>
+                  <button onclick="askPhoneQuestion('Explain the virtues and timings of Tahajjud')" class="px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 hover:border-deen-gold text-slate-300 hover:text-white text-[8.5px] whitespace-nowrap transition-colors flex-shrink-0">
+                    Tahajjud
+                  </button>
+                </div>
+
+                <!-- Controlled Topic Trigger Bar -->
+                <div class="flex items-center justify-between bg-[#0c2326] border border-white/10 rounded-xl px-2.5 py-1.5">
+                  <span class="text-[9px] text-slate-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-halved text-emerald-400 text-[9px]"></i>
+                    <span>100% Local Inquiries (Zero Cloud API)</span>
+                  </span>
+                  <button onclick="askRandomInquiry()" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[8.5px] uppercase tracking-wider hover:bg-[#c28424] transition-colors flex items-center gap-1">
+                    <span>Ask Topic</span>
+                    <i class="fa-solid fa-bolt text-[8px]"></i>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ==========================================================
+                 SCREEN 4: MASJID / IN-CARD MAHMOOD WATCH CO. LED (PREVIEW EXPANDED BY DEFAULT)
+                 ========================================================== -->
+            <div class="phone-screen-pane space-y-2.5" data-pane="4" id="pane-masjid">
+              
+              <!-- Screen 4 Top Bar -->
+              <div class="flex items-center justify-between pt-0.5 flex-shrink-0">
+                <div>
+                  <h3 class="text-base font-bold font-display text-white tracking-tight">Nearby Masjid</h3>
+                  <p class="text-[9px] text-slate-400">Find and connect to local masajid</p>
+                </div>
+                <button onclick="openPhoneQiblaCompass()" class="px-2.5 py-1 rounded-full bg-deen-gold/20 text-deen-gold border border-deen-gold/40 text-[9px] font-bold flex items-center gap-1 hover:bg-deen-gold/30 transition-colors">
+                  <i class="fa-solid fa-compass text-xs"></i>
+                  <span>Qibla</span>
+                </button>
+              </div>
+
+              <!-- Search Bar -->
+              <div class="bg-[#0c2326] border border-white/10 rounded-xl p-1 flex items-center flex-shrink-0">
+                <input type="text" placeholder="Search masajids here" class="flex-1 bg-transparent px-2 text-[10px] text-white placeholder-slate-500 focus:outline-none">
+                <button class="px-2.5 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[9px] uppercase tracking-wider">SEARCH</button>
+              </div>
+
+              <!-- Masjid Card 1: Masjid Al-Noor (Mahmood Watch Co LED Board Expanded by default) -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-3 space-y-2 shadow-sm flex-shrink-0" id="masjid-card-1">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <h4 class="text-xs font-bold text-white">Masjid Al-Noor</h4>
+                    <p class="text-[9px] text-slate-400">250 m • Bazar Ghat Main Road</p>
+                  </div>
+                  <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-slate-900 border border-slate-700 text-slate-300">
+                    AHLE SUNNAH (HANAFI)
+                  </span>
+                </div>
+
+                <!-- Toggle Button -->
+                <button onclick="toggleMasjidTimingsBoard(1)" id="btn-toggle-timings-1" class="w-full py-1.5 rounded-xl bg-[#081517] border border-white/10 hover:border-deen-gold/50 text-slate-200 hover:text-white text-[10px] font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                  <span id="btn-text-timings-1">Hide Timings ⌃</span>
+                </button>
+
+                <!-- IN-CARD EXPANDED MAHMOOD WATCH CO. DIGITAL LED BOARD (VISIBLE BY DEFAULT FOR INSTANT DEMO) -->
+                <div id="masjid-timings-board-1" class="led-board-chassis p-2.5 text-center mt-2">
+                  <p class="font-arabic text-deen-gold text-[11px] tracking-wide mb-1">
+                    لَا إِلَٰهَ إِلَّا ٱللَّٰهُ مُحَمَّدٌ رَّسُولُ ٱللَّٰهِ
+                  </p>
+
+                  <div class="grid grid-cols-3 text-[8.5px] font-bold pb-1 text-slate-400 border-b border-slate-800 uppercase tracking-wider">
+                    <span class="text-left">PRAYER</span>
+                    <span>ATHAN</span>
+                    <span class="text-right">JAMA'AT</span>
+                  </div>
+
+                  <div class="space-y-1 pt-1.5 text-[10.5px]">
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-slate-300 font-medium">فجر FAJR</span>
+                      <span class="led-green font-medium">04:58</span>
+                      <span class="led-red font-medium text-right">05:30</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-slate-400 font-medium">طلوع SUNRISE</span>
+                      <span class="led-green font-medium">06:12</span>
+                      <span class="text-slate-600 text-right">--:--</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-slate-300 font-medium">ظهر DHUHR</span>
+                      <span class="led-green font-medium">12:15</span>
+                      <span class="led-red font-medium text-right">01:00</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center bg-white/5 py-0.5 px-1 rounded">
+                      <span class="text-left text-emerald-300 font-bold">عصر ASR</span>
+                      <span class="led-green font-medium">03:36</span>
+                      <span class="led-red font-medium text-right">04:15</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-slate-300 font-medium">مغرب MAGHRIB</span>
+                      <span class="led-green font-medium">05:58</span>
+                      <span class="led-red font-medium text-right">06:05</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-slate-300 font-medium">عشاء ISHA</span>
+                      <span class="led-green font-medium">07:18</span>
+                      <span class="led-red font-medium text-right">08:00</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center border-t border-slate-800 pt-0.5">
+                      <span class="text-left text-deen-gold font-bold">جمعة JUMMAH</span>
+                      <span class="led-green font-medium">12:30</span>
+                      <span class="led-red font-medium text-right">01:15</span>
+                    </div>
+                  </div>
+
+                  <!-- Board Footer Actions -->
+                  <div class="mt-2.5 pt-1.5 border-t border-slate-800 space-y-1.5">
+                    <div class="flex items-center justify-between text-[8.5px]">
+                      <span class="text-slate-400 flex items-center gap-1">
+                        <i class="fa-solid fa-pen-to-square text-deen-gold"></i>
+                        <span>Update Timings</span>
+                      </span>
+                      <span class="px-1.5 py-0.2 rounded bg-deen-gold/20 text-deen-gold font-bold">EARN SADAQAH</span>
+                    </div>
+
+                    <a href="https://maps.google.com/?q=Masjid+Al+Noor+Bazar+Ghat+Hyderabad" target="_blank" rel="noopener noreferrer" class="w-full py-1.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[9.5px] uppercase tracking-wider flex items-center justify-center gap-1 hover:bg-[#c28424] transition-colors">
+                      <i class="fa-solid fa-location-arrow text-[10px]"></i>
+                      <span>Get Directions</span>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Masjid Card 2: Jamia Masjid Bilal (Expandable) -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-3 space-y-2 flex-shrink-0" id="masjid-card-2">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <h4 class="text-xs font-bold text-white">Jamia Masjid Bilal</h4>
+                    <p class="text-[9px] text-slate-400">420 m • Station Road, Sector 3</p>
+                  </div>
+                  <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-slate-900 border border-slate-700 text-slate-300">
+                    AHLE HADEES
+                  </span>
+                </div>
+                <button onclick="toggleMasjidTimingsBoard(2)" id="btn-toggle-timings-2" class="w-full py-1.5 rounded-xl bg-[#081517] border border-white/10 text-slate-300 hover:text-white text-[10px] font-medium flex items-center justify-center gap-1">
+                  <span id="btn-text-timings-2">View Timings ⌵</span>
+                </button>
+
+                <!-- Board 2 -->
+                <div id="masjid-timings-board-2" class="hidden led-board-chassis p-2.5 text-center mt-2">
+                  <p class="font-arabic text-deen-gold text-[11px] tracking-wide mb-1">
+                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                  </p>
+                  <div class="grid grid-cols-3 text-[8.5px] font-bold pb-1 text-slate-400 border-b border-slate-800 uppercase tracking-wider">
+                    <span class="text-left">PRAYER</span>
+                    <span>ATHAN</span>
+                    <span class="text-right">JAMA'AT</span>
+                  </div>
+                  <div class="space-y-1 pt-1.5 text-[10.5px]">
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-slate-300 font-medium">FAJR</span>
+                      <span class="led-green font-medium">04:55</span>
+                      <span class="led-red font-medium text-right">05:25</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-slate-300 font-medium">DHUHR</span>
+                      <span class="led-green font-medium">12:20</span>
+                      <span class="led-red font-medium text-right">12:45</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-emerald-300 font-bold">ASR</span>
+                      <span class="led-green font-medium">04:38</span>
+                      <span class="led-red font-medium text-right">04:55</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-slate-300 font-medium">MAGHRIB</span>
+                      <span class="led-green font-medium">05:58</span>
+                      <span class="led-red font-medium text-right">06:03</span>
+                    </div>
+                    <div class="grid grid-cols-3 items-center">
+                      <span class="text-left text-slate-300 font-medium">ISHA</span>
+                      <span class="led-green font-medium">07:30</span>
+                      <span class="led-red font-medium text-right">07:45</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Masjid Card 3: Masjid Al-Taqwa -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-3 space-y-1 flex-shrink-0">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <h4 class="text-xs font-bold text-white">Masjid Al-Taqwa</h4>
+                    <p class="text-[9px] text-slate-400">450 m • West Gate Plaza Lane</p>
+                  </div>
+                  <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-slate-900 border border-slate-700 text-slate-300">
+                    AHLE SUNNAH (HANAFI)
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ==========================================================
+                 ISOLATED MODAL 1: 4-DIGIT PIN LOCK (OPAQUE OVERLAY, GUARANTEED HIDDEN)
+                 ========================================================== -->
+            <div id="phone-pin-modal" class="phone-modal-overlay hidden p-4 justify-between" style="display: none !important;">
+              <div class="text-center pt-3">
+                <div class="w-10 h-10 rounded-full bg-[#081517] border border-deen-gold/40 mx-auto flex items-center justify-center text-deen-gold text-base mb-2 shadow-md">
+                  <i class="fa-solid fa-lock"></i>
+                </div>
+                <h4 class="text-xs font-bold text-white font-display">Security Passcode</h4>
+                <p class="text-[9px] text-slate-400 mt-0.5">10,000-Round SHA-256 Protected</p>
+                
+                <!-- 4-Digit Indicator Dots -->
+                <div class="flex items-center justify-center space-x-2.5 my-3">
+                  <span class="pin-dot w-2.5 h-2.5 rounded-full border border-deen-gold bg-transparent"></span>
+                  <span class="pin-dot w-2.5 h-2.5 rounded-full border border-deen-gold bg-transparent"></span>
+                  <span class="pin-dot w-2.5 h-2.5 rounded-full border border-deen-gold bg-transparent"></span>
+                  <span class="pin-dot w-2.5 h-2.5 rounded-full border border-deen-gold bg-transparent"></span>
+                </div>
+                <p class="text-[9.5px] text-emerald-400 font-medium" id="pin-feedback-msg">Demo PIN: 1234</p>
+              </div>
+
+              <!-- Numeric Keypad -->
+              <div class="grid grid-cols-3 gap-1.5 px-2 pb-2">
+                <button onclick="pressPinDigit('1')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">1</button>
+                <button onclick="pressPinDigit('2')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">2</button>
+                <button onclick="pressPinDigit('3')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">3</button>
+                <button onclick="pressPinDigit('4')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">4</button>
+                <button onclick="pressPinDigit('5')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">5</button>
+                <button onclick="pressPinDigit('6')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">6</button>
+                <button onclick="pressPinDigit('7')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">7</button>
+                <button onclick="pressPinDigit('8')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">8</button>
+                <button onclick="pressPinDigit('9')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">9</button>
+                <button onclick="closePinModal()" class="py-2 rounded-xl bg-black/40 text-slate-400 text-[10px] font-semibold hover:text-white">Cancel</button>
+                <button onclick="pressPinDigit('0')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">0</button>
+                <button onclick="pressPinBackspace()" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"><i class="fa-solid fa-delete-left text-xs"></i></button>
+              </div>
+            </div>
+
+            <!-- ==========================================================
+                 ISOLATED MODAL 2: 1:1 QIBLA COMPASS (GUARANTEED HIDDEN BY DEFAULT)
+                 ========================================================== -->
+            <div id="phone-qibla-modal" class="phone-modal-overlay hidden p-3.5 justify-between" style="display: none !important;">
+              <!-- Top Bar -->
+              <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                <div class="flex items-center space-x-2">
+                  <div class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-compass"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold font-display text-white">Qibla Direction</h4>
+                    <p class="text-[8.5px] text-slate-400">Al-Masjid al-Haram, Makkah</p>
+                  </div>
+                </div>
+                <button onclick="closeQiblaCompass()" class="w-6 h-6 rounded-full bg-white/5 text-slate-400 hover:text-white flex items-center justify-center text-xs" title="Close Compass">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+
+              <!-- Compass Dial (1:1 Visual Alignment) -->
+              <div class="w-36 h-36 mx-auto relative flex items-center justify-center my-1">
+                <div class="compass-dial-ring w-full h-full relative flex items-center justify-center">
+                  
+                  <!-- Top Qibla Gate Target Notch -->
+                  <div class="absolute -top-1.5 flex flex-col items-center">
+                    <div class="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-emerald-400"></div>
+                    <span class="text-[7px] font-bold text-emerald-400 tracking-wider">QIBLA</span>
+                  </div>
+
+                  <!-- Angle Markers -->
+                  <span class="absolute left-1.5 text-[8px] font-mono text-slate-500">-90°</span>
+                  <span class="absolute right-1.5 text-[8px] font-mono text-slate-500">+90°</span>
+                  <span class="absolute bottom-1 text-[8px] font-mono text-slate-500">180°</span>
+
+                  <!-- Gold North Badge -->
+                  <div class="absolute top-2 right-6 w-3.5 h-3.5 rounded-full bg-deen-gold/20 border border-deen-gold/50 flex items-center justify-center text-[7.5px] font-bold text-deen-gold">
+                    N
+                  </div>
+
+                  <!-- Center Readout Hub -->
+                  <div class="w-14 h-14 rounded-full bg-[#0c2326] border-2 border-emerald-400/80 flex flex-col items-center justify-center z-20 shadow-md">
+                    <span class="text-xs font-extrabold text-emerald-400 leading-none">283°</span>
+                    <span class="text-[7.5px] font-bold text-deen-gold mt-0.5">WNW</span>
+                  </div>
+
+                  <!-- Needle Line pointing into Qibla gate -->
+                  <div id="compass-needle" class="absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-out" style="transform: rotate(0deg);">
+                    <div class="w-0.5 h-28 relative flex flex-col items-center justify-between">
+                      <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[14px] border-b-emerald-400"></div>
+                      <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[14px] border-t-slate-600"></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Alignment Badge & Info Details -->
+              <div class="space-y-2">
+                <!-- Aligned Pill -->
+                <div class="bg-emerald-500/20 border border-emerald-500/40 rounded-full py-1 text-center">
+                  <span class="text-[9.5px] text-emerald-300 font-bold flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-circle-check text-[10px]"></i>
+                    <span>Aligned with the Kaaba</span>
+                  </span>
+                </div>
+
+                <!-- Stats 3-Col Card -->
+                <div class="bg-[#081517] border border-white/5 rounded-xl p-2 text-[8.5px] flex items-center justify-around text-center">
+                  <div>
+                    <span class="text-slate-500 block uppercase">Bearing</span>
+                    <strong class="text-deen-gold">283° WNW</strong>
+                  </div>
+                  <div class="w-px h-4 bg-white/10"></div>
+                  <div>
+                    <span class="text-slate-500 block uppercase">Distance</span>
+                    <strong class="text-white">4,069 km</strong>
+                  </div>
+                  <div class="w-px h-4 bg-white/10"></div>
+                  <div>
+                    <span class="text-slate-500 block uppercase">Device</span>
+                    <strong class="text-emerald-400">283°</strong>
+                  </div>
+                </div>
+
+                <!-- Instruction -->
+                <p class="text-[8px] text-slate-400 text-center leading-relaxed">
+                  Turn your device until the green needle points straight up into the Qibla target. The dial will highlight emerald when facing the Kaaba.
+                </p>
+
+                <!-- Done Button -->
+                <button onclick="closeQiblaCompass()" class="w-full py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-[10.5px] uppercase tracking-wider transition-colors">
+                  Done
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- ==========================================================
+               PHONE BOTTOM NAVIGATION BAR (WORKING 5 TABS)
+               ========================================================== -->
+          <nav class="h-[50px] border-t border-white/10 bg-[#081416] flex items-center justify-around px-1 z-20 select-none" id="phone-nav-bar">
+            
+            <button data-tab="0" onclick="handleTriggerPhoneTab(0)" class="phone-tab-btn active flex flex-col items-center justify-center flex-1 py-1 text-deen-gold">
+              <i class="fa-solid fa-shield-halved text-xs"></i>
+              <span class="text-[8px] font-semibold mt-0.5">Home</span>
+            </button>
+
+            <button data-tab="1" onclick="handleTriggerPhoneTab(1)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
+              <i class="fa-solid fa-clock text-xs"></i>
+              <span class="text-[8px] font-semibold mt-0.5">Prayer</span>
+            </button>
+
+            <button data-tab="2" onclick="handleTriggerPhoneTab(2)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
+              <i class="fa-solid fa-bullseye text-xs"></i>
+              <span class="text-[8px] font-semibold mt-0.5">Focus</span>
+            </button>
+
+            <button data-tab="3" onclick="handleTriggerPhoneTab(3)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
+              <i class="fa-solid fa-comment-dots text-xs"></i>
+              <span class="text-[8px] font-semibold mt-0.5">Imam AI</span>
+            </button>
+
+            <button data-tab="4" onclick="handleTriggerPhoneTab(4)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
+              <i class="fa-solid fa-location-dot text-xs"></i>
+              <span class="text-[8px] font-semibold mt-0.5">Masjid</span>
+            </button>
+
+          </nav>
+
+        </div>
+
+        <!-- Mobile-Only Synchronized Module Context Card (Visible on < lg screens) -->
+        <div id="mobile-active-module-card" class="block lg:hidden w-full max-w-[340px] mt-6 bg-deen-card/70 border border-slate-800 rounded-2xl p-4 shadow-xl backdrop-blur-sm transition-all duration-300">
+          <div class="flex items-center justify-between mb-2">
+            <span id="mobile-card-tag" class="text-[10px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 01 / Core Shield</span>
+            <span id="mobile-card-badge" class="px-2 py-0.5 rounded-full text-[8.5px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">67 DAYS CLEAN</span>
+          </div>
+          <h3 id="mobile-card-title" class="text-base font-display font-bold text-white tracking-tight mb-1">
+            Digital Guardian & Streak Habit Shield
+          </h3>
+          <p id="mobile-card-desc" class="text-xs text-slate-300 leading-relaxed mb-3">
+            Engineered to safeguard spiritual mindfulness through device-level defense. Combines a native Android Accessibility Service with compiled word-boundary regular expressions to eliminate Scunthorpe false positives, alongside a local DNS sinkhole for adult content isolation.
+          </p>
+          <div class="bg-slate-900/90 border border-slate-800/80 rounded-xl p-2.5 flex items-center gap-2">
+            <span id="mobile-card-prompt" class="text-[11px] font-medium text-emerald-300 leading-snug">
+              👉 Tap the Shield toggle or Lock icon inside the simulator above to interact.
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       4. FOOTER & CALL TO ACTION
+       ========================================================================= -->
+  <footer class="mt-12 border-t border-slate-900 bg-[#060c0e] py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <div class="flex items-center justify-center">
+        <img 
+          src="/assets/favicon.PNG" 
+          alt="Deen-AI Logo" 
+          class="h-20 w-20 sm:h-24 sm:w-24 object-contain mx-auto drop-shadow-[0_0_16px_rgba(20,184,166,0.3)] hover:scale-105 transition-transform duration-300" 
+        />
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-slate-400">
+        <a href="/" class="text-slate-400 hover:text-white transition-colors">Back to Homepage</a>
+        <span class="text-slate-700">•</span>
+        <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors">GitHub Repository</a>
+        <span class="text-slate-700">•</span>
+        <a href="/assets/deen-app-v3.2.0.apk" download="Deen-AI-v3.2.0.apk" class="text-slate-400 hover:text-white transition-colors">Download Standalone APK (v3.2.0)</a>
+      </div>
+      <p class="text-[11px] text-slate-500 max-w-xl mx-auto leading-relaxed">
+        &copy; 2026 Deen Labs founded by Syed Aamair Shareef Ahmed. Engineered with reverence, mathematical precision, and uncompromising privacy.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Dedicated Interactive Controller Script for Deen-AI -->
+  <script type="module" src="./deen-ai.js"></script>
+</body>
+</html>

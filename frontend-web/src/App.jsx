@@ -82,6 +82,11 @@ export default function App() {
           <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
           <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
           
+          <a href="/Deen-AI" className="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/30 hover:border-emerald-500/60 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-sm shadow-emerald-950/30 group">
+            <img src="/assets/favicon.PNG" alt="Deen-AI" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm group-hover:scale-110 transition-transform" />
+            <span>Launch App Preview &rarr;</span>
+          </a>
+          
           <MagneticButton as="a" href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="ml-3 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
             Connect With Me
           </MagneticButton>
@@ -115,6 +120,11 @@ export default function App() {
         <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">Deen-AI</a>
         <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadowPlane</a>
         <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>
+        
+        <a href="/Deen-AI" className="block px-4 py-3 text-sm font-semibold uppercase tracking-wider text-emerald-400 hover:text-emerald-300 bg-emerald-950/30 hover:bg-emerald-900/50 rounded-lg border-b border-slate-900 transition-colors flex items-center gap-2.5">
+          <img src="/assets/favicon.PNG" alt="Deen-AI" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm" />
+          <span>Launch Interactive App Preview &rarr;</span>
+        </a>
         
         <a 
           href="#contact" 
@@ -287,10 +297,12 @@ export default function App() {
             
             {/* Left Column: Copy & Details */}
             <div className="lg:col-span-7 flex flex-col space-y-5">
-              <div className="flex items-center space-x-3.5">
-                <div className="h-12 w-12 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-brand-accent group-hover:scale-105 transition-transform">
-                  <i className="fa-solid fa-kaaba text-lg"></i>
-                </div>
+              <div className="flex items-center space-x-4">
+                <img 
+                  src="/assets/favicon.PNG" 
+                  alt="Deen-AI Logo" 
+                  className="h-20 w-20 sm:h-24 sm:w-24 object-contain shrink-0 group-hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_16px_rgba(20,184,166,0.3)]" 
+                />
                 <div>
                   <h4 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">Deen-AI Mobile App</h4>
                   <p className="text-xs text-slate-400">All-in-One Islamic Lifestyle, Focus & AI Assistant App</p>
@@ -352,30 +364,43 @@ export default function App() {
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">DoH DNS Filter</span>
               </div>
 
-              {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="/assets/deen-app-v3.1.1.apk" download="Deen-AI-v3.1.1.apk" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200">
-                  <i className="fa-solid fa-download mr-2"></i> Download App (v3.1.1)
+              {/* Action buttons (Symmetrical Heights & Aligned Layout) */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <MagneticButton
+                  as="a"
+                  href="/Deen-AI"
+                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 rounded-xl shadow-lg shadow-teal-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2.5 whitespace-nowrap"
+                >
+                  <img src="/assets/favicon.PNG" alt="Deen-AI" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm" />
+                  <span>Launch Interactive Preview &rarr;</span>
                 </MagneticButton>
-                <MagneticButton as="a" href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
-                  <i className="fa-brands fa-github mr-2"></i> Explore Codebase
+
+                <MagneticButton
+                  as="a"
+                  href="/assets/deen-app-v3.2.0.apk"
+                  download="Deen-AI-v3.2.0.apk"
+                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  <i className="fa-solid fa-download text-xs"></i>
+                  <span>Download App (v3.2.0)</span>
                 </MagneticButton>
-                <MagneticButton as="a" href="#" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-400 hover:text-white border border-slate-800/40 hover:border-slate-800 bg-transparent rounded-xl transition-all duration-200">
-                  Read Docs
+
+                <MagneticButton
+                  as="a"
+                  href="https://github.com/Deen-Labs/Deen-AI"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-200 border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  <i className="fa-brands fa-github text-sm"></i>
+                  <span>Explore Codebase</span>
                 </MagneticButton>
               </div>
 
-              {/* Production Status Banner */}
-              <div className="flex items-start gap-2.5 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl max-w-xl">
-                <i className="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-xs"></i>
-                <p className="text-[11px] text-emerald-200/90 leading-relaxed">
-                  <strong>Fully Built & Actively Maintained:</strong> This application is fully built, production-ready, and regularly maintained with new features, performance optimizations, and verified Islamic data updated whenever required.
-                </p>
-              </div>
             </div>
 
-            {/* Right Column: Interactive Mockup */}
-            <div className="lg:col-span-5">
+            {/* Right Column: Interactive Mockup & Status Banner */}
+            <div className="lg:col-span-5 flex flex-col space-y-3">
               <div className="bg-slate-950/90 border border-slate-800/80 rounded-xl p-4 sm:p-5 font-mono text-[10.5px] text-slate-300 leading-relaxed shadow-inner">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-900 mb-4">
                   <span className="text-teal-400 font-bold text-[10px] flex items-center space-x-1.5">
@@ -410,6 +435,14 @@ export default function App() {
                     <span className="truncate">Azan Ticker: LIVE</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Production Status Banner (Positioned directly below the Code Preview Card) */}
+              <div className="flex items-start gap-2.5 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl shadow-sm">
+                <i className="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-xs shrink-0"></i>
+                <p className="text-[11px] text-emerald-200/90 leading-relaxed">
+                  <strong>Fully Built & Actively Maintained:</strong> This application is fully built, production-ready, and regularly maintained with new features, performance optimizations, and verified Islamic data updated whenever required.
+                </p>
               </div>
             </div>
 
@@ -452,13 +485,39 @@ export default function App() {
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">GitHub Actions</span>
               </div>
 
-              {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="https://hub.docker.com/r/goldsteatlh/shadowplane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 rounded-xl shadow-lg shadow-blue-950/20 transition-all duration-200">
-                  <i className="fa-brands fa-docker mr-2"></i> View on Docker Hub
+              {/* Action buttons (Symmetrical Heights & Aligned Layout) */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <MagneticButton
+                  as="a"
+                  href="https://shadowplane.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-300 hover:to-cyan-300 rounded-xl shadow-lg shadow-cyan-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                  <span>Launch Live Site</span>
                 </MagneticButton>
-                <MagneticButton as="a" href="https://github.com/GOLDSTEALTH/ShadowPlane" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
-                  <i className="fa-brands fa-github mr-2"></i> Explore Codebase
+
+                <MagneticButton
+                  as="a"
+                  href="https://hub.docker.com/r/goldsteatlh/shadowplane"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-200 border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  <i className="fa-brands fa-docker text-sm"></i>
+                  <span>Docker Hub</span>
+                </MagneticButton>
+
+                <MagneticButton
+                  as="a"
+                  href="https://github.com/GOLDSTEALTH/ShadowPlane"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-200 border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  <i className="fa-brands fa-github text-sm"></i>
+                  <span>Explore Codebase</span>
                 </MagneticButton>
               </div>
 
@@ -526,13 +585,28 @@ export default function App() {
                 <span className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider bg-slate-950/70 border border-slate-800 text-slate-300 rounded-md">Zod</span>
               </div>
 
-              {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <MagneticButton as="a" href="https://ihateats.deenlabs.tech/" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-500 hover:to-violet-600 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200">
-                  <i className="fa-solid fa-arrow-up-right-from-square mr-2"></i> Visit Site
+              {/* Action buttons (Symmetrical Heights & Aligned Layout) */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <MagneticButton
+                  as="a"
+                  href="https://ihateats.deenlabs.tech/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-300 hover:to-violet-400 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                  <span>Launch Live App</span>
                 </MagneticButton>
-                <MagneticButton as="a" href="https://github.com/Deen-Labs/ihateATS" target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-center text-white border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200">
-                  <i className="fa-brands fa-github mr-2"></i> View Codebase
+
+                <MagneticButton
+                  as="a"
+                  href="https://github.com/Deen-Labs/ihateATS"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-200 border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                >
+                  <i className="fa-brands fa-github text-sm"></i>
+                  <span>View Codebase</span>
                 </MagneticButton>
               </div>
             </div>

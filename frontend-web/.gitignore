@@ -3,12 +3,20 @@ __pycache__/
 *.pyc
 .venv/
 .env
+.env.*
 
-# Node/Next.js
+# Build caches & Vendored
+.vite/
+internetarchive-master/
+
+# Node / Build Outputs
 node_modules/
-.next/
 dist/
-.env.local
+.next/
+
+# Binaries
+*.apk
+!public/assets/*.apk
 
 # macOS/Windows
 .DS_Store
