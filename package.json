@@ -1,0 +1,10 @@
+{
+  "name": "deen-labs-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend-web run dev",
+    "build": "npm --prefix frontend-web run build",
+    "preview": "npm --prefix frontend-web run preview"
+  }
+}

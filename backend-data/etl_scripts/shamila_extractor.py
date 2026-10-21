@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import json
+import re
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -72,8 +73,13 @@ def extract_from_sqlite(db_file, output_dir):
         if not table_name:
              print("Could not identify the main text table in this database.")
              return
+
+        # Validate table_name strictly against alphanumeric + underscore whitelist
+        if not re.match(r'^[a-zA-Z0-9_]+$', table_name):
+             print(f"Security Warning: Table name '{table_name}' failed whitelist validation. Skipping extraction.")
+             return
              
-        cursor.execute(f"SELECT id, tit, nass FROM {table_name} ORDER BY id")
+        cursor.execute(f'SELECT id, tit, nass FROM "{table_name}" ORDER BY id')
         chapters = cursor.fetchall()
         
         extracted_count = 0

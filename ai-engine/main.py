@@ -4,10 +4,10 @@ from pydantic import BaseModel
 app = FastAPI(title="Deen AI Backend")
 
 class ChatRequest(BaseModel):
-    message: string
+    message: str
 
 class ChatResponse(BaseModel):
-    response: string
+    response: str
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
