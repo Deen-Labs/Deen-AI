@@ -74,9 +74,15 @@
   </script>
 
   <style>
-    /* Base Reset & Custom Theme */
+    /* Base Reset & Custom Theme with Dynamic Display Sizing */
+    :root {
+      --display-scale: 1;
+      --phone-scale: 1;
+    }
     html {
       scroll-behavior: smooth;
+      font-size: calc(16px * var(--display-scale, 1));
+      transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     body {
       background-color: #081315;
@@ -88,6 +94,12 @@
     ::-webkit-scrollbar-track { background: #060e10; }
     ::-webkit-scrollbar-thumb { background: #15373a; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #e2a23b; }
+
+    /* Fluid container scaling for 1440p, 4K, and Ultrawide */
+    .max-w-7xl {
+      max-width: min(calc(88rem * var(--display-scale, 1)), 94vw) !important;
+      transition: max-width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
     /* Ambient background glow */
     .deen-bg-glow {
@@ -131,7 +143,7 @@
       animation: scrollBreathe 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
-    /* Modern Phone Simulator Frame — Perfectly Fitting Viewports */
+    /* Modern Phone Simulator Frame — Dynamically Scaled */
     .phone-simulator-frame {
       width: 320px;
       max-width: calc(100vw - 2rem);
@@ -145,19 +157,39 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      zoom: var(--phone-scale, 1);
+      transform-origin: top center;
+      transition: zoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @supports not (zoom: 1) {
+      .phone-simulator-frame {
+        transform: scale(var(--phone-scale, 1));
+        transform-origin: top center;
+      }
     }
 
     /* Sticky phone simulator pinned ONLY on desktop viewports */
     @media (min-width: 1024px) {
       .desktop-sticky-phone {
         position: sticky !important;
-        top: max(4.5rem, calc(50vh - 295px)) !important;
+        top: max(4.5rem, calc(50vh - (295px * var(--phone-scale, 1)))) !important;
+        transition: top 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       }
     }
     @media (max-width: 1023px) {
       .desktop-sticky-phone {
         position: static !important;
       }
+    }
+
+    /* High Refresh Rate GPU Compositing Optimization */
+    .high-fps-mode .phone-simulator-frame,
+    .high-fps-mode .desktop-sticky-phone,
+    .high-fps-mode .feature-deepdive-card {
+      will-change: transform, opacity;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
     }
 
     /* Screen Viewport with strict overflow containment & ZERO empty bottom void */
@@ -282,8 +314,122 @@
           </a>
         </div>
 
-        <!-- Right: Actions (GitHub + Primary APK CTA) -->
+        <!-- Right: Actions (Display Scaling HUD + GitHub + Primary APK CTA) -->
         <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+          
+          <!-- Dynamic Display & Refresh Tuning HUD Widget -->
+          <div class="relative" id="display-scale-widget-container">
+            <button 
+              id="display-scale-btn" 
+              type="button" 
+              class="inline-flex items-center gap-1.5 px-2 py-1.5 sm:px-2.5 sm:py-1.5 text-[11px] sm:text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-all duration-200 cursor-pointer shadow-sm group select-none"
+              title="Click to adjust Dynamic Display Scaling & Refresh Rate"
+            >
+              <i class="fa-solid fa-desktop text-deen-gold text-xs group-hover:scale-110 transition-transform"></i>
+              <span id="display-profile-tag" class="hidden md:inline font-mono text-[10.5px] text-slate-300">1440p (27")</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="display-scale-badge-text" class="font-mono font-bold text-deen-gold text-[10.5px]">125%</span>
+              <span id="display-hz-tag" class="hidden lg:inline-flex px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">144Hz</span>
+              <i class="fa-solid fa-chevron-down text-[9px] text-slate-500 group-hover:text-slate-300 ml-0.5"></i>
+            </button>
+
+            <!-- Floating Display Control Popover HUD -->
+            <div 
+              id="display-scale-menu" 
+              class="hidden absolute right-0 mt-2 w-80 sm:w-88 bg-[#0a181b]/95 border border-deen-gold/30 rounded-2xl shadow-2xl backdrop-blur-xl p-4 z-50 text-left transition-all duration-200"
+              style="box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 25px rgba(226,162,59,0.15);"
+            >
+              <!-- Popover Header -->
+              <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-lg bg-deen-gold/15 border border-deen-gold/30 flex items-center justify-center text-deen-gold text-xs">
+                    <i class="fa-solid fa-sliders"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-white uppercase tracking-wider font-display">Display & Refresh Tuning</h4>
+                    <p class="text-[9px] text-slate-400">Dynamic DPI & High-FPS Optimization</p>
+                  </div>
+                </div>
+                <button id="close-display-scale-btn" class="text-slate-400 hover:text-white p-1 rounded-md text-xs cursor-pointer">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+
+              <!-- Detected Hardware Readout -->
+              <div class="mt-2.5 p-2 bg-black/40 border border-white/5 rounded-xl space-y-1">
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="text-slate-400">Detected Display:</span>
+                  <span id="hud-display-name" class="font-bold text-white font-mono">1440p QHD (~27")</span>
+                </div>
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="text-slate-400">Canvas Resolution:</span>
+                  <span id="hud-resolution" class="font-mono text-deen-gold font-semibold">2560 × 1440</span>
+                </div>
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="text-slate-400">Refresh Rate:</span>
+                  <span id="hud-refresh-rate" class="font-mono text-emerald-400 font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-bolt text-[9px]"></i>
+                    <span>144 Hz (Smooth)</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Quick Presets -->
+              <div class="mt-3">
+                <label class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Scale Presets</label>
+                <div class="grid grid-cols-4 gap-1.5">
+                  <button data-scale="auto" class="scale-preset-btn px-2 py-1.5 text-[10px] font-semibold rounded-lg bg-deen-gold text-slate-950 border border-deen-gold transition-colors cursor-pointer">
+                    Auto
+                  </button>
+                  <button data-scale="1.0" class="scale-preset-btn px-2 py-1.5 text-[10px] font-semibold rounded-lg bg-slate-900/80 text-slate-300 border border-slate-800 hover:border-slate-700 hover:text-white transition-colors cursor-pointer">
+                    100%
+                  </button>
+                  <button data-scale="1.15" class="scale-preset-btn px-2 py-1.5 text-[10px] font-semibold rounded-lg bg-slate-900/80 text-slate-300 border border-slate-800 hover:border-slate-700 hover:text-white transition-colors cursor-pointer">
+                    115%
+                  </button>
+                  <button data-scale="1.25" class="scale-preset-btn px-2 py-1.5 text-[10px] font-semibold rounded-lg bg-slate-900/80 text-slate-300 border border-slate-800 hover:border-slate-700 hover:text-white transition-colors cursor-pointer">
+                    125%
+                  </button>
+                </div>
+              </div>
+
+              <!-- Continuous Precision Slider -->
+              <div class="mt-3">
+                <div class="flex items-center justify-between text-[10px] mb-1">
+                  <span class="text-slate-400">Fine Sizing Control:</span>
+                  <span id="hud-slider-val" class="font-mono text-deen-gold font-bold">125% (Auto)</span>
+                </div>
+                <input 
+                  type="range" 
+                  id="display-scale-slider" 
+                  min="85" 
+                  max="160" 
+                  step="5" 
+                  value="125" 
+                  class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                />
+                <div class="flex justify-between text-[8px] text-slate-500 font-mono mt-1">
+                  <span>85% (Compact)</span>
+                  <span>125% (27" 1440p)</span>
+                  <span>160% (4K Ultra)</span>
+                </div>
+              </div>
+
+              <!-- Refresh Rate & Smooth Motion Toggle -->
+              <div class="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-white block">High-FPS Motion Sync</span>
+                  <span class="text-[8.5px] text-slate-400">Synchronize animations with display Hz</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="fps-sync-toggle" class="sr-only peer" checked>
+                  <div class="w-7 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+              </div>
+
+            </div>
+          </div>
+
           <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors">
             <i class="fa-brands fa-github text-sm mr-1.5"></i>
             <span>GitHub</span>

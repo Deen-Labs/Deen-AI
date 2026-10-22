@@ -858,13 +858,255 @@ function startClockSync() {
 }
 
 // ============================================================================
-// 10. INITIALIZATION
+// 10. DYNAMIC DISPLAY SCALING & HIGH-REFRESH RATE ENGINE
+// ============================================================================
+
+export function initDisplayScalingEngine() {
+  const root = document.documentElement;
+  let activeHz = 60;
+  let detectedProfile = getDisplayProfile();
+
+  // 1. Calculate optimal display profile based on screen width/height, innerWidth & DPR
+  function getDisplayProfile() {
+    const sw = window.screen.width || window.innerWidth;
+    const sh = window.screen.height || window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    const iw = window.innerWidth;
+
+    let category = "1080p Standard";
+    let diag = '24"';
+    let autoScale = 1.0;
+
+    // 4K UHD or higher (3840x2160 or similar)
+    if (sw >= 3440 || (sw >= 1920 && dpr >= 2 && sw * dpr >= 3840)) {
+      if (sw / sh > 2.0) {
+        category = "Ultrawide (21:9)";
+        diag = '34"';
+        autoScale = 1.30;
+      } else {
+        category = "4K UHD";
+        diag = '32"';
+        autoScale = 1.45;
+      }
+    }
+    // 1440p QHD / 2K (2560x1440 or 2560x1600, typical 27" monitor)
+    else if (sw >= 2400 || (sw >= 2000 && sh >= 1300) || iw >= 2200) {
+      category = "1440p QHD";
+      diag = '27"';
+      autoScale = 1.25; // 125% ideal dynamic scaling for 1440p 27-inch monitors
+    }
+    // 1080p Full HD (1920x1080)
+    else if (sw >= 1800 || iw >= 1800) {
+      category = "1080p Full HD";
+      diag = '24"';
+      autoScale = 1.05;
+    }
+    // Laptops / Smaller screens
+    else if (sw >= 1300) {
+      category = "Laptop Display";
+      diag = '14"-16"';
+      autoScale = 1.0;
+    } else {
+      category = "Compact View";
+      diag = "Mobile/Tablet";
+      autoScale = 1.0;
+    }
+
+    return {
+      sw,
+      sh,
+      iw,
+      dpr,
+      category,
+      diag,
+      autoScale,
+    };
+  }
+
+  // 2. Measure actual hardware refresh rate (Hz) via requestAnimationFrame delta
+  function measureRefreshRate(onComplete) {
+    let frameCount = 0;
+    let lastTime = performance.now();
+    const deltas = [];
+
+    function sample(now) {
+      const delta = now - lastTime;
+      lastTime = now;
+      if (delta > 2 && delta < 100) {
+        deltas.push(delta);
+      }
+      frameCount++;
+      if (frameCount < 45) {
+        requestAnimationFrame(sample);
+      } else {
+        deltas.sort((a, b) => a - b);
+        // Trim 20% extremes
+        const trimmed = deltas.slice(Math.floor(deltas.length * 0.2), Math.ceil(deltas.length * 0.8));
+        const avg = trimmed.reduce((sum, v) => sum + v, 0) / (trimmed.length || 1);
+        const fps = 1000 / avg;
+
+        // Bucket to standard display refresh rates
+        let hz = 60;
+        if (fps >= 215) hz = 240;
+        else if (fps >= 155) hz = 165;
+        else if (fps >= 135) hz = 144;
+        else if (fps >= 110) hz = 120;
+        else if (fps >= 85) hz = 90;
+        else if (fps >= 70) hz = 75;
+        else hz = 60;
+
+        activeHz = hz;
+        onComplete(hz);
+      }
+    }
+    requestAnimationFrame(sample);
+  }
+
+  // 3. Apply scale
+  function setScale(scale, mode = "auto") {
+    const num = Math.min(Math.max(parseFloat(scale) || 1.0, 0.85), 1.6);
+    root.style.setProperty("--display-scale", num.toString());
+    root.style.setProperty("--phone-scale", num.toString());
+    root.style.fontSize = `${16 * num}px`;
+
+    // Persist choice
+    localStorage.setItem("deen_display_scale_mode", mode);
+    localStorage.setItem("deen_display_scale_val", num.toString());
+
+    // Update UI elements
+    updateHUD(num, mode);
+  }
+
+  function updateHUD(currentScale, mode) {
+    const pct = Math.round(currentScale * 100);
+    const badgeText = document.getElementById("display-scale-badge-text");
+    const slider = document.getElementById("display-scale-slider");
+    const sliderVal = document.getElementById("hud-slider-val");
+    const profileTag = document.getElementById("display-profile-tag");
+    const hudDisplayName = document.getElementById("hud-display-name");
+    const hudRes = document.getElementById("hud-resolution");
+    const hudHz = document.getElementById("hud-refresh-rate");
+    const tagHz = document.getElementById("display-hz-tag");
+
+    if (badgeText) badgeText.textContent = `${pct}%`;
+    if (slider) slider.value = pct;
+    if (sliderVal) sliderVal.textContent = `${pct}%${mode === "auto" ? " (Auto)" : ""}`;
+
+    if (profileTag) profileTag.textContent = `${detectedProfile.category.split(" ")[0]} (${detectedProfile.diag})`;
+    if (hudDisplayName) hudDisplayName.textContent = `${detectedProfile.category} (~${detectedProfile.diag})`;
+    if (hudRes) hudRes.textContent = `${window.screen.width || window.innerWidth} × ${window.screen.height || window.innerHeight} (DPR: ${window.devicePixelRatio || 1}x)`;
+    if (hudHz) hudHz.innerHTML = `<i class="fa-solid fa-bolt text-[9px] text-emerald-400 mr-1"></i>${activeHz} Hz (Smooth)`;
+    if (tagHz) tagHz.textContent = `${activeHz}Hz`;
+
+    // Highlight active preset button
+    document.querySelectorAll(".scale-preset-btn").forEach((btn) => {
+      const btnScale = btn.getAttribute("data-scale");
+      if (mode === "auto" && btnScale === "auto") {
+        btn.classList.add("bg-deen-gold", "text-slate-950", "border-deen-gold");
+        btn.classList.remove("bg-slate-900/80", "text-slate-300");
+      } else if (mode === "manual" && parseFloat(btnScale) === currentScale) {
+        btn.classList.add("bg-deen-gold", "text-slate-950", "border-deen-gold");
+        btn.classList.remove("bg-slate-900/80", "text-slate-300");
+      } else {
+        btn.classList.remove("bg-deen-gold", "text-slate-950", "border-deen-gold");
+        btn.classList.add("bg-slate-900/80", "text-slate-300");
+      }
+    });
+  }
+
+  // 4. Initial Load
+  const storedMode = localStorage.getItem("deen_display_scale_mode") || "auto";
+  const storedVal = parseFloat(localStorage.getItem("deen_display_scale_val"));
+
+  if (storedMode === "manual" && !isNaN(storedVal)) {
+    setScale(storedVal, "manual");
+  } else {
+    setScale(detectedProfile.autoScale, "auto");
+  }
+
+  // Measure refresh rate
+  measureRefreshRate((hz) => {
+    updateHUD(parseFloat(root.style.getPropertyValue("--display-scale")) || 1.0, localStorage.getItem("deen_display_scale_mode") || "auto");
+    // Enable High-FPS mode class if >= 120Hz
+    if (hz >= 120) {
+      document.body.classList.add("high-fps-mode");
+    }
+  });
+
+  // Event Listeners for UI
+  const triggerBtn = document.getElementById("display-scale-btn");
+  const menu = document.getElementById("display-scale-menu");
+  const closeBtn = document.getElementById("close-display-scale-btn");
+  const slider = document.getElementById("display-scale-slider");
+  const fpsToggle = document.getElementById("fps-sync-toggle");
+
+  if (triggerBtn && menu) {
+    triggerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menu.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (menu && !menu.contains(e.target) && !triggerBtn.contains(e.target)) {
+        menu.classList.add("hidden");
+      }
+    });
+  }
+
+  if (closeBtn && menu) {
+    closeBtn.addEventListener("click", () => menu.classList.add("hidden"));
+  }
+
+  // Presets
+  document.querySelectorAll(".scale-preset-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetScale = btn.getAttribute("data-scale");
+      if (targetScale === "auto") {
+        detectedProfile = getDisplayProfile();
+        setScale(detectedProfile.autoScale, "auto");
+      } else {
+        setScale(parseFloat(targetScale), "manual");
+      }
+    });
+  });
+
+  // Continuous Range Slider
+  if (slider) {
+    slider.addEventListener("input", (e) => {
+      const val = parseFloat(e.target.value) / 100;
+      setScale(val, "manual");
+    });
+  }
+
+  // High FPS Toggle
+  if (fpsToggle) {
+    fpsToggle.addEventListener("change", (e) => {
+      if (e.target.checked) {
+        document.body.classList.add("high-fps-mode");
+      } else {
+        document.body.classList.remove("high-fps-mode");
+      }
+    });
+  }
+
+  // Handle display resolution changes (e.g. dragging between monitors)
+  window.addEventListener("resize", () => {
+    if (localStorage.getItem("deen_display_scale_mode") === "auto") {
+      detectedProfile = getDisplayProfile();
+      setScale(detectedProfile.autoScale, "auto");
+    }
+  }, { passive: true });
+}
+
+// ============================================================================
+// 11. INITIALIZATION
 // ============================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.location.hash) {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }
+  initDisplayScalingEngine();
   setupScrollSpy();
   setupQuickJumpPills();
   startPrayerCountdown();
