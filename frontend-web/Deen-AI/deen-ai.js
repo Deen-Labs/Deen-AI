@@ -294,15 +294,21 @@ export function setActiveScreen(index, fromScroll = false) {
 
   // 5. If triggered by click (not scroll and not initial page load)
   if (!fromScroll && !isInitialLoad) {
-    // Only scroll window on desktop viewports (>= 1024px)
-    // On mobile (< 1024px), keep the phone simulator squarely in view without displacing the user
+    isProgrammaticScroll = true;
+    clearTimeout(programmaticScrollTimer);
+    programmaticScrollTimer = setTimeout(() => {
+      isProgrammaticScroll = false;
+    }, 750);
+
     const isDesktop = window.innerWidth >= 1024;
     if (isDesktop) {
       const targetSection = document.querySelector(`.feature-deepdive-card[data-screen="${index}"]`);
       if (targetSection) {
-        const topOffset = targetSection.getBoundingClientRect().top + window.pageYOffset - 90;
+        const targetRect = targetSection.getBoundingClientRect();
+        const cardCenter = targetRect.top + window.pageYOffset + targetRect.height / 2;
+        const targetScrollTop = cardCenter - window.innerHeight / 2;
         window.scrollTo({
-          top: topOffset,
+          top: Math.max(0, targetScrollTop),
           behavior: "smooth",
         });
       }
@@ -315,31 +321,88 @@ window.handleTriggerPhoneTab = function (index) {
 };
 
 // ============================================================================
-// 3. SCROLL SPY INTERSECTION OBSERVER WITH ROBUST LOCKING
+// 3. PRECISION CENTER-LOCKING SCROLL SPY
 // ============================================================================
 
-function setupScrollSpy() {
-  const sections = document.querySelectorAll(".feature-deepdive-card");
-  if (!sections.length) return;
+let isProgrammaticScroll = false;
+let programmaticScrollTimer = null;
 
-  const observerOptions = {
-    root: null,
-    rootMargin: "-15% 0px -20% 0px",
-    threshold: 0.35,
+export function updateActiveCardByCenter() {
+  if (isProgrammaticScroll) return;
+
+  const cards = document.querySelectorAll(".feature-deepdive-card");
+  if (!cards || cards.length === 0) return;
+
+  // Viewport focal center (50vh) - perfectly aligned with the sticky phone simulator
+  const focalCenter = window.innerHeight * 0.5;
+
+  let bestIndex = -1;
+  let minDistance = Infinity;
+
+  // 1. Direct containment check: Which card spans the viewport center line?
+  for (let i = 0; i < cards.length; i++) {
+    const card = cards[i];
+    const rect = card.getBoundingClientRect();
+    const screenIdx = parseInt(card.getAttribute("data-screen"), 10);
+    if (isNaN(screenIdx)) continue;
+
+    if (rect.top <= focalCenter && rect.bottom >= focalCenter) {
+      bestIndex = screenIdx;
+      break;
+    }
+
+    const cardCenter = (rect.top + rect.bottom) / 2;
+    const distance = Math.abs(cardCenter - focalCenter);
+    if (distance < minDistance) {
+      minDistance = distance;
+      bestIndex = screenIdx;
+    }
+  }
+
+  // 2. Page bottom boundary check
+  if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 60)) {
+    bestIndex = 4;
+  }
+
+  // 3. Page top boundary check (Hero area)
+  if (window.scrollY < 120) {
+    bestIndex = 0;
+  }
+
+  if (bestIndex !== -1 && bestIndex !== activeScreenIndex) {
+    setActiveScreen(bestIndex, true);
+  }
+}
+
+export function setupScrollSpy() {
+  let ticking = false;
+
+  const handleScroll = () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        updateActiveCardByCenter();
+        ticking = false;
+      });
+      ticking = true;
+    }
   };
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const screenIndex = parseInt(entry.target.getAttribute("data-screen"), 10);
-        if (!isNaN(screenIndex) && screenIndex !== activeScreenIndex) {
-          setActiveScreen(screenIndex, true);
-        }
-      }
-    });
-  }, observerOptions);
+  window.addEventListener("scroll", handleScroll, { passive: true });
+  window.addEventListener("resize", handleScroll, { passive: true });
 
-  sections.forEach((sec) => observer.observe(sec));
+  // Clear programmatic scroll lock on user direct interaction
+  window.addEventListener("wheel", () => {
+    isProgrammaticScroll = false;
+    clearTimeout(programmaticScrollTimer);
+  }, { passive: true });
+
+  window.addEventListener("touchmove", () => {
+    isProgrammaticScroll = false;
+    clearTimeout(programmaticScrollTimer);
+  }, { passive: true });
+
+  // Initial evaluation after layout stabilizes
+  requestAnimationFrame(updateActiveCardByCenter);
 }
 
 // ============================================================================
@@ -858,73 +921,43 @@ function startClockSync() {
 }
 
 // ============================================================================
-// 10. DYNAMIC DISPLAY SCALING & HIGH-REFRESH RATE ENGINE
+// 10. AUTOMATIC DYNAMIC DISPLAY SCALING ENGINE (100% AUTOMATIC)
 // ============================================================================
 
 export function initDisplayScalingEngine() {
   const root = document.documentElement;
-  let activeHz = 60;
-  let detectedProfile = getDisplayProfile();
 
-  // 1. Calculate optimal display profile based on screen width/height, innerWidth & DPR
+  // 1. Hardware Profile Detection
   function getDisplayProfile() {
     const sw = window.screen.width || window.innerWidth;
     const sh = window.screen.height || window.innerHeight;
     const dpr = window.devicePixelRatio || 1;
     const iw = window.innerWidth;
 
-    let category = "1080p Standard";
-    let diag = '24"';
     let autoScale = 1.0;
 
-    // 4K UHD or higher (3840x2160 or similar)
+    // Ultrawide (21:9 or 32:9) & 4K UHD
     if (sw >= 3440 || (sw >= 1920 && dpr >= 2 && sw * dpr >= 3840)) {
-      if (sw / sh > 2.0) {
-        category = "Ultrawide (21:9)";
-        diag = '34"';
-        autoScale = 1.30;
-      } else {
-        category = "4K UHD";
-        diag = '32"';
-        autoScale = 1.45;
-      }
+      autoScale = (sw / sh > 2.0) ? 1.30 : 1.45;
     }
     // 1440p QHD / 2K (2560x1440 or 2560x1600, typical 27" monitor)
     else if (sw >= 2400 || (sw >= 2000 && sh >= 1300) || iw >= 2200) {
-      category = "1440p QHD";
-      diag = '27"';
       autoScale = 1.25; // 125% ideal dynamic scaling for 1440p 27-inch monitors
     }
     // 1080p Full HD (1920x1080)
     else if (sw >= 1800 || iw >= 1800) {
-      category = "1080p Full HD";
-      diag = '24"';
       autoScale = 1.05;
     }
     // Laptops / Smaller screens
-    else if (sw >= 1300) {
-      category = "Laptop Display";
-      diag = '14"-16"';
-      autoScale = 1.0;
-    } else {
-      category = "Compact View";
-      diag = "Mobile/Tablet";
+    else {
       autoScale = 1.0;
     }
 
-    return {
-      sw,
-      sh,
-      iw,
-      dpr,
-      category,
-      diag,
-      autoScale,
-    };
+    return autoScale;
   }
 
-  // 2. Measure actual hardware refresh rate (Hz) via requestAnimationFrame delta
-  function measureRefreshRate(onComplete) {
+  // 2. High-FPS Detection (120Hz+) for GPU Compositing
+  function detectHighFpsMode() {
     let frameCount = 0;
     let lastTime = performance.now();
     const deltas = [];
@@ -936,34 +969,24 @@ export function initDisplayScalingEngine() {
         deltas.push(delta);
       }
       frameCount++;
-      if (frameCount < 45) {
+      if (frameCount < 30) {
         requestAnimationFrame(sample);
       } else {
         deltas.sort((a, b) => a - b);
-        // Trim 20% extremes
         const trimmed = deltas.slice(Math.floor(deltas.length * 0.2), Math.ceil(deltas.length * 0.8));
         const avg = trimmed.reduce((sum, v) => sum + v, 0) / (trimmed.length || 1);
         const fps = 1000 / avg;
 
-        // Bucket to standard display refresh rates
-        let hz = 60;
-        if (fps >= 215) hz = 240;
-        else if (fps >= 155) hz = 165;
-        else if (fps >= 135) hz = 144;
-        else if (fps >= 110) hz = 120;
-        else if (fps >= 85) hz = 90;
-        else if (fps >= 70) hz = 75;
-        else hz = 60;
-
-        activeHz = hz;
-        onComplete(hz);
+        if (fps >= 110) {
+          document.body.classList.add("high-fps-mode");
+        }
       }
     }
     requestAnimationFrame(sample);
   }
 
-  // 3. Apply scale
-  function setScale(scale, mode = "auto") {
+  // 3. Apply Dynamic Scale to Root and DOM elements
+  function applyScale(scale) {
     const num = Math.min(Math.max(parseFloat(scale) || 1.0, 0.85), 1.6);
     root.style.setProperty("--display-scale", num.toString());
     root.style.setProperty("--phone-scale", num.toString());
@@ -996,133 +1019,15 @@ export function initDisplayScalingEngine() {
     if (heroContent) {
       heroContent.style.zoom = num;
     }
-
-    // Persist choice
-    localStorage.setItem("deen_display_scale_mode", mode);
-    localStorage.setItem("deen_display_scale_val", num.toString());
-
-    // Update UI elements
-    updateHUD(num, mode);
   }
 
-  function updateHUD(currentScale, mode) {
-    const pct = Math.round(currentScale * 100);
-    const badgeText = document.getElementById("display-scale-badge-text");
-    const slider = document.getElementById("display-scale-slider");
-    const sliderVal = document.getElementById("hud-slider-val");
-    const profileTag = document.getElementById("display-profile-tag");
-    const hudDisplayName = document.getElementById("hud-display-name");
-    const hudRes = document.getElementById("hud-resolution");
-    const hudHz = document.getElementById("hud-refresh-rate");
-    const tagHz = document.getElementById("display-hz-tag");
+  // Apply automatic scale and detect high refresh rate
+  applyScale(getDisplayProfile());
+  detectHighFpsMode();
 
-    if (badgeText) badgeText.textContent = `${pct}%`;
-    if (slider) slider.value = pct;
-    if (sliderVal) sliderVal.textContent = `${pct}%${mode === "auto" ? " (Auto)" : ""}`;
-
-    if (profileTag) profileTag.textContent = `${detectedProfile.category.split(" ")[0]} (${detectedProfile.diag})`;
-    if (hudDisplayName) hudDisplayName.textContent = `${detectedProfile.category} (~${detectedProfile.diag})`;
-    if (hudRes) hudRes.textContent = `${window.screen.width || window.innerWidth} × ${window.screen.height || window.innerHeight} (DPR: ${window.devicePixelRatio || 1}x)`;
-    if (hudHz) hudHz.innerHTML = `<i class="fa-solid fa-bolt text-[9px] text-emerald-400 mr-1"></i>${activeHz} Hz (Smooth)`;
-    if (tagHz) tagHz.textContent = `${activeHz}Hz`;
-
-    // Highlight active preset button
-    document.querySelectorAll(".scale-preset-btn").forEach((btn) => {
-      const btnScale = btn.getAttribute("data-scale");
-      if (mode === "auto" && btnScale === "auto") {
-        btn.classList.add("bg-deen-gold", "text-slate-950", "border-deen-gold");
-        btn.classList.remove("bg-slate-900/80", "text-slate-300");
-      } else if (mode === "manual" && parseFloat(btnScale) === currentScale) {
-        btn.classList.add("bg-deen-gold", "text-slate-950", "border-deen-gold");
-        btn.classList.remove("bg-slate-900/80", "text-slate-300");
-      } else {
-        btn.classList.remove("bg-deen-gold", "text-slate-950", "border-deen-gold");
-        btn.classList.add("bg-slate-900/80", "text-slate-300");
-      }
-    });
-  }
-
-  // 4. Initial Load
-  const storedMode = localStorage.getItem("deen_display_scale_mode") || "auto";
-  const storedVal = parseFloat(localStorage.getItem("deen_display_scale_val"));
-
-  if (storedMode === "manual" && !isNaN(storedVal)) {
-    setScale(storedVal, "manual");
-  } else {
-    setScale(detectedProfile.autoScale, "auto");
-  }
-
-  // Measure refresh rate
-  measureRefreshRate((hz) => {
-    updateHUD(parseFloat(root.style.getPropertyValue("--display-scale")) || 1.0, localStorage.getItem("deen_display_scale_mode") || "auto");
-    // Enable High-FPS mode class if >= 120Hz
-    if (hz >= 120) {
-      document.body.classList.add("high-fps-mode");
-    }
-  });
-
-  // Event Listeners for UI
-  const triggerBtn = document.getElementById("display-scale-btn");
-  const menu = document.getElementById("display-scale-menu");
-  const closeBtn = document.getElementById("close-display-scale-btn");
-  const slider = document.getElementById("display-scale-slider");
-  const fpsToggle = document.getElementById("fps-sync-toggle");
-
-  if (triggerBtn && menu) {
-    triggerBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      menu.classList.toggle("hidden");
-    });
-
-    document.addEventListener("click", (e) => {
-      if (menu && !menu.contains(e.target) && !triggerBtn.contains(e.target)) {
-        menu.classList.add("hidden");
-      }
-    });
-  }
-
-  if (closeBtn && menu) {
-    closeBtn.addEventListener("click", () => menu.classList.add("hidden"));
-  }
-
-  // Presets
-  document.querySelectorAll(".scale-preset-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const targetScale = btn.getAttribute("data-scale");
-      if (targetScale === "auto") {
-        detectedProfile = getDisplayProfile();
-        setScale(detectedProfile.autoScale, "auto");
-      } else {
-        setScale(parseFloat(targetScale), "manual");
-      }
-    });
-  });
-
-  // Continuous Range Slider
-  if (slider) {
-    slider.addEventListener("input", (e) => {
-      const val = parseFloat(e.target.value) / 100;
-      setScale(val, "manual");
-    });
-  }
-
-  // High FPS Toggle
-  if (fpsToggle) {
-    fpsToggle.addEventListener("change", (e) => {
-      if (e.target.checked) {
-        document.body.classList.add("high-fps-mode");
-      } else {
-        document.body.classList.remove("high-fps-mode");
-      }
-    });
-  }
-
-  // Handle display resolution changes (e.g. dragging between monitors)
+  // Automatic adaptation on window resize or monitor transfer
   window.addEventListener("resize", () => {
-    if (localStorage.getItem("deen_display_scale_mode") === "auto") {
-      detectedProfile = getDisplayProfile();
-      setScale(detectedProfile.autoScale, "auto");
-    }
+    applyScale(getDisplayProfile());
   }, { passive: true });
 }
 

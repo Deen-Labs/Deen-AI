@@ -88,9 +88,7 @@ export default function App() {
             <span>Launch App Preview &rarr;</span>
           </a>
 
-          <div className="mx-1">
-            <DisplayScaleWidget />
-          </div>
+          <DisplayScaleWidget />
           
           <MagneticButton as="a" href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="ml-3 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
             Connect With Me
