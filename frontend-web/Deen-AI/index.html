@@ -38,6 +38,49 @@
     }
   </script>
 
+  <!-- Immediate Dynamic Display Scaler (0ms First-Paint Scaling) -->
+  <style id="dynamic-display-scale-style"></style>
+  <script>
+    (function() {
+      try {
+        var sw = window.screen.width || window.innerWidth;
+        var sh = window.screen.height || window.innerHeight;
+        var dpr = window.devicePixelRatio || 1;
+        var iw = window.innerWidth;
+        var scale = 1.0;
+        var storedMode = localStorage.getItem('deen_display_scale_mode');
+        var storedVal = parseFloat(localStorage.getItem('deen_display_scale_val'));
+        
+        if (storedMode === 'manual' && !isNaN(storedVal) && storedVal >= 0.85 && storedVal <= 1.6) {
+          scale = storedVal;
+        } else {
+          // Detect 1440p / 4K / Ultrawide
+          if (sw >= 3440 || (sw >= 1920 && dpr >= 2 && sw * dpr >= 3840)) {
+            scale = (sw / sh > 2.0) ? 1.30 : 1.45;
+          } else if (sw >= 2400 || (sw >= 2000 && sh >= 1300) || iw >= 2200) {
+            scale = 1.25; // 1440p QHD 27" monitor
+          } else if (sw >= 1800 || iw >= 1800) {
+            scale = 1.05;
+          } else {
+            scale = 1.0;
+          }
+        }
+        document.documentElement.style.setProperty('--display-scale', scale.toString());
+        document.documentElement.style.setProperty('--phone-scale', scale.toString());
+        document.documentElement.style.fontSize = (16 * scale) + 'px';
+        
+        var styleEl = document.getElementById('dynamic-display-scale-style');
+        if (styleEl) {
+          styleEl.textContent = 
+            '#phone-container { zoom: ' + scale + ' !important; }\n' +
+            '#scrolly-sections-wrapper { zoom: ' + scale + ' !important; }\n' +
+            '#hero-content-container { zoom: ' + scale + ' !important; }\n' +
+            '.max-w-7xl { max-width: min(' + (88 * scale) + 'rem, 95vw) !important; }\n';
+        }
+      } catch(e) {}
+    })();
+  </script>
+
   <!-- Custom Typography: Plus Jakarta Sans (UI) + Outfit (Headings) + Share Tech Mono (Crisp LED) + Orbitron + Amiri (Quranic Arabic) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -148,7 +191,7 @@
       width: 320px;
       max-width: calc(100vw - 2rem);
       height: 590px;
-      max-height: min(590px, calc(100vh - 5.5rem));
+      max-height: min(calc(620px * var(--phone-scale, 1)), calc(100vh - 4.5rem));
       border-radius: 42px;
       background: #081517;
       border: 3.5px solid #16363a;
@@ -157,9 +200,8 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      zoom: var(--phone-scale, 1);
       transform-origin: top center;
-      transition: zoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: zoom 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @supports not (zoom: 1) {
@@ -449,7 +491,7 @@
        2. HERO HEADER SECTION
        ========================================================================= -->
   <section class="min-h-[calc(100vh-4rem)] flex flex-col justify-between pt-6 pb-6 sm:pt-10 sm:pb-8 border-b border-slate-900/80 relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex-1 flex flex-col justify-center">
+    <div id="hero-content-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex-1 flex flex-col justify-center">
       
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-3 mx-auto">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>

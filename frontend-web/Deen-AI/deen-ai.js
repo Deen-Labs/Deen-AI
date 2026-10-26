@@ -969,6 +969,34 @@ export function initDisplayScalingEngine() {
     root.style.setProperty("--phone-scale", num.toString());
     root.style.fontSize = `${16 * num}px`;
 
+    // 1. Update the dynamic <style> tag so zoom and max-width apply immediately with highest specificity
+    let styleEl = document.getElementById("dynamic-display-scale-style");
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = "dynamic-display-scale-style";
+      document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = 
+      `#phone-container { zoom: ${num} !important; }\n` +
+      `#scrolly-sections-wrapper { zoom: ${num} !important; }\n` +
+      `#hero-content-container { zoom: ${num} !important; }\n` +
+      `.max-w-7xl { max-width: min(${88 * num}rem, 95vw) !important; }\n`;
+
+    // 2. Direct zoom on elements for instantaneous feedback
+    const phone = document.getElementById("phone-container");
+    if (phone) {
+      phone.style.zoom = num;
+      phone.style.setProperty("--phone-scale", num.toString());
+    }
+    const scrollyCards = document.getElementById("scrolly-sections-wrapper");
+    if (scrollyCards) {
+      scrollyCards.style.zoom = num;
+    }
+    const heroContent = document.getElementById("hero-content-container");
+    if (heroContent) {
+      heroContent.style.zoom = num;
+    }
+
     // Persist choice
     localStorage.setItem("deen_display_scale_mode", mode);
     localStorage.setItem("deen_display_scale_val", num.toString());
@@ -1102,7 +1130,7 @@ export function initDisplayScalingEngine() {
 // 11. INITIALIZATION
 // ============================================================================
 
-document.addEventListener("DOMContentLoaded", () => {
+function runInit() {
   if (!window.location.hash) {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }
@@ -1124,7 +1152,13 @@ document.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     isInitialLoad = false;
   }, 350);
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", runInit);
+} else {
+  runInit();
+}
 
 window.addEventListener("load", () => {
   if (!window.location.hash) {
