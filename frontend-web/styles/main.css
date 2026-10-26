@@ -1,4 +1,5 @@
 :root {
+  --display-scale: 1;
   --bg: #0f1718;
   --panel: #0b2527;
   --surface: #0c3033;
@@ -20,9 +21,16 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: calc(16px * var(--display-scale, 1));
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Fluid container scaling for 1440p, 4K, and Ultrawide */
+.max-w-7xl {
+  max-width: min(calc(88rem * var(--display-scale, 1)), 94vw) !important;
+  transition: max-width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body {

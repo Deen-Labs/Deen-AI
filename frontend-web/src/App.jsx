@@ -5,6 +5,7 @@ import { CursorProvider } from "./context/CursorContext";
 import RotatedSquareCursor from "./components/RotatedSquareCursor";
 import MagneticButton from "./components/MagneticButton";
 import InteractiveProjectCard from "./components/InteractiveProjectCard";
+import DisplayScaleWidget from "./components/DisplayScaleWidget";
 
 export default function App() {
   const [formState, setFormState] = useState({ status: 'idle' });
@@ -86,6 +87,10 @@ export default function App() {
             <img src="/assets/favicon.PNG" alt="Deen-AI" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm group-hover:scale-110 transition-transform" />
             <span>Launch App Preview &rarr;</span>
           </a>
+
+          <div className="mx-1">
+            <DisplayScaleWidget />
+          </div>
           
           <MagneticButton as="a" href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="ml-3 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
             Connect With Me

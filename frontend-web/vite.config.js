@@ -48,6 +48,9 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    watch: {
+      ignored: ['**/*.apk', '**/assets/*.apk', '**/.git/**'],
+    },
   },
   preview: {
     port: 4173,
