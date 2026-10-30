@@ -85,7 +85,7 @@ export default function App() {
           <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
           
           <a id="topbar-deen-preview-btn" href="/DeenHub" className="topbar-deen-preview-btn px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-[#ffd175] hover:text-[#ffe49e] bg-[#059669] hover:bg-[#047857] border border-[#ffd175]/40 hover:border-[#ffd175]/70 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md shadow-emerald-950/30 group">
-            <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm group-hover:scale-110 transition-transform" />
+            <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-7 h-7 sm:w-8 sm:h-8 shrink-0 object-contain rounded drop-shadow-sm group-hover:scale-105 transition-transform" />
             <span className="text-[#ffd175] font-bold group-hover:text-[#ffe49e] transition-colors">Launch DeenHub Preview &rarr;</span>
           </a>
 
@@ -130,7 +130,7 @@ export default function App() {
         <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>
         
         <a href="/DeenHub" className="topbar-deen-preview-btn block px-4 py-3 text-sm font-bold uppercase tracking-wider text-[#ffd175] bg-[#059669] hover:bg-[#047857] rounded-lg border border-[#ffd175]/30 transition-colors flex items-center gap-2.5 shadow-md shadow-emerald-950/20">
-          <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm" />
+          <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-7 h-7 shrink-0 object-contain rounded drop-shadow-sm" />
           <span className="text-[#ffd175] font-bold">Launch DeenHub Preview &rarr;</span>
         </a>
         
@@ -379,7 +379,7 @@ export default function App() {
                   href="/DeenHub"
                   className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 rounded-xl shadow-lg shadow-teal-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2.5 whitespace-nowrap"
                 >
-                  <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm" />
+                  <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-7 h-7 shrink-0 object-contain rounded drop-shadow-sm" />
                   <span>Launch DeenHub Preview &rarr;</span>
                 </MagneticButton>
 
