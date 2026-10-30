@@ -5,7 +5,7 @@ import { CursorProvider } from "./context/CursorContext";
 import RotatedSquareCursor from "./components/RotatedSquareCursor";
 import MagneticButton from "./components/MagneticButton";
 import InteractiveProjectCard from "./components/InteractiveProjectCard";
-import DisplayScaleWidget from "./components/DisplayScaleWidget";
+import ThemeNotificationPop from "./components/ThemeNotificationPop";
 import ThemeToggle from "./components/ThemeToggle";
 
 export default function App() {
@@ -89,8 +89,8 @@ export default function App() {
             <span>Launch App Preview &rarr;</span>
           </a>
 
-          <DisplayScaleWidget />
-          <ThemeToggle className="mx-1" />
+
+
           
           <MagneticButton as="a" href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="ml-3 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
             Connect With Me
@@ -169,7 +169,7 @@ export default function App() {
 
           {/* Bold Display Heading */}
           <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] text-white">
-            I architect robust <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-accent via-teal-300 to-[#92e2d6]">cloud systems</span> and build <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-gold via-amber-300 to-[#ffeab8]">intelligent AI</span> products.
+            I architect robust <span className="hero-cloud-systems bg-clip-text text-transparent bg-gradient-to-r from-brand-accent via-teal-300 to-[#92e2d6]">cloud systems</span> and build <span className="hero-intelligent-ai bg-clip-text text-transparent bg-gradient-to-r from-brand-gold via-amber-300 to-[#ffeab8]">intelligent AI</span> products.
           </h1>
 
           {/* Descriptive Subtitle copy */}
@@ -893,6 +893,7 @@ export default function App() {
 </div>
         </>
       </div>
+      <ThemeNotificationPop />
       <Analytics />
     </CursorProvider>
   );

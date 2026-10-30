@@ -525,17 +525,48 @@
       color: #0F292A !important;
     }
 
-    /* Mobile Sync Card */
+    /* Hero Gradient Text with High Contrast in Light Mode */
+    html[data-theme="light"] .hero-experience-text,
+    html.light .hero-experience-text {
+      background-image: linear-gradient(to right, #B87914 0%, #92400E 45%, #047857 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      color: transparent !important;
+    }
+
+    /* Mobile Active Module Context Card */
+    html[data-theme="light"] #mobile-active-module-card,
+    html.light #mobile-active-module-card,
     html[data-theme="light"] #mobile-sync-card,
     html.light #mobile-sync-card {
       background-color: #FFFFFF !important;
       border-color: rgba(15, 41, 42, 0.12) !important;
       box-shadow: 0 4px 20px -2px rgba(15, 41, 42, 0.08) !important;
     }
-    html[data-theme="light"] #mobile-sync-card .bg-slate-900\/90,
-    html.light #mobile-sync-card .bg-slate-900\/90 {
+    html[data-theme="light"] #mobile-active-module-card .bg-slate-900\/90,
+    html.light #mobile-active-module-card .bg-slate-900\/90,
+    html[data-theme="light"] #mobile-active-module-card [class*="bg-slate-900"],
+    html.light #mobile-active-module-card [class*="bg-slate-900"] {
       background-color: #F5EFE0 !important;
       border-color: rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] #mobile-card-title,
+    html.light #mobile-card-title {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] #mobile-card-desc,
+    html.light #mobile-card-desc {
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] #mobile-card-prompt,
+    html.light #mobile-card-prompt {
+      color: #059669 !important;
+    }
+    html[data-theme="light"] .block.lg\:hidden span.bg-slate-900\/90,
+    html.light .block.lg\:hidden span.bg-slate-900\/90 {
+      background-color: #EFE8D8 !important;
+      border-color: rgba(15, 41, 42, 0.12) !important;
+      color: #B87914 !important;
     }
 
     /* Phone Simulator in Light Mode */
@@ -590,6 +621,13 @@
     html.light .phone-screen-viewport .bg-gradient-to-br {
       background: linear-gradient(135deg, #FFFFFF 0%, #F5EFE0 100%) !important;
       border-color: rgba(184, 121, 20, 0.4) !important;
+    }
+
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-deen-card"],
+    html[data-theme="light"] .phone-screen-viewport [class*="border-white"],
+    html.light .phone-screen-viewport [class*="bg-deen-card"],
+    html.light .phone-screen-viewport [class*="border-white"] {
+      border-color: rgba(15, 41, 42, 0.1) !important;
     }
 
     /* Phone Navigation Bar */
@@ -720,7 +758,7 @@
       </div>
 
       <h1 class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white tracking-tight leading-[1.12] max-w-4xl mx-auto">
-        Your Islamic Digital Guardian — <span class="text-transparent bg-clip-text bg-gradient-to-r from-deen-gold via-amber-200 to-emerald-400">Experience Deen-AI Live</span> in Your Browser
+        Your Islamic Digital Guardian — <span class="hero-experience-text text-transparent bg-clip-text bg-gradient-to-r from-deen-gold via-amber-200 to-emerald-400">Experience Deen-AI Live</span> in Your Browser
       </h1>
 
       <p class="mt-3 text-xs sm:text-sm text-slate-300/90 max-w-2xl mx-auto leading-relaxed">
