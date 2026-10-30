@@ -18,7 +18,7 @@ export default defineConfig({
             urlPath.toLowerCase() === '/deenhub' ||
             urlPath.toLowerCase() === '/deenhub/'
           ) {
-            req.url = '/Deen-AI/index.html' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '');
+            req.url = '/DeenHub/index.html' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '');
           }
           next();
         });
@@ -33,7 +33,7 @@ export default defineConfig({
             urlPath.toLowerCase() === '/deenhub' ||
             urlPath.toLowerCase() === '/deenhub/'
           ) {
-            req.url = '/Deen-AI/index.html' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '');
+            req.url = '/DeenHub/index.html' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '');
           }
           next();
         });
@@ -46,6 +46,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         deenAi: resolve(__dirname, 'Deen-AI/index.html'),
+        deenHub: resolve(__dirname, 'DeenHub/index.html'),
       },
     },
   },

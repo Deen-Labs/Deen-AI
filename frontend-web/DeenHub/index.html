@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeenHub: Masjid & SalahTime — Interactive App Simulator</title>
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="DeenHub: Masjid & SalahTime — Interactive App Simulator" />
+  <meta name="description" content="Experience DeenHub live in your browser. 1:1 pixel-accurate interactive mobile simulator featuring astronomical Salah, Scunthorpe-proof content shielding, verified Internet Archive RAG, and authentic Mahmood Watch Co. digital LED masjid clocks." />
+  <meta name="keywords" content="DeenHub, SalahTime, Deen-AI, Deen Labs, Islamic mobile app, prayer times, qibla compass, mahmood watch co led board, halal app blocker, verified hadith AI" />
+  <meta name="author" content="Deen Labs" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://deenlabs.tech/Deen-AI" />
+  <meta property="og:title" content="DeenHub: Masjid & SalahTime — Interactive App Simulator" />
+  <meta property="og:description" content="Test drive DeenHub directly inside a 1:1 animated, scroll-synchronized 3D phone simulator." />
+  <meta property="og:image" content="https://deenlabs.tech/assets/new-app-icon.png" />
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://deenlabs.tech/Deen-AI" />
+  <meta property="twitter:title" content="DeenHub: Masjid & SalahTime — Interactive App Simulator" />
+  <meta property="twitter:description" content="Test drive DeenHub directly inside a 1:1 animated, scroll-synchronized 3D phone simulator." />
+  <meta property="twitter:image" content="https://deenlabs.tech/assets/new-app-icon.png" />
+
+  <!-- Canonical link -->
+  <link rel="canonical" href="https://deenlabs.tech/Deen-AI" />
+  <link rel="icon" type="image/png" href="/assets/new-app-icon.png" />
+
+  <!-- Immediate Theme Engine Initializer (0ms First-Paint Dark/Light Mode) -->
+  <script>
+    (function() {
+      try {
+        var stored = localStorage.getItem('deen_theme_mode') || 'dark';
+        var isDark = stored === 'light' ? false : (stored === 'system' ? !(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) : true);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        document.documentElement.classList.toggle('light', !isDark);
+        document.documentElement.classList.toggle('dark', isDark);
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Ensure page loads strictly from the Hero top on navigation -->
+  <script>
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    if (!window.location.hash) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  </script>
+
+  <!-- Immediate Automatic Dynamic Display Scaler (0ms First-Paint Scaling) -->
+  <style id="dynamic-display-scale-style"></style>
+  <script>
+    (function() {
+      try {
+        var sw = window.screen.width || window.innerWidth;
+        var sh = window.screen.height || window.innerHeight;
+        var dpr = window.devicePixelRatio || 1;
+        var iw = window.innerWidth;
+        var scale = 1.0;
+        
+        // Automatic hardware detection: 1440p (27"), 4K UHD, Ultrawide
+        if (sw >= 3440 || (sw >= 1920 && dpr >= 2 && sw * dpr >= 3840)) {
+          scale = (sw / sh > 2.0) ? 1.30 : 1.45;
+        } else if (sw >= 2400 || (sw >= 2000 && sh >= 1300) || iw >= 2200) {
+          scale = 1.25; // 1440p QHD 27" monitor
+        } else if (sw >= 1800 || iw >= 1800) {
+          scale = 1.05;
+        } else {
+          scale = 1.0;
+        }
+        document.documentElement.style.setProperty('--display-scale', scale.toString());
+        document.documentElement.style.setProperty('--phone-scale', scale.toString());
+        document.documentElement.style.fontSize = (16 * scale) + 'px';
+        
+        var styleEl = document.getElementById('dynamic-display-scale-style');
+        if (styleEl) {
+          styleEl.textContent = 
+            '#phone-container { zoom: ' + scale + ' !important; }\n' +
+            '#scrolly-sections-wrapper { zoom: ' + scale + ' !important; }\n' +
+            '#hero-content-container { zoom: ' + scale + ' !important; }\n' +
+            '.max-w-7xl { max-width: min(' + (88 * scale) + 'rem, 95vw) !important; }\n';
+        }
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Custom Typography: Plus Jakarta Sans (UI) + Outfit (Headings) + Share Tech Mono (Crisp LED) + Orbitron + Amiri (Quranic Arabic) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&family=Orbitron:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["'Plus Jakarta Sans'", "sans-serif"],
+            display: ["'Outfit'", "sans-serif"],
+            arabic: ["'Amiri'", "serif"],
+            digital: ["'Share Tech Mono'", "'Orbitron'", "monospace"],
+          },
+          colors: {
+            deen: {
+              bg: "#081315",
+              card: "#0c2326",
+              cardBorder: "rgba(255, 255, 255, 0.07)",
+              gold: "#e2a23b",
+              goldsoft: "#ffdda8",
+              emerald: "#00ff66",
+              red: "#ff2a2a",
+              wood: "#4a3321",
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Base Reset & Custom Theme with Dynamic Display Sizing */
+    :root {
+      --display-scale: 1;
+      --phone-scale: 1;
+    }
+    html {
+      scroll-behavior: smooth;
+      font-size: calc(16px * var(--display-scale, 1));
+      transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body {
+      background-color: #081315;
+      color: #f3f7f6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #060e10; }
+    ::-webkit-scrollbar-thumb { background: #15373a; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #e2a23b; }
+
+    /* Fluid container scaling for 1440p, 4K, and Ultrawide */
+    .max-w-7xl {
+      max-width: min(calc(88rem * var(--display-scale, 1)), 94vw) !important;
+      transition: max-width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Custom cursor active only on fine pointer devices */
+    @media (pointer: fine) {
+      body.custom-cursor,
+      body.custom-cursor * {
+        cursor: none !important;
+      }
+    }
+
+    /* Ambient background glow */
+    .deen-bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 15%, rgba(226, 162, 59, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 30%, rgba(30, 143, 130, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 40% 90%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
+        #081315;
+    }
+
+    /* Scrollytelling Sections Sizing & Locking: Keeps phone locked in place */
+    #scrolly-sections-wrapper {
+      scroll-snap-type: y proximity;
+    }
+    .feature-deepdive-card {
+      scroll-margin-top: 6rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .feature-deepdive-card.active-section {
+      border-color: rgba(226, 162, 59, 0.55);
+      background: linear-gradient(135deg, rgba(12, 35, 38, 0.9) 0%, rgba(8, 19, 21, 0.98) 100%);
+      box-shadow: 0 10px 30px -5px rgba(226, 162, 59, 0.15);
+    }
+
+    /* Breathing Effect Scroll Indicator */
+    @keyframes scrollBreathe {
+      0%, 100% {
+        transform: translateY(0);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(7px);
+        opacity: 0.85;
+      }
+    }
+    .animate-breathe-arrow {
+      animation: scrollBreathe 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Modern Phone Simulator Frame — Dynamically Scaled */
+    .phone-simulator-frame {
+      width: 336px;
+      max-width: calc(100vw - 2rem);
+      height: 620px;
+      max-height: min(calc(650px * var(--phone-scale, 1)), calc(100vh - 4.5rem));
+      border-radius: 42px;
+      background: #081517;
+      border: 3.5px solid #16363a;
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.9), 0 0 35px rgba(22, 54, 58, 0.35), inset 0 0 2px 1px rgba(255, 255, 255, 0.12);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform-origin: top center;
+      transition: zoom 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @supports not (zoom: 1) {
+      .phone-simulator-frame {
+        transform: scale(var(--phone-scale, 1));
+        transform-origin: top center;
+      }
+    }
+
+    /* Sticky phone simulator pinned ONLY on desktop viewports */
+    @media (min-width: 1024px) {
+      .desktop-sticky-phone {
+        position: sticky !important;
+        top: max(4.5rem, calc(50vh - (310px * var(--phone-scale, 1)))) !important;
+        transition: top 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+    }
+    @media (max-width: 1023px) {
+      .desktop-sticky-phone {
+        position: static !important;
+      }
+    }
+
+    /* High Refresh Rate GPU Compositing Optimization */
+    .high-fps-mode .phone-simulator-frame,
+    .high-fps-mode .desktop-sticky-phone,
+    .high-fps-mode .feature-deepdive-card {
+      will-change: transform, opacity;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+    }
+
+    /* Screen Viewport with strict overflow containment & ZERO empty bottom void */
+    .phone-screen-viewport {
+      flex: 1;
+      height: calc(100% - 30px - 50px);
+      position: relative;
+      overflow: hidden;
+      background: #081517;
+    }
+
+    /* Screen Panes: Prevent child collapse / squishing and guarantee immediate visibility */
+    .phone-screen-pane {
+      display: none !important;
+      height: 100%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 12px;
+      padding-bottom: 24px;
+    }
+    .phone-screen-pane > * {
+      flex-shrink: 0 !important;
+    }
+    
+    /* Universal Scrollbar Elimination inside Simulator */
+    .phone-simulator-frame,
+    .phone-screen-viewport,
+    .phone-screen-pane,
+    .phone-modal-overlay,
+    .no-scrollbar,
+    #scrolly-sections-wrapper,
+    [class*="overflow-"] {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    .phone-simulator-frame::-webkit-scrollbar,
+    .phone-screen-viewport::-webkit-scrollbar,
+    .phone-screen-pane::-webkit-scrollbar,
+    .phone-modal-overlay::-webkit-scrollbar,
+    .no-scrollbar::-webkit-scrollbar,
+    [class*="overflow-"]::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    .phone-screen-pane::-webkit-scrollbar-track { background: transparent; }
+    .phone-screen-pane::-webkit-scrollbar-thumb { background: #16363a; border-radius: 2px; }
+    .phone-screen-pane.active {
+      display: flex !important;
+      flex-direction: column !important;
+      animation: paneFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes paneFadeIn {
+      from {
+        opacity: 0.3;
+        transform: scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Mahmood Watch Co LED Display styling */
+    .led-board-chassis {
+      background: #080808;
+      border: 3.5px solid #4a3321;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.95), inset 0 0 10px rgba(0, 0, 0, 0.95);
+      position: relative;
+    }
+    .led-green {
+      color: #00ff66;
+      text-shadow: 0 0 1px rgba(0, 255, 102, 0.5), 0 0 2px rgba(0, 255, 102, 0.2);
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+    .led-red {
+      color: #ff3333;
+      text-shadow: 0 0 1px rgba(255, 51, 51, 0.5), 0 0 2px rgba(255, 51, 51, 0.2);
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    /* Compass Needle Transition */
+    .compass-dial-ring {
+      border: 1.5px solid rgba(0, 255, 102, 0.35);
+      background: #07191b;
+      border-radius: 9999px;
+      box-shadow: 0 0 25px rgba(0, 255, 102, 0.15), inset 0 0 15px rgba(0, 255, 102, 0.08);
+    }
+
+    /* Circular SVG Timer Animation */
+    .timer-ring-circle {
+      transition: stroke-dashoffset 0.35s linear;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Strict Modal Overlay Shield: 100% Solid & Isolated */
+    .phone-modal-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      background-color: #0c2124;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .phone-modal-overlay.hidden {
+      display: none !important;
+    }
+    /* ==========================================================================
+       LIGHT MODE & DARK MODE THEME OVERRIDES (Deen-AI Live Simulator)
+       Exact color codes matching mobile-app/lib/theme.tsx
+       ========================================================================== */
+
+    html[data-theme="light"],
+    html.light {
+      --deen-bg: #F7F3E8;
+      --deen-surface: #EFE8D8;
+      --deen-card: #FFFFFF;
+      --deen-card-elevated: #F5EFE0;
+      --deen-card-top-row: #F0E9DA;
+      --deen-border: rgba(15, 41, 42, 0.12);
+      --deen-border-subtle: rgba(15, 41, 42, 0.08);
+      --deen-text: #0F292A;
+      --deen-text-sec: #334E4F;
+      --deen-text-muted: #5C7475;
+      --deen-gold: #B87914;
+      --deen-green: #059669;
+    }
+
+    html[data-theme="light"] body,
+    html.light body {
+      background-color: #F7F3E8 !important;
+      color: #0F292A !important;
+    }
+
+    /* Ambient Glow in Light Mode */
+    html[data-theme="light"] .deen-bg-glow,
+    html.light .deen-bg-glow {
+      background:
+        radial-gradient(ellipse at 15% 15%, rgba(184, 121, 20, 0.1) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 30%, rgba(5, 150, 105, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 40% 90%, rgba(184, 121, 20, 0.08) 0%, transparent 50%),
+        #F7F3E8 !important;
+    }
+
+    /* Header in Light Mode */
+    html[data-theme="light"] header,
+    html.light header {
+      background: rgba(247, 243, 232, 0.94) !important;
+      border-bottom-color: rgba(15, 41, 42, 0.12) !important;
+    }
+    html[data-theme="light"] header a,
+    html.light header a {
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] header a:hover,
+    html.light header a:hover {
+      color: #0F292A !important;
+    }
+
+    /* Theme Toggle Bar */
+    #deen-theme-toggle {
+      background: rgba(15, 23, 24, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    #deen-theme-toggle button {
+      border: none;
+      background: transparent;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      line-height: 1;
+      color: #94a4a2;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #deen-theme-toggle button:hover {
+      color: #ffffff;
+    }
+    #deen-theme-toggle button.active-theme {
+      background: #e2a23b !important;
+      color: #05070e !important;
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    }
+
+    html[data-theme="light"] #deen-theme-toggle,
+    html.light #deen-theme-toggle {
+      background: rgba(239, 232, 216, 0.95) !important;
+      border-color: rgba(15, 41, 42, 0.15) !important;
+    }
+    html[data-theme="light"] #deen-theme-toggle button,
+    html.light #deen-theme-toggle button {
+      color: #5C7475 !important;
+    }
+    html[data-theme="light"] #deen-theme-toggle button:hover,
+    html.light #deen-theme-toggle button:hover {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] #deen-theme-toggle button.active-theme,
+    html.light #deen-theme-toggle button.active-theme {
+      background: #B87914 !important;
+      color: #FFFFFF !important;
+    }
+
+    /* Headings & Text in Light Mode */
+    html[data-theme="light"] h1,
+    html[data-theme="light"] h2,
+    html[data-theme="light"] h3,
+    html[data-theme="light"] h4,
+    html.light h1,
+    html.light h2,
+    html.light h3,
+    html.light h4 {
+      color: #0F292A !important;
+    }
+
+    html[data-theme="light"] p,
+    html[data-theme="light"] .text-slate-300,
+    html[data-theme="light"] .text-slate-400,
+    html.light p,
+    html.light .text-slate-300,
+    html.light .text-slate-400 {
+      color: #334E4F !important;
+    }
+
+    /* Quick jump selector pills */
+    html[data-theme="light"] .quick-jump-pill,
+    html.light .quick-jump-pill {
+      background-color: #EFE8D8 !important;
+      border-color: rgba(15, 41, 42, 0.15) !important;
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] .quick-jump-pill:hover,
+    html.light .quick-jump-pill:hover {
+      border-color: #B87914 !important;
+      color: #B87914 !important;
+      background-color: #F5EFE0 !important;
+    }
+    html[data-theme="light"] .quick-jump-pill.active-pill,
+    html.light .quick-jump-pill.active-pill {
+      background-color: #B87914 !important;
+      border-color: #B87914 !important;
+      color: #FFFFFF !important;
+    }
+
+    /* Technical Feature Deepdive Cards */
+    html[data-theme="light"] .feature-deepdive-card,
+    html.light .feature-deepdive-card {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.12) !important;
+      box-shadow: 0 4px 20px -2px rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card.active-section,
+    html.light .feature-deepdive-card.active-section {
+      border-color: #B87914 !important;
+      background: #FFFFFF !important;
+      box-shadow: 0 10px 30px -5px rgba(184, 121, 20, 0.18) !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card .bg-deen-bg\/90,
+    html[data-theme="light"] .feature-deepdive-card .bg-slate-900\/80,
+    html[data-theme="light"] .feature-deepdive-card .bg-slate-900,
+    html.light .feature-deepdive-card .bg-deen-bg\/90,
+    html.light .feature-deepdive-card .bg-slate-900\/80,
+    html.light .feature-deepdive-card .bg-slate-900 {
+      background-color: #F5EFE0 !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card .text-white,
+    html.light .feature-deepdive-card .text-white {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card .text-slate-400,
+    html.light .feature-deepdive-card .text-slate-400 {
+      color: #5C7475 !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card .text-deen-gold,
+    html.light .feature-deepdive-card .text-deen-gold {
+      color: #B87914 !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card button.bg-slate-900\/80,
+    html.light .feature-deepdive-card button.bg-slate-900\/80 {
+      background-color: #EFE8D8 !important;
+      border-color: rgba(15, 41, 42, 0.15) !important;
+      color: #0F292A !important;
+    }
+
+    /* Hero Gradient Text with High Contrast in Light Mode */
+    html[data-theme="light"] .hero-experience-text,
+    html.light .hero-experience-text {
+      background-image: linear-gradient(to right, #B87914 0%, #92400E 45%, #047857 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      color: transparent !important;
+    }
+
+    /* Mobile Active Module Context Card */
+    html[data-theme="light"] #mobile-active-module-card,
+    html.light #mobile-active-module-card,
+    html[data-theme="light"] #mobile-sync-card,
+    html.light #mobile-sync-card {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.12) !important;
+      box-shadow: 0 4px 20px -2px rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] #mobile-active-module-card .bg-slate-900\/90,
+    html.light #mobile-active-module-card .bg-slate-900\/90,
+    html[data-theme="light"] #mobile-active-module-card [class*="bg-slate-900"],
+    html.light #mobile-active-module-card [class*="bg-slate-900"] {
+      background-color: #F5EFE0 !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] #mobile-card-title,
+    html.light #mobile-card-title {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] #mobile-card-desc,
+    html.light #mobile-card-desc {
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] #mobile-card-prompt,
+    html.light #mobile-card-prompt {
+      color: #059669 !important;
+    }
+    html[data-theme="light"] .block.lg\:hidden span.bg-slate-900\/90,
+    html.light .block.lg\:hidden span.bg-slate-900\/90 {
+      background-color: #EFE8D8 !important;
+      border-color: rgba(15, 41, 42, 0.12) !important;
+      color: #B87914 !important;
+    }
+
+    /* Phone Simulator in Light Mode */
+    html[data-theme="light"] .phone-simulator-frame,
+    html.light .phone-simulator-frame {
+      background: #F7F3E8 !important;
+      border-color: #334E4F !important;
+      box-shadow: 0 25px 60px -12px rgba(15, 41, 42, 0.3), 0 0 30px rgba(15, 41, 42, 0.15) !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport,
+    html.light .phone-screen-viewport {
+      background: #F7F3E8 !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .text-white,
+    html.light .phone-screen-viewport .text-white {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .text-slate-200,
+    html[data-theme="light"] .phone-screen-viewport .text-slate-300,
+    html[data-theme="light"] .phone-screen-viewport .text-slate-400,
+    html.light .phone-screen-viewport .text-slate-200,
+    html.light .phone-screen-viewport .text-slate-300,
+    html.light .phone-screen-viewport .text-slate-400 {
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .text-deen-gold,
+    html.light .phone-screen-viewport .text-deen-gold {
+      color: #B87914 !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .text-emerald-400,
+    html.light .phone-screen-viewport .text-emerald-400 {
+      color: #059669 !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .bg-\[\#0c2326\],
+    html[data-theme="light"] .phone-screen-viewport .bg-\[\#0c2124\],
+    html.light .phone-screen-viewport .bg-\[\#0c2326\],
+    html.light .phone-screen-viewport .bg-\[\#0c2124\] {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.1) !important;
+      box-shadow: 0 2px 10px rgba(15, 41, 42, 0.05) !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .bg-\[\#081517\],
+    html[data-theme="light"] .phone-screen-viewport .bg-\[\#07191b\],
+    html[data-theme="light"] .phone-screen-viewport .bg-slate-900,
+    html.light .phone-screen-viewport .bg-\[\#081517\],
+    html.light .phone-screen-viewport .bg-\[\#07191b\],
+    html.light .phone-screen-viewport .bg-slate-900 {
+      background-color: #F5EFE0 !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .bg-gradient-to-br,
+    html.light .phone-screen-viewport .bg-gradient-to-br {
+      background: linear-gradient(135deg, #FFFFFF 0%, #F5EFE0 100%) !important;
+      border-color: rgba(184, 121, 20, 0.4) !important;
+    }
+
+    /* Universal phone simulator card & surface styling in light mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#0c2326]"],
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#0c2124]"],
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-deen-card"],
+    html.light .phone-screen-viewport [class*="bg-[#0c2326]"],
+    html.light .phone-screen-viewport [class*="bg-[#0c2124]"],
+    html.light .phone-screen-viewport [class*="bg-deen-card"] {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+      box-shadow: 0 1px 6px rgba(15, 41, 42, 0.04) !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#081517]"]:not(.led-board-chassis),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#07191b]"]:not(.led-board-chassis),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-slate-900"]:not(.led-board-chassis),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-deen-bg"]:not(.led-board-chassis),
+    html.light .phone-screen-viewport [class*="bg-[#081517]"]:not(.led-board-chassis),
+    html.light .phone-screen-viewport [class*="bg-[#07191b]"]:not(.led-board-chassis),
+    html.light .phone-screen-viewport [class*="bg-slate-900"]:not(.led-board-chassis),
+    html.light .phone-screen-viewport [class*="bg-deen-bg"]:not(.led-board-chassis) {
+      background-color: #F5EFE0 !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport [class*="border-white"],
+    html.light .phone-screen-viewport [class*="border-white"] {
+      border-color: rgba(15, 41, 42, 0.08) !important;
+    }
+
+    /* Prayer Times Tab in Light Mode (Schedule Rows & Indicators) */
+    html[data-theme="light"] #pane-prayer .space-y-1\.5 > div,
+    html.light #pane-prayer .space-y-1\.5 > div {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+      box-shadow: 0 1px 4px rgba(15, 41, 42, 0.03) !important;
+    }
+    html[data-theme="light"] #pane-prayer .space-y-1\.5 > div.border-deen-gold\/60,
+    html.light #pane-prayer .space-y-1\.5 > div.border-deen-gold\/60 {
+      border-color: rgba(184, 121, 20, 0.5) !important;
+      background-color: #FFFFFF !important;
+      box-shadow: 0 2px 8px rgba(184, 121, 20, 0.08) !important;
+    }
+    html[data-theme="light"] #pane-prayer .space-y-1\.5 .w-5.h-5,
+    html.light #pane-prayer .space-y-1\.5 .w-5.h-5 {
+      background-color: #F5EFE0 !important;
+      border: 1px solid rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] #pane-prayer .space-y-1\.5 .w-5.h-5 i,
+    html.light #pane-prayer .space-y-1\.5 .w-5.h-5 i {
+      color: #B87914 !important;
+    }
+    html[data-theme="light"] #pane-prayer .space-y-1\.5 .text-white,
+    html.light #pane-prayer .space-y-1\.5 .text-white {
+      color: #0F292A !important;
+      font-weight: 700 !important;
+    }
+    html[data-theme="light"] #pane-prayer .space-y-1\.5 .text-slate-200,
+    html.light #pane-prayer .space-y-1\.5 .text-slate-200 {
+      color: #0F292A !important;
+      font-weight: 700 !important;
+    }
+    html[data-theme="light"] #pane-prayer .space-y-1\.5 .text-slate-300,
+    html.light #pane-prayer .space-y-1\.5 .text-slate-300 {
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] #pane-prayer .space-y-1\.5 .text-slate-400,
+    html.light #pane-prayer .space-y-1\.5 .text-slate-400 {
+      color: #5C7475 !important;
+    }
+
+    /* Add Masjid button on Masjid Tab */
+    html[data-theme="light"] #pane-masjid a[href*="docs.google.com"],
+    html.light #pane-masjid a[href*="docs.google.com"] {
+      background-color: #EFE8D8 !important;
+      border-color: rgba(15, 41, 42, 0.15) !important;
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] #pane-masjid a[href*="docs.google.com"]:hover,
+    html.light #pane-masjid a[href*="docs.google.com"]:hover {
+      background-color: #F5EFE0 !important;
+      border-color: #B87914 !important;
+    }
+
+    /* Authentic Mahmood Watch Co. Digital LED Board Typography (Luminous Segments on Black) */
+    .led-board-chassis,
+    html[data-theme="light"] .led-board-chassis,
+    html.light .led-board-chassis {
+      background: #080808 !important;
+      border: 3.5px solid #4a3321 !important;
+      color: #ffffff !important;
+    }
+    
+    .led-board-chassis .text-slate-300,
+    .led-board-chassis .text-slate-400,
+    html[data-theme="light"] .led-board-chassis .text-slate-300,
+    html[data-theme="light"] .led-board-chassis .text-slate-400,
+    html.light .led-board-chassis .text-slate-300,
+    html.light .led-board-chassis .text-slate-400 {
+      color: #f1f5f9 !important;
+      text-shadow: 0 0 2px rgba(255, 255, 255, 0.4) !important;
+    }
+    .led-board-chassis .text-slate-500,
+    .led-board-chassis .text-slate-600,
+    html[data-theme="light"] .led-board-chassis .text-slate-500,
+    html[data-theme="light"] .led-board-chassis .text-slate-600,
+    html.light .led-board-chassis .text-slate-500,
+    html.light .led-board-chassis .text-slate-600 {
+      color: #94a3b8 !important;
+    }
+    
+    .led-board-chassis .led-green,
+    html[data-theme="light"] .led-board-chassis .led-green,
+    html.light .led-board-chassis .led-green {
+      color: #00ff66 !important;
+      text-shadow: 0 0 1px rgba(0, 255, 102, 0.45), 0 0 2px rgba(0, 255, 102, 0.15) !important;
+      font-family: 'Share Tech Mono', 'Courier New', monospace !important;
+      font-weight: 700 !important;
+    }
+    .led-board-chassis .led-red,
+    html[data-theme="light"] .led-board-chassis .led-red,
+    html.light .led-board-chassis .led-red {
+      color: #ff3333 !important;
+      text-shadow: 0 0 1px rgba(255, 51, 51, 0.45), 0 0 2px rgba(255, 51, 51, 0.15) !important;
+      font-family: 'Share Tech Mono', 'Courier New', monospace !important;
+      font-weight: 700 !important;
+    }
+    .led-board-chassis .led-amber,
+    html[data-theme="light"] .led-board-chassis .led-amber,
+    html.light .led-board-chassis .led-amber {
+      color: #f59e0b !important;
+      text-shadow: 0 0 1px rgba(245, 158, 11, 0.45), 0 0 2px rgba(245, 158, 11, 0.15) !important;
+      font-family: 'Share Tech Mono', 'Courier New', monospace !important;
+      font-weight: 700 !important;
+    }
+    .led-board-chassis .led-dim,
+    html[data-theme="light"] .led-board-chassis .led-dim,
+    html.light .led-board-chassis .led-dim {
+      color: #64748b !important;
+      font-family: 'Share Tech Mono', 'Courier New', monospace !important;
+    }
+
+    .led-board-chassis .text-deen-gold,
+    html[data-theme="light"] .led-board-chassis .text-deen-gold,
+    html.light .led-board-chassis .text-deen-gold {
+      color: #f59e0b !important;
+      text-shadow: 0 0 2px rgba(245, 158, 11, 0.6) !important;
+    }
+    .led-board-chassis .border-slate-800,
+    html[data-theme="light"] .led-board-chassis .border-slate-800,
+    html.light .led-board-chassis .border-slate-800 {
+      border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+    .led-board-chassis a,
+    html[data-theme="light"] .led-board-chassis a,
+    html.light .led-board-chassis a {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    .led-board-chassis a span,
+    html[data-theme="light"] .led-board-chassis a span,
+    html.light .led-board-chassis a span {
+      color: #f1f5f9 !important;
+    }
+
+    /* Phone Navigation Bar */
+    html[data-theme="light"] #phone-nav-bar,
+    html.light #phone-nav-bar {
+      background-color: #EFE8D8 !important;
+      border-top-color: rgba(15, 41, 42, 0.12) !important;
+    }
+    html[data-theme="light"] .phone-tab-btn,
+    html.light .phone-tab-btn {
+      color: #5C7475 !important;
+    }
+    html[data-theme="light"] .phone-tab-btn.active,
+    html.light .phone-tab-btn.active {
+      color: #B87914 !important;
+    }
+
+    
+    /* Universal Light Mode Card & Surface Overrides for Phone Simulator & All Modals */
+    html[data-theme="light"] .phone-screen-viewport,
+    html.light .phone-screen-viewport,
+    html[data-theme="light"] .phone-modal-overlay,
+    html.light .phone-modal-overlay {
+      background-color: #F7F3E8 !important;
+      color: #0F292A !important;
+    }
+
+    /* Primary Cards in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#0c2326]"],
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#0c2124]"],
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-deen-card"],
+    html.light .phone-screen-viewport [class*="bg-[#0c2326]"],
+    html.light .phone-screen-viewport [class*="bg-[#0c2124]"],
+    html.light .phone-screen-viewport [class*="bg-deen-card"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-[#0c2326]"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-[#0c2124]"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-deen-card"],
+    html.light .phone-modal-overlay [class*="bg-[#0c2326]"],
+    html.light .phone-modal-overlay [class*="bg-[#0c2124]"],
+    html.light .phone-modal-overlay [class*="bg-deen-card"] {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+      box-shadow: 0 1px 6px rgba(15, 41, 42, 0.04) !important;
+      color: #0F292A !important;
+    }
+
+    /* Secondary Cards, Insets, List Items in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#081517]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#07191b]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-slate-900"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-slate-800"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-black"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-[#081517]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-[#07191b]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-slate-900"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-slate-800"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-black"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-[#081517]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-[#07191b]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-slate-900"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-slate-800"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-black"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-[#081517]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-[#07191b]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-slate-900"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-slate-800"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-black"]:not(.led-board-chassis):not(.led-board-chassis *) {
+      background-color: #F5EFE0 !important;
+      border-color: rgba(15, 41, 42, 0.09) !important;
+      color: #0F292A !important;
+    }
+
+    /* Amber Highlight Banners & Cards in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-amber-950"],
+    html.light .phone-screen-viewport [class*="bg-amber-950"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-amber-950"],
+    html.light .phone-modal-overlay [class*="bg-amber-950"] {
+      background-color: #FFFBEB !important;
+      border-color: rgba(245, 158, 11, 0.35) !important;
+      color: #92400E !important;
+    }
+
+    /* Emerald Highlight Banners & Cards in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-emerald-950"],
+    html.light .phone-screen-viewport [class*="bg-emerald-950"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-emerald-950"],
+    html.light .phone-modal-overlay [class*="bg-emerald-950"] {
+      background-color: #ECFDF5 !important;
+      border-color: rgba(5, 150, 105, 0.3) !important;
+      color: #065F46 !important;
+    }
+
+    /* Sky Rain Notices in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-sky-950"],
+    html.light .phone-screen-viewport [class*="bg-sky-950"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-sky-950"],
+    html.light .phone-modal-overlay [class*="bg-sky-950"] {
+      background-color: #F0F9FF !important;
+      border-color: rgba(14, 165, 233, 0.3) !important;
+      color: #0369A1 !important;
+    }
+
+    /* Inputs, Textareas, Selects in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport input,
+    html[data-theme="light"] .phone-screen-viewport textarea,
+    html[data-theme="light"] .phone-screen-viewport select,
+    html.light .phone-screen-viewport input,
+    html.light .phone-screen-viewport textarea,
+    html.light .phone-screen-viewport select,
+    html[data-theme="light"] .phone-modal-overlay input,
+    html[data-theme="light"] .phone-modal-overlay textarea,
+    html[data-theme="light"] .phone-modal-overlay select,
+    html.light .phone-modal-overlay input,
+    html.light .phone-modal-overlay textarea,
+    html.light .phone-modal-overlay select {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.16) !important;
+      color: #0F292A !important;
+    }
+
+    /* Typography colors inside Light Mode Phone Simulator */
+    html[data-theme="light"] .phone-screen-viewport .text-white:not(.led-board-chassis *):not(.bg-emerald-600):not(.bg-red-600):not(.bg-deen-gold):not(.bg-amber-500):not(.text-slate-950),
+    html.light .phone-screen-viewport .text-white:not(.led-board-chassis *):not(.bg-emerald-600):not(.bg-red-600):not(.bg-deen-gold):not(.bg-amber-500):not(.text-slate-950),
+    html[data-theme="light"] .phone-modal-overlay .text-white:not(.bg-emerald-600):not(.bg-red-600):not(.bg-deen-gold):not(.bg-amber-500):not(.text-slate-950),
+    html.light .phone-modal-overlay .text-white:not(.bg-emerald-600):not(.bg-red-600):not(.bg-deen-gold):not(.bg-amber-500):not(.text-slate-950) {
+      color: #0F292A !important;
+    }
+
+    html[data-theme="light"] .phone-screen-viewport .text-slate-200:not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport .text-slate-300:not(.led-board-chassis *),
+    html.light .phone-screen-viewport .text-slate-200:not(.led-board-chassis *),
+    html.light .phone-screen-viewport .text-slate-300:not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay .text-slate-200,
+    html[data-theme="light"] .phone-modal-overlay .text-slate-300,
+    html.light .phone-modal-overlay .text-slate-200,
+    html.light .phone-modal-overlay .text-slate-300 {
+      color: #1E3A3B !important;
+    }
+
+    html[data-theme="light"] .phone-screen-viewport .text-slate-400:not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport .text-slate-500:not(.led-board-chassis *),
+    html.light .phone-screen-viewport .text-slate-400:not(.led-board-chassis *),
+    html.light .phone-screen-viewport .text-slate-500:not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay .text-slate-400,
+    html[data-theme="light"] .phone-modal-overlay .text-slate-500,
+    html.light .phone-modal-overlay .text-slate-400,
+    html.light .phone-modal-overlay .text-slate-500 {
+      color: #4A6364 !important;
+    }
+
+    /* Phone Modal Overlays */
+    html[data-theme="light"] .phone-modal-overlay,
+    html.light .phone-modal-overlay {
+      background-color: #F7F3E8 !important;
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] .phone-modal-overlay .bg-\[\#081517\],
+    html[data-theme="light"] .phone-modal-overlay .bg-\[\#0c2326\],
+    html.light .phone-modal-overlay .bg-\[\#081517\],
+    html.light .phone-modal-overlay .bg-\[\#0c2326\] {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.1) !important;
+    }
+
+    /* Qibla Compass Dial */
+    html[data-theme="light"] .compass-dial-ring,
+    html.light .compass-dial-ring {
+      background-color: #EFE8D8 !important;
+      border-color: rgba(5, 150, 105, 0.45) !important;
+      box-shadow: 0 0 25px rgba(5, 150, 105, 0.15), inset 0 0 15px rgba(5, 150, 105, 0.08) !important;
+    }
+
+    /* Footer in Light Mode */
+    html[data-theme="light"] footer,
+    html.light footer {
+      background-color: #EFE8D8 !important;
+      border-top-color: rgba(15, 41, 42, 0.12) !important;
+    }
+    html[data-theme="light"] footer a,
+    html.light footer a {
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] footer a:hover,
+    html.light footer a:hover {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] footer p,
+    html.light footer p {
+      color: #5C7475 !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-deen-gold/30 selection:text-white">
+
+  <!-- Ambient lighting layer -->
+  <div class="deen-bg-glow" aria-hidden="true"></div>
+
+  <!-- =========================================================================
+       1. TOP NAVIGATION BAR
+       ========================================================================= -->
+  <header class="sticky top-0 z-50 w-full backdrop-blur-md bg-[#081315]/90 border-b border-white/10 transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Left: Back to Portfolio & Deen-AI Brand -->
+        <div class="flex items-center space-x-2 sm:space-x-4 min-w-0">
+          <a href="/" class="flex items-center text-xs sm:text-sm font-medium text-slate-300 hover:text-white group transition-colors shrink-0">
+            <i class="fa-solid fa-arrow-left mr-1.5 sm:mr-2 group-hover:-translate-x-1 transition-transform"></i>
+            <span class="hidden sm:inline">Deen-Labs Portfolio</span>
+            <span class="sm:hidden">Portfolio</span>
+          </a>
+
+          <div class="h-4 w-px bg-slate-800 shrink-0"></div>
+
+          <a href="/Deen-AI" class="flex items-center space-x-2 group py-1 shrink-0" title="DeenHub Showcase">
+            <img src="/assets/new-app-icon.png" alt="DeenHub" class="h-10 sm:h-12 w-auto object-contain rounded-xl drop-shadow-[0_0_12px_rgba(16,185,129,0.35)] group-hover:scale-105 transition-all duration-300" />
+            <span class="hidden sm:inline-flex px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40 shadow-sm">v3.2.0</span>
+          </a>
+        </div>
+
+        <!-- Right: Actions (Display Scaling HUD + GitHub + Primary APK CTA) -->
+        <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+          
+          <!-- Theme Switcher Controls (Dark / Light / Auto) -->
+          <div id="deen-theme-toggle" role="group" aria-label="Theme mode switcher">
+            <button data-theme-btn="dark" type="button" title="Dark Theme">
+              <i class="fa-solid fa-moon"></i>
+            </button>
+            <button data-theme-btn="light" type="button" title="Light Theme">
+              <i class="fa-solid fa-sun"></i>
+            </button>
+            <button data-theme-btn="system" type="button" title="System Theme">
+              <i class="fa-solid fa-circle-half-stroke"></i>
+            </button>
+          </div>
+
+          <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors">
+            <i class="fa-brands fa-github text-sm mr-1.5"></i>
+            <span>GitHub</span>
+          </a>
+
+          <a href="/assets/deen-app-v3.2.0.apk" download="DeenHub-v3.2.0.apk" class="inline-flex items-center px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-deen-gold to-[#ffd175] hover:from-[#c28424] hover:to-deen-gold rounded-lg shadow-md shadow-amber-950/30 transition-all hover:scale-[1.02] whitespace-nowrap">
+            <i class="fa-brands fa-android text-sm mr-1 sm:mr-1.5"></i>
+            <span>Download APK</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       2. HERO HEADER SECTION
+       ========================================================================= -->
+  <section class="min-h-[calc(100vh-4rem)] flex flex-col justify-between pt-6 pb-6 sm:pt-10 sm:pb-8 border-b border-slate-900/80 relative">
+    <div id="hero-content-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex-1 flex flex-col justify-center">
+      
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-3 mx-auto">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>1:1 Native App Simulator • Zero Installation Required</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white tracking-tight leading-[1.12] max-w-4xl mx-auto">
+        Your Islamic Digital Guardian — <span class="hero-experience-text text-transparent bg-clip-text bg-gradient-to-r from-deen-gold via-amber-200 to-emerald-400">Experience DeenHub Live</span> in Your Browser
+      </h1>
+
+      <p class="mt-3 text-xs sm:text-sm text-slate-300/90 max-w-2xl mx-auto leading-relaxed">
+        Test-drive all 5 core modules inside the interactive 3D phone simulator below. Scroll through the deep-dives or tap directly on the phone screen and bottom tabs to interact.
+      </p>
+
+      <!-- Quick Jump Module Selector Pills -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto" id="quick-jump-container">
+        <button data-jump="0" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved text-deen-gold text-xs"></i>
+          <span>1. Shield & Guardian</span>
+        </button>
+        <button data-jump="1" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-clock text-deen-gold text-xs"></i>
+          <span>2. Astronomical Salah</span>
+        </button>
+        <button data-jump="2" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-bullseye text-deen-gold text-xs"></i>
+          <span>3. Mindful Focus</span>
+        </button>
+        <button data-jump="3" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-comment-dots text-deen-gold text-xs"></i>
+          <span>4. Imam AI & RAG</span>
+        </button>
+        <button data-jump="4" class="quick-jump-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-900/80 hover:bg-deen-card border border-slate-800 hover:border-deen-gold text-slate-300 hover:text-deen-goldsoft transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-mosque text-deen-gold text-xs"></i>
+          <span>5. Masjid & LED Board</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Breathing Scroll Down Indicator & Spacious Section Break (Framed with Semi-Transparent Gold Lines) -->
+    <div class="mt-8 sm:mt-10 mb-2 flex flex-col items-center justify-center w-full px-4">
+      <!-- Semi-transparent yellow line ABOVE the scroll section -->
+      <div class="w-48 sm:w-72 h-[1px] bg-gradient-to-r from-transparent via-deen-gold/40 to-transparent mx-auto mb-3" aria-hidden="true"></div>
+
+      <a 
+        href="#phone-container" 
+        onclick="event.preventDefault(); (window.innerWidth < 1024 ? document.getElementById('phone-container') : document.querySelector('[data-screen=\'0\']')).scrollIntoView({ behavior: 'smooth' });" 
+        class="group flex flex-col items-center gap-1.5 select-none cursor-pointer text-slate-400/60 hover:text-deen-gold transition-colors duration-300 py-1"
+        title="Scroll down to test-drive DeenHub"
+      >
+        <span class="text-[9.5px] font-mono uppercase tracking-[0.22em] text-slate-400/50 group-hover:text-deen-goldsoft transition-colors">
+          Scroll to Test Drive App
+        </span>
+        <div class="animate-breathe-arrow flex flex-col items-center">
+          <svg class="w-4 h-6 text-deen-gold/50 group-hover:text-deen-gold transition-colors" fill="none" viewBox="0 0 24 32" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v20m0 0l-5-5m5 5l5-5" />
+          </svg>
+        </div>
+      </a>
+
+      <!-- Semi-transparent yellow line BELOW the scroll section -->
+      <div class="w-48 sm:w-72 h-[1px] bg-gradient-to-r from-transparent via-deen-gold/40 to-transparent mx-auto mt-3" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       3. INTERACTIVE SCROLLYTELLING + STICKY 3D PHONE SIMULATOR
+       ========================================================================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 flex-1">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      
+      <!-- ==========================================
+           TECHNICAL FEATURE DEEP-DIVES (Column 1 on Desktop, Below Phone on Mobile)
+           ========================================== -->
+      <div class="lg:col-span-7 order-2 lg:order-1 space-y-10 sm:space-y-16" id="scrolly-sections-wrapper">
+
+        <!-- Mobile Section Heading: Architectural Deep-Dives -->
+        <div class="block lg:hidden pt-4 pb-2 text-center">
+          <div class="flex items-center justify-center gap-3 mb-2">
+            <div class="h-px bg-slate-800 flex-1"></div>
+            <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-deen-gold px-3 py-1 bg-slate-900/90 rounded-full border border-slate-800">
+              Technical Specifications Below ↓
+            </span>
+            <div class="h-px bg-slate-800 flex-1"></div>
+          </div>
+          <p class="text-xs text-slate-400">
+            Scroll down to explore the engineering specs for each module.
+          </p>
+        </div>
+
+        <!-- SCREEN 0: HOME / DIGITAL GUARDIAN -->
+        <!-- SCREEN 0: HOME / HIJRI + LIVE LED BOARD -->
+        <article data-screen="0" class="feature-deepdive-card active-section bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 01 / Home Landing</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">HIJRI + LIVE LED BOARD</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Unified Home Dashboard — Hijri Fasting Strip, Default Masjid LED Board & Content Blocker
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            Combines today's Hijri date, 12-hour Sahar & Iftar timings, and your pinned Default Masjid's Mahmood Watch Co. digital LED board right at the top of the home screen—complete with Fajr interval badges (+25m), toggleable Dhuhr/Maghrib heavy rain alerts, direct JazakAllah attribution to the volunteer updater, and a 3-tile Content Blocker purity bento.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-tv text-deen-gold text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Mahmood Watch Co. LED</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Collapsible wood-bordered digital matrix with pulsing Next Salah countdown, Fajr Athan-to-Jama'at interval badge, and toggleable heavy-rain combine notices.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-hands-praying text-emerald-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Direct Updater Gratitude</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Displays President name (Title Case), Ladies Section availability, last updated timestamp, and a 12h-cooldown Send JazakAllahu Khairan button.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(0)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>Preview Home Screen</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="openPhoneSubModal('clean-stats')" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-shield text-emerald-400 text-xs"></i>
+              <span>Open Clean Streak & Stats</span>
+            </button>
+            <button onclick="simulatePinUnlock()" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-key text-deen-gold text-xs"></i>
+              <span>Test 4-Digit Security PIN</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- SCREEN 1: NEARBY MASAJID DIRECTORY -->
+        <article data-screen="1" class="feature-deepdive-card bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 02 / Masjid Network</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40">140+ MASAJID NETWORK</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Nearby Masajid Directory — GPS & A–Z Sort, Next-Salah Preview & Anti-Spam Diff Guard
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            Real-time Haversine GPS proximity and A–Z alphabetical sorting across 140+ connected masajid. Collapsed cards preview the upcoming Jama'at time inside the View Timings button, while pinned Default Masjid cards stay ultra-compact until expanded.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-arrow-down-a-z text-deen-gold text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Multi-Field Search & A–Z Chip</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Instant filtering across Masjid Name, Address, Famous Area, and Committee President with 1-tap GPS vs. A–Z sorting.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-database text-emerald-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Server-Side Duplicate Guard</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Separate Edit Timings and Edit Masjid modals with pre-flight Firestore diff verification to protect Khadim-e-Masjid leaderboard integrity.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(1)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>Explore Masajid Tab</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="setMasjidSortMode('az')" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-arrow-down-a-z text-deen-gold text-xs"></i>
+              <span>Test A–Z Sort</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- SCREEN 2: CONTENT CALM & FOCUS LOCKDOWN -->
+        <article data-screen="2" class="feature-deepdive-card bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 03 / Productivity & Shield</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">24/7 DEVICE SHIELD</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Content Calm — Distraction Lockdown, Focus Schedules & Days Clean Analytics
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            Pure Muraqabah focus timer with configurable 15m, 25m, 45m, 60m, and custom sessions, recurring weekly focus schedules, and native Android Accessibility + Private DNS shielding that automatically resets the clean streak if prohibited content is intercepted.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-ban text-red-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Package & Browser Lockdown</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Blocks distracting social feeds during focus sessions and enforces 24/7 adult domain filtering across browsers and secure folders.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-chart-line text-emerald-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Clean Streak Analytics</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Tracks current clean streak, all-time personal best, running average days per cycle, and a timestamped purity journey log.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(2)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>Open Focus Mode</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="togglePhoneFocusTimer()" id="left-focus-toggle-btn" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-play text-emerald-400 text-xs"></i>
+              <span>Start 25:00 Focus Session</span>
+            </button>
+            <button onclick="openPhoneSubModal('clean-stats')" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-shield text-emerald-400 text-xs"></i>
+              <span>View Clean Stats Hub</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- SCREEN 3: JUMU'AH FRIDAY TOPICS -->
+        <article data-screen="3" class="feature-deepdive-card bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 04 / Community Speech</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">KHUTBAH ROSTER</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Jumu'ah Khutbah Topics — Upcoming Fridays, isAalim Scholar Auto-Load & Past Weeks Archive
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            Dedicated 4th bottom-bar tab broadcasting upcoming Friday Khutbah topics and Jama'at timings across local masajid. Features 4 symmetrical filter chips (All Upcoming, Nearby Masjids, By Khateeb, By Masjid), audit metadata (Created By & Created On), and a Past Weeks' Khutbahs accordion.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-user-check text-deen-gold text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">isAalim Scholar Auto-Loader</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                When Imams or Committee members tap Add Friday Topic, verified scholars (isAalim) auto-populate speaker credentials with a manual input fallback.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-box-archive text-emerald-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Upcoming vs. Past Separation</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Strictly filters the main stream to upcoming Fridays while archiving previous weeks inside each masjid's expandable history tray.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(3)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>Explore Jumu'ah Tab</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="openPhoneSubModal('add-juma')" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-plus text-deen-gold text-xs"></i>
+              <span>Test Add Friday Topic Modal</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- SCREEN 4: DEEN HUB, CUSTOM AZKAR, HIJRI FASTING & LEADERBOARD -->
+        <article data-screen="4" class="feature-deepdive-card bg-deen-card/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 05 / Spiritual Hub & Admin</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40">9 HUB TOOLS + ADMIN</span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mb-2">
+            Deen Hub & SalahTime Network — Custom Azkar, 12-Month Hijri Fasting, Solar End-Times & Leaderboard
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
+            A unified 3x3 spiritual and community hub housing the Qibla Compass, Daily & Custom Azkar with Firestore sync, 99 Names of Allah (Play All 1–99), 12-Month Hijri Fasting Calendar (Ayam-ul-Bidh White Days), Solar Prayer Times with Start & End ranges, Khadim-e-Masjid Leaderboard, and the 4-tab Admin Control Center.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-medal text-deen-gold text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Khadim-e-Masjid Point Engine</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Awards +100 pts for new masjids, +50 pts for unique masjids, and +10 pts per verified timing update with a 24h anti-spam cooldown.
+              </p>
+            </div>
+
+            <div class="bg-deen-bg/90 border border-slate-800/80 rounded-xl p-3.5">
+              <div class="flex items-center space-x-2.5 mb-1.5">
+                <i class="fa-solid fa-sun text-emerald-400 text-sm"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider font-display">Solar Start & End Windows</h3>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Calculates exact Fajr→Sunrise, Dhuhr→Asr, Asr→Maghrib, and Maghrib→Isha start-to-end windows with Hyderabad fallback.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="handleTriggerPhoneTab(4)" class="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-deen-gold hover:bg-[#c28424] rounded-lg transition-all shadow-md flex items-center gap-1.5">
+              <span>Open Deen Hub & More</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="openPhoneSubModal('community')" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-trophy text-deen-gold text-xs"></i>
+              <span>Open Khadim Leaderboard</span>
+            </button>
+            <button onclick="openPhoneSubModal('prayer-api')" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-clock text-deen-gold text-xs"></i>
+              <span>View Solar Start/End Times</span>
+            </button>
+            <button onclick="openPhoneQiblaCompass()" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-compass text-deen-gold text-xs"></i>
+              <span>Launch Qibla Compass</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Clean bottom scroll buffer for sticky phone preview -->
+        <div class="h-24 sm:h-32 pointer-events-none" aria-hidden="true"></div>
+
+      </div>
+
+      <!-- ==========================================
+           INTERACTIVE 3D PHONE SIMULATOR (Front & Center on Mobile, Sticky on Desktop)
+           ========================================== -->
+      <div class="lg:col-span-5 order-1 lg:order-2 z-30 flex flex-col items-center justify-center self-start w-full desktop-sticky-phone">
+        
+        <!-- Subtle Floating Glow Behind Phone -->
+        <div class="absolute -inset-4 bg-gradient-to-b from-deen-gold/15 via-emerald-500/10 to-transparent blur-2xl rounded-full opacity-60 pointer-events-none -z-10"></div>
+
+        <!-- THE 1:1 PHONE SIMULATOR BEZEL -->
+        <div class="phone-simulator-frame select-none" id="phone-container">
+          
+          <!-- Top Phone Speaker & Live Status Bar -->
+          <div class="h-7 bg-[#081517] flex items-center justify-between px-5 pt-1.5 z-20 border-b border-white/5">
+            <!-- Left: Clock & Date -->
+            <div class="flex items-center space-x-1.5 text-[10px] font-semibold text-slate-300">
+              <span id="phone-status-time">3:16 am</span>
+              <span class="text-[11px] text-slate-500">21/10</span>
+            </div>
+
+            <!-- Center: Speaker Notch -->
+            <div class="w-12 h-1 bg-slate-800 rounded-full mx-auto"></div>
+
+            <!-- Right: Status Icons (WiFi + Battery) -->
+            <div class="flex items-center space-x-1.5 text-[9.5px] text-slate-300">
+              <i class="fa-solid fa-wifi text-[11px]"></i>
+              <span class="text-[11px] font-mono">49%</span>
+              <i class="fa-solid fa-battery-half text-[10px] text-emerald-400"></i>
+            </div>
+          </div>
+
+          <!-- Phone Viewport Screen Container (Strict containment & NO blank void) -->
+          <div class="phone-screen-viewport" id="phone-viewport">
+            
+            <!-- ==========================================================
+                 PANE 0: HOME / HIJRI + LIVE LED BOARD + CONTENT BLOCKER (1:1 REPLICA)
+                 ========================================================== -->
+            <div class="phone-screen-pane active space-y-2.5" data-pane="0" id="pane-home">
+              
+              <!-- Screen 0 Header -->
+              <div class="flex items-center justify-between pt-0.5 flex-shrink-0">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <h3 class="text-base font-bold text-white tracking-tight leading-tight">DeenHub</h3>
+                    <span id="phone-online-status-badge" onclick="simulatePinUnlock()" class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition-colors cursor-pointer" title="Tap to Test PIN">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>PROTECTED</span>
+                    </span>
+                  </div>
+                  <p class="text-[9.5px] text-slate-400 mt-0.5">Masjid & SalahTime Companion</p>
+                </div>
+                <button onclick="openPhoneSubModal('community')" class="w-7 h-7 rounded-full bg-[#0c2326] border border-white/10 flex items-center justify-center text-slate-300 hover:text-deen-gold transition-colors" title="Notifications & Leaderboard">
+                  <i class="fa-solid fa-bell text-xs"></i>
+                </button>
+              </div>
+
+              <!-- Compact Symmetrical Hijri Date + Sahar & Iftar Strip -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-xl px-2.5 py-1.5 flex items-center justify-between text-[9px] flex-shrink-0">
+                <div class="flex items-center gap-1.5 text-slate-200 font-semibold">
+                  <i class="fa-solid fa-moon text-deen-gold text-xs"></i>
+                  <span>17 Jumada I, 1448 AH</span>
+                </div>
+                <div class="flex items-center gap-1.5 font-mono text-[10.5px]">
+                  <span class="bg-black/40 px-1.5 py-0.5 rounded border border-white/5 text-slate-300"><strong class="text-deen-gold">SAHAR</strong> 05:12 AM</span>
+                  <span class="bg-black/40 px-1.5 py-0.5 rounded border border-white/5 text-slate-300"><strong class="text-amber-400">IFTAR</strong> 06:04 PM</span>
+                </div>
+              </div>
+
+              <!-- Selected Home Masjid Card -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-2 shadow-sm flex-shrink-0">
+                <!-- Top Row: Default Masjid & Distance -->
+                <div class="flex items-center justify-between">
+                  <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+                    <i class="fa-solid fa-bookmark text-[9.5px]"></i>
+                    <span>Default Masjid</span>
+                  </span>
+                  <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40 flex items-center gap-1">
+                    <i class="fa-solid fa-location-dot text-[9.5px]"></i>
+                    <span>250 m</span>
+                  </span>
+                </div>
+
+                <div>
+                  <h4 class="text-xs font-bold text-white leading-tight">Historic Makkah Masjid</h4>
+                  <p class="text-[11px] text-slate-400">Near Charminar, Old City, Hyderabad</p>
+                </div>
+
+                <!-- In-Card Mahmood Watch Co. Digital LED Board -->
+                <div id="home-led-board" class="led-board-chassis p-2 text-center mt-1">
+                  <p class="font-arabic text-deen-gold text-[11px] tracking-wide mb-1 leading-normal">
+                    لَا إِلٰهَ إِلَّا ٱللَّٰهُ مُحَمَّدٌ رَسُولُ ٱللَّٰهِ
+                  </p>
+                  
+                  <!-- Pulsing Next Salah Strip -->
+                  <div class="bg-black/80 border border-emerald-500/30 rounded-lg px-2 py-1 mb-1.5 flex items-center justify-center gap-1.5 text-[10.5px] font-mono font-bold text-emerald-400">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                    <span>NEXT SALAH: ASR • IN <span id="home-led-countdown">1H 39M 02S</span></span>
+                  </div>
+
+                  <!-- Verified Badge & Collapse Button -->
+                  <div class="flex items-center justify-between text-[10px] text-slate-400 mb-1 px-0.5">
+                    <span class="flex items-center gap-1 text-emerald-400 font-semibold">
+                      <i class="fa-solid fa-shield-halved text-[10.5px]"></i>
+                      <span>Official Timings • Verified by Muazzin</span>
+                    </span>
+                    <button onclick="toggleHomeLedBoard()" id="home-led-collapse-btn" class="text-deen-gold hover:underline font-bold">
+                      ▲ Hide LED Board
+                    </button>
+                  </div>
+
+                  <!-- Collapsible Rows Container -->
+                  <div id="home-led-rows" class="space-y-1">
+                    <div class="grid grid-cols-3 text-[10px] font-mono font-bold border-b border-white/10 pb-1 text-slate-400">
+                      <span>PRAYER</span>
+                      <span class="text-emerald-400 font-bold">ATHAN</span>
+                      <span class="text-red-400 font-bold">JAMA'AT</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-300 py-0.5 items-center">
+                      <span class="flex items-center justify-center font-bold">FAJR <span class="px-1 py-0.2 rounded bg-deen-gold/20 text-deen-gold text-[11px] font-bold ml-1"><i class="fa-solid fa-clock mr-0.5 text-[10px]"></i>+25m</span></span>
+                      <span class="led-green font-bold">04:58 AM</span>
+                      <span class="led-red font-bold">05:23 AM</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-400 py-0.5 items-center">
+                      <span class="font-bold">SUNRISE</span>
+                      <span class="led-green font-bold">06:12 AM</span>
+                      <span class="led-dim font-bold">--:--</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-300 py-0.5 items-center">
+                      <span class="flex items-center justify-center font-bold">DHUHR <button onclick="toggleRainNotice()" class="ml-1 text-sky-400 hover:text-sky-300" title="Toggle Rain Alert"><i class="fa-solid fa-cloud-rain text-[9.5px]"></i></button></span>
+                      <span class="led-green font-bold">12:15 PM</span>
+                      <span class="led-red font-bold">01:15 PM</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-[11px] font-mono py-0.5 font-bold text-emerald-400 bg-emerald-500/10 rounded px-1 items-center">
+                      <span class="font-bold">▶ ASR</span>
+                      <span class="led-green font-bold">03:36 PM</span>
+                      <span class="led-red font-bold">04:15 PM</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-300 py-0.5 items-center">
+                      <span class="flex items-center justify-center font-bold">MAGHRIB <button onclick="toggleRainNotice()" class="ml-1 text-sky-400 hover:text-sky-300" title="Toggle Rain Alert"><i class="fa-solid fa-cloud-rain text-[9.5px]"></i></button></span>
+                      <span class="led-green font-bold">05:58 PM</span>
+                      <span class="led-red font-bold">06:05 PM</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-300 py-0.5 items-center">
+                      <span class="font-bold">ISHA</span>
+                      <span class="led-green font-bold">07:18 PM</span>
+                      <span class="led-red font-bold">08:00 PM</span>
+                    </div>
+
+                    <div class="border-t border-white/10 pt-1 mt-1 grid grid-cols-4 gap-1 text-[11px] font-mono text-slate-400">
+                      <div><span class="text-deen-gold block font-bold">JUMMAH</span> <span class="led-red font-bold">01:15 PM</span></div>
+                      <div><span class="text-slate-300 block font-bold">TARAWEEH</span> <span class="led-red font-bold">08:45 PM</span></div>
+                      <div><span class="text-deen-gold block font-bold">SAHAR</span> <span class="led-green font-bold">05:05 AM</span></div>
+                      <div><span class="text-amber-400 block font-bold">IFTAR</span> <span class="led-amber font-bold">06:04 PM</span></div>
+                    </div>
+
+                    <div class="mt-1 pt-1 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+                      <span>Taraweeh Qari: Hafiz Ibrahim</span>
+                      <span class="text-emerald-400 font-semibold">Ladies Section Available</span>
+                    </div>
+                  </div>
+
+                  <!-- Toggleable Rain Notice Strip -->
+                  <div id="home-rain-strip" class="hidden mt-1.5 p-1 rounded-lg bg-sky-950/60 border border-sky-500/40 text-[10px] text-sky-300 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-cloud-rain text-sky-400"></i>
+                    <span>Pray at Home / Combined in Heavy Rain</span>
+                  </div>
+                </div>
+
+                <!-- Status Badges Row -->
+                <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                    <i class="fa-solid fa-check text-[9.5px]"></i>
+                    <span>Ladies Section: Available</span>
+                  </span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300 flex items-center gap-1">
+                    <i class="fa-solid fa-user text-[9.5px] text-slate-400"></i>
+                    <span>President: Mohammed Qasim</span>
+                  </span>
+                </div>
+
+                <!-- Updated By & JazakAllah Row -->
+                <div class="bg-[#081517] border border-white/5 rounded-xl p-2 flex items-center justify-between">
+                  <div class="text-[10.5px] text-slate-300">
+                    <span>Updated by: <strong>Hafiz Ibrahim</strong></span>
+                    <span class="text-slate-500 ml-1">• Updated: Today</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10.5px] font-bold text-deen-gold flex items-center gap-1">
+                      <i class="fa-solid fa-hands-praying text-[11px]"></i>
+                      <span id="home-jazak-count">24</span> JazakAllah
+                    </span>
+                    <button onclick="sendMasjidJazak('home-jazak-count', this)" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10px] hover:bg-[#c28424] transition-colors flex items-center gap-1">
+                      <i class="fa-solid fa-hands-praying text-[9.5px]"></i>
+                      <span>Send JazakAllahu Khairan</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Up-to-Date & Want to Contact Banner -->
+                <div class="flex items-center justify-between text-[10.5px] px-0.5">
+                  <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-circle-check text-[11px]"></i>
+                    <span>Timings Up to Date</span>
+                  </span>
+                  <button onclick="openPhoneSubModal('community')" class="text-deen-gold hover:underline font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-message text-[10.5px]"></i>
+                    <span>Want to Contact</span>
+                  </button>
+                </div>
+
+                <!-- Announcements Box -->
+                <div class="bg-black/30 border border-white/5 rounded-xl p-2 text-[10px] text-slate-300 flex items-start gap-1.5">
+                  <i class="fa-solid fa-bullhorn text-deen-gold text-[11px] mt-0.5 shrink-0"></i>
+                  <p><strong>Announcements:</strong> Jumu'ah Bayaan starts at 12:35 PM sharp. Ladies arrangement on 1st floor.</p>
+                </div>
+
+                <!-- Silent / Vibrate in Masjid Toggle Bar -->
+                <div class="flex items-center justify-between bg-[#081517] border border-white/5 rounded-xl px-2.5 py-1.5">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-bell-slash text-deen-gold text-[9px]"></i>
+                    <div>
+                      <p class="text-[11px] font-bold text-white">Silent / Vibrate in Masjid</p>
+                      <p class="text-[9.5px] text-slate-400">Auto-silence device during Jama'at</p>
+                    </div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" checked class="sr-only peer">
+                    <div class="w-7 h-3.5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                  </label>
+                </div>
+
+                <!-- Bottom Action Row -->
+                <div class="grid grid-cols-3 gap-1.5 pt-0.5">
+                  <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 hover:border-deen-gold/40 text-slate-300 hover:text-white text-[10.5px] font-bold flex items-center justify-center gap-1 transition-colors">
+                    <i class="fa-solid fa-clock text-[10px] text-deen-gold"></i>
+                    <span>Edit Timings</span>
+                  </button>
+                  <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 hover:border-deen-gold/40 text-slate-300 hover:text-white text-[10.5px] font-bold flex items-center justify-center gap-1 transition-colors">
+                    <i class="fa-solid fa-pen text-[10px] text-deen-gold"></i>
+                    <span>Edit Masjid</span>
+                  </button>
+                  <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="py-1 rounded-lg bg-[#081517] border border-white/10 hover:border-deen-gold/40 text-slate-300 hover:text-white text-[10.5px] font-bold flex items-center justify-center gap-1 transition-colors">
+                    <i class="fa-solid fa-compass text-[10px] text-emerald-400"></i>
+                    <span>Directions</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Content Blocker & 3-Tile Bento Grid -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-2 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-halved text-emerald-400 text-xs"></i>
+                    <div>
+                      <h4 class="text-[10px] font-bold text-white">Content Blocker</h4>
+                      <p class="text-[10px] text-slate-400">Real-time Protection & Clean Living</p>
+                    </div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-300">
+                    Protection Panel
+                  </span>
+                </div>
+
+                <!-- 3-Tile Bento Grid -->
+                <div class="grid grid-cols-3 gap-1.5">
+                  <button onclick="openPhoneSubModal('clean-stats')" class="bg-[#081517] border border-white/5 hover:border-emerald-500/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-all group">
+                    <i class="fa-solid fa-shield text-emerald-400 text-sm mb-1 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-base font-extrabold text-white leading-tight">67</span>
+                    <span class="text-[10.5px] text-slate-300 font-medium">Days Clean</span>
+                    <span class="text-[9.5px] text-deen-gold font-bold mt-0.5">View Stats &rarr;</span>
+                  </button>
+
+                  <button onclick="setSystemProtection(!window.isSystemProtectionActive)" class="bg-[#081517] border border-white/5 hover:border-emerald-500/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-all group">
+                    <i class="fa-solid fa-circle-check text-emerald-400 text-sm mb-1 group-hover:scale-110 transition-transform"></i>
+                    <span id="home-bento-shield-status" class="text-xs font-bold text-emerald-400 leading-tight">ACTIVE</span>
+                    <span class="text-[10.5px] text-slate-300 font-medium">Device Shield</span>
+                    <span class="text-[9.5px] text-slate-500 mt-0.5">Tap to change</span>
+                  </button>
+
+                  <button onclick="simulatePinUnlock()" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-all group">
+                    <i class="fa-solid fa-lock text-deen-gold text-sm mb-1 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-xs font-bold text-white leading-tight">LOCKED</span>
+                    <span class="text-[10.5px] text-slate-300 font-medium">Safety PIN</span>
+                    <span class="text-[9.5px] text-slate-500 mt-0.5">Uninstall Lock</span>
+                  </button>
+                </div>
+
+                <!-- Explore All Deen Hub Tools & Qibla Pill -->
+                <button onclick="handleTriggerPhoneTab(4)" class="w-full py-1.5 rounded-xl bg-gradient-to-r from-deen-gold/20 via-emerald-500/20 to-deen-gold/20 border border-deen-gold/40 hover:border-deen-gold text-slate-200 hover:text-white text-[9px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                  <i class="fa-solid fa-table-cells-large text-deen-gold text-xs"></i>
+                  <span>Explore All Deen Hub Tools & Qibla &rarr;</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- ==========================================================
+                 PANE 1: NEARBY MASAJID DIRECTORY (GPS & A-Z SORT)
+                 ========================================================== -->
+            <div class="phone-screen-pane space-y-2.5" data-pane="1" id="pane-masjid">
+              
+              <!-- Screen 1 Top Bar -->
+              <div class="flex items-center justify-between pt-0.5 flex-shrink-0">
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-location-dot text-deen-gold text-xs"></i>
+                  <div>
+                    <h3 class="text-xs font-bold font-display text-white">Nearby Masajid</h3>
+                    <p class="text-[10.5px] text-slate-400">Find and connect to local masajid</p>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+                  <i class="fa-solid fa-check text-[10px]"></i>
+                  <span>Qasim (Area Coordinator)</span>
+                </span>
+              </div>
+
+              <!-- Search Bar -->
+              <div class="bg-[#0c2326] border border-white/10 rounded-xl p-1 flex items-center flex-shrink-0">
+                <input id="masjid-search-input" oninput="filterSimulatorMasjids(this.value)" placeholder="Search name, area, president..." class="flex-1 bg-transparent px-2 text-[9px] text-white placeholder-slate-500 focus:outline-none">
+                <button onclick="filterSimulatorMasjids(document.getElementById('masjid-search-input').value)" class="px-2.5 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10.5px] uppercase tracking-wider">
+                  SEARCH
+                </button>
+              </div>
+
+              <!-- 2-Chip Sort Row -->
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <button id="sort-chip-nearby" onclick="setMasjidSortMode('nearby')" class="flex-1 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10.5px] flex items-center justify-center gap-1 shadow-sm transition-all">
+                  <i class="fa-solid fa-compass text-[11px]"></i>
+                  <span>Nearby (GPS)</span>
+                </button>
+                <button id="sort-chip-az" onclick="setMasjidSortMode('az')" class="flex-1 py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 hover:text-white font-medium text-[10.5px] flex items-center justify-center gap-1 transition-all">
+                  <i class="fa-solid fa-arrow-down-a-z text-[11px]"></i>
+                  <span>A–Z Sort</span>
+                </button>
+              </div>
+
+              <!-- Masjid Cards Container -->
+              <div id="simulator-masjid-list" class="space-y-2 flex-shrink-0">
+                
+                <!-- CARD 1: Historic Makkah Masjid (Pinned Default Masjid) -->
+                <div class="masjid-sim-card bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-2 shadow-sm" data-name="Historic Makkah Masjid" data-distance="250" data-president="Mohammed Qasim" data-area="Charminar">
+                  <div class="flex items-center justify-between">
+                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+                      <i class="fa-solid fa-bookmark text-[9.5px]"></i>
+                      <span>Default Masjid</span>
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40 flex items-center gap-1">
+                      <i class="fa-solid fa-location-dot text-[9.5px]"></i>
+                      <span>250 m</span>
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 class="text-xs font-bold text-white">Historic Makkah Masjid</h4>
+                    <p class="text-[11px] text-slate-400">Near Charminar, Old City, Hyderabad</p>
+                  </div>
+
+                  <!-- Toggle Button with Upcoming Jama'at Preview -->
+                  <button onclick="toggleMasjidBoardExpand(1)" id="btn-toggle-masjid-1" class="w-full py-1.5 rounded-xl bg-[#081517] border border-white/10 hover:border-deen-gold/50 text-slate-200 hover:text-white text-[9.5px] font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                    <span id="btn-text-masjid-1">View Timings • Next: Asr (04:15 PM) ⌵</span>
+                  </button>
+
+                  <!-- Expandable Tray (Initially Collapsed for Ultra-Compact Pinned Card) -->
+                  <div id="masjid-expandable-1" class="hidden space-y-2 pt-1 border-t border-white/5">
+                    <div class="flex flex-wrap items-center gap-1">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">President: Mohammed Qasim</span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">Charminar</span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Ladies Section: Available</span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">Verified by Muazzin</span>
+                    </div>
+
+                    <div class="bg-[#081517] border border-white/5 rounded-xl p-2 flex items-center justify-between text-[10.5px] text-slate-300">
+                      <span>Updated by: <strong>Hafiz Ibrahim</strong> • Today</span>
+                      <button onclick="sendMasjidJazak('m1-jazak', this)" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10px] flex items-center gap-1">
+                        <i class="fa-solid fa-hands-praying text-[9.5px]"></i>
+                        <span><span id="m1-jazak">24</span> Send JazakAllah</span>
+                      </button>
+                    </div>
+
+                    <!-- In-Card LED Board -->
+                    <div class="led-board-chassis p-2 text-center">
+                      <p class="font-arabic text-deen-gold text-[10px] mb-1">لَا إِلٰهَ إِلَّا ٱللَّٰهُ مُحَمَّدٌ رَسُولُ ٱللَّٰهِ</p>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>FAJR</span><span class="led-green">04:58 AM</span><span class="led-red">05:23 AM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>DHUHR</span><span class="led-green">12:15 PM</span><span class="led-red">01:15 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-emerald-400 font-bold py-0.5 bg-emerald-500/10 rounded"><span>▶ ASR</span><span class="led-green">03:36 PM</span><span class="led-red">04:15 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>MAGHRIB</span><span class="led-green">05:58 PM</span><span class="led-red">06:05 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>ISHA</span><span class="led-green">07:18 PM</span><span class="led-red">08:00 PM</span></div>
+                    </div>
+
+                    <!-- This Week's Khutbah Box -->
+                    <div class="bg-black/30 border border-white/5 rounded-xl p-2 text-[10px] text-slate-300">
+                      <strong class="text-deen-gold block mb-0.5">This Week's Friday Khutbah (01:00 PM):</strong>
+                      Importance of Sincerity (Ikhlas) & Safeguarding the Tongue — Maulana Hafiz Ibrahim
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="grid grid-cols-3 gap-1 pt-0.5">
+                      <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 text-slate-300 text-[10px] font-bold">Edit Timings</button>
+                      <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 text-slate-300 text-[10px] font-bold">Edit Masjid</button>
+                      <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="py-1 rounded-lg bg-[#081517] border border-white/10 text-emerald-400 text-[10px] font-bold text-center">Directions</a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CARD 2: Jamia Masjid Bilal -->
+                <div class="masjid-sim-card bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-2 shadow-sm" data-name="Jamia Masjid Bilal" data-distance="420" data-president="Syed Ahmed Quadri" data-area="Mehdipatnam">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h4 class="text-xs font-bold text-white">Jamia Masjid Bilal</h4>
+                      <p class="text-[11px] text-slate-400">420 m • Mehdipatnam Main Road</p>
+                    </div>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">AHLE SUNNAH</span>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-1">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">President: Syed Ahmed Quadri</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">Mehdipatnam</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Ladies Section: Available</span>
+                  </div>
+
+                  <div class="bg-[#081517] border border-white/5 rounded-xl p-2 flex items-center justify-between text-[10.5px] text-slate-300">
+                    <span>Updated by: <strong>Syed Ahmed</strong> • Yesterday</span>
+                    <button onclick="sendMasjidJazak('m2-jazak', this)" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10px] flex items-center gap-1">
+                      <i class="fa-solid fa-hands-praying text-[9.5px]"></i>
+                      <span><span id="m2-jazak">19</span> Send JazakAllah</span>
+                    </button>
+                  </div>
+
+                  <button onclick="toggleMasjidBoardExpand(2)" id="btn-toggle-masjid-2" class="w-full py-1.5 rounded-xl bg-[#081517] border border-white/10 hover:border-deen-gold/50 text-slate-200 hover:text-white text-[9.5px] font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                    <span id="btn-text-masjid-2">View Timings • Next: Asr (04:30 PM) ⌵</span>
+                  </button>
+
+                  <div id="masjid-expandable-2" class="hidden space-y-1 pt-1 border-t border-white/5">
+                    <div class="led-board-chassis p-2 text-center">
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>FAJR</span><span class="led-green">05:00 AM</span><span class="led-red">05:30 AM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>DHUHR</span><span class="led-green">12:30 PM</span><span class="led-red">01:30 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-emerald-400 font-bold py-0.5 bg-emerald-500/10 rounded"><span>▶ ASR</span><span class="led-green">03:45 PM</span><span class="led-red">04:30 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10px] font-mono text-slate-300 py-0.5"><span>MAGHRIB</span><span class="text-emerald-400">05:58 PM</span><span class="text-red-400">06:08 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>ISHA</span><span class="led-green">07:25 PM</span><span class="led-red">08:15 PM</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CARD 3: Masjid Al-Noor -->
+                <div class="masjid-sim-card bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-2 shadow-sm" data-name="Masjid Al-Noor" data-distance="680" data-president="Abdul Rehman" data-area="Tolichowki">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h4 class="text-xs font-bold text-white">Masjid Al-Noor</h4>
+                      <p class="text-[11px] text-slate-400">680 m • Tolichowki</p>
+                    </div>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">HANAFI</span>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-1">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">President: Abdul Rehman</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">Tolichowki</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/30">Ladies Section: Not Available</span>
+                  </div>
+
+                  <!-- Stale Timings Warning Bar -->
+                  <div class="bg-amber-950/40 border border-amber-500/30 rounded-xl p-1.5 flex items-center justify-between text-[10px] text-amber-200">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation text-amber-400"></i><span>Timings not updated recently (10d+ old)</span></span>
+                    <button onclick="this.textContent='Requested'; this.className='px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold'" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition-colors">
+                      Request Update
+                    </button>
+                  </div>
+
+                  <button onclick="toggleMasjidBoardExpand(3)" id="btn-toggle-masjid-3" class="w-full py-1.5 rounded-xl bg-[#081517] border border-white/10 hover:border-deen-gold/50 text-slate-200 hover:text-white text-[9.5px] font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                    <span id="btn-text-masjid-3">View Timings • Next: Asr (04:45 PM) ⌵</span>
+                  </button>
+
+                  <div id="masjid-expandable-3" class="hidden space-y-1 pt-1 border-t border-white/5">
+                    <div class="led-board-chassis p-2 text-center">
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>FAJR</span><span class="led-green">05:05 AM</span><span class="led-red">05:35 AM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>DHUHR</span><span class="led-green">12:30 PM</span><span class="led-red">01:30 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-emerald-400 font-bold py-0.5 bg-emerald-500/10 rounded"><span>▶ ASR</span><span class="led-green">03:50 PM</span><span class="led-red">04:45 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>MAGHRIB</span><span class="led-green">05:58 PM</span><span class="led-red">06:05 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>ISHA</span><span class="led-green">07:30 PM</span><span class="led-red">08:30 PM</span></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ==========================================================
+                 PANE 2: FOCUS / CONTENT CALM & APP BLOCKER (1:1 REPLICA)
+                 ========================================================== -->
+            <div class="phone-screen-pane space-y-3" data-pane="2" id="pane-focus">
+              
+              <!-- Screen 2 Top Bar -->
+              <div class="flex items-center justify-between pt-0.5 flex-shrink-0">
+                <button onclick="handleTriggerPhoneTab(0)" class="text-deen-gold text-xs font-semibold flex items-center gap-1 hover:underline">
+                  <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                  <span>Back</span>
+                </button>
+                <div class="text-right">
+                  <h3 class="text-xs font-bold font-display text-white">Content Calm</h3>
+                  <p class="text-[11px] text-slate-400">Spiritual Focus & Distraction Detox</p>
+                </div>
+              </div>
+
+              <!-- Interactive Circular Progress Focus Dial -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-3 text-center flex-shrink-0">
+                <div class="relative w-36 h-36 mx-auto flex items-center justify-center my-1">
+                  <svg class="w-36 h-36 -rotate-90 transform" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="54" stroke="#16363a" stroke-width="6" fill="transparent" />
+                    <circle id="timer-progress-circle" cx="60" cy="60" r="54" stroke="#e2a23b" stroke-width="6" stroke-dasharray="339" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" class="transition-all duration-500 ease-linear" />
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span class="text-2xl font-extrabold text-white font-mono tracking-tight" id="focus-display-timer">25:00</span>
+                    <span class="text-[9px] text-slate-400 font-medium mt-1.5 leading-none" id="focus-state-label">Ready</span>
+                  </div>
+                </div>
+
+                <!-- Duration Quick-Select Pills -->
+                <div class="flex items-center justify-center space-x-1.5 my-2">
+                  <button onclick="setFocusDuration(15)" class="duration-pill px-2.5 py-0.5 text-[9px] font-semibold rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:border-deen-gold transition-colors">15m</button>
+                  <button onclick="setFocusDuration(25)" class="duration-pill active px-2.5 py-0.5 text-[9px] font-semibold rounded-lg bg-deen-gold text-slate-950 font-bold border border-deen-gold">25m</button>
+                  <button onclick="setFocusDuration(45)" class="duration-pill px-2.5 py-0.5 text-[9px] font-semibold rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:border-deen-gold transition-colors">45m</button>
+                  <button onclick="setFocusDuration(60)" class="duration-pill px-2.5 py-0.5 text-[9px] font-semibold rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:border-deen-gold transition-colors">1h</button>
+                </div>
+
+                <!-- Action Button -->
+                <button id="phone-focus-action-btn" onclick="togglePhoneFocusTimer()" class="w-full py-2 rounded-xl bg-deen-gold hover:bg-[#c28424] text-slate-950 font-bold text-[11px] uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-play text-xs"></i>
+                  <span>Start Focus Session</span>
+                </button>
+              </div>
+
+              <!-- Clickable System-Wide Protection Card -->
+              <div onclick="openPhoneSubModal('clean-stats')" class="bg-[#0c2326] border border-white/5 hover:border-emerald-500/40 rounded-2xl p-2.5 flex items-center justify-between cursor-pointer transition-colors flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                  <div class="w-6 h-6 rounded-lg bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-[10px]">
+                    <i class="fa-solid fa-shield"></i>
+                  </div>
+                  <div>
+                    <p class="text-[10px] font-bold text-white">System-Wide Protection</p>
+                    <p class="text-[10.5px] text-emerald-400 font-medium">Active • 24/7 web & app detox active</p>
+                    <p class="text-[10px] text-deen-gold mt-0.5">Clean Streak: 67 Days • Tap to Manage Protection & Stats &rarr;</p>
+                  </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-500 text-[9px]"></i>
+              </div>
+
+              <!-- Block Distracting Apps Button & Expandable List -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-2 flex-shrink-0">
+                <button onclick="toggleAppBlockerDrawer()" class="w-full py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-[9.5px] flex items-center justify-between px-3 hover:bg-amber-500/30 transition-colors">
+                  <span class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-ban text-[10px]"></i>
+                    <span>Block Distracting Apps</span>
+                  </span>
+                  <i id="app-blocker-arrow" class="fa-solid fa-chevron-down text-[10.5px] transition-transform"></i>
+                </button>
+
+                <div id="app-blocker-list" class="hidden space-y-1.5 pt-1 border-t border-white/5">
+                  <div class="flex items-center justify-between text-[10.5px] text-slate-300 px-1">
+                    <span class="flex items-center gap-1.5"><i class="fa-brands fa-instagram text-pink-400"></i><span>Instagram Reels</span></span>
+                    <span class="text-red-400 font-bold">BLOCKED</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[10.5px] text-slate-300 px-1">
+                    <span class="flex items-center gap-1.5"><i class="fa-brands fa-tiktok text-slate-200"></i><span>TikTok</span></span>
+                    <span class="text-red-400 font-bold">BLOCKED</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[10.5px] text-slate-300 px-1">
+                    <span class="flex items-center gap-1.5"><i class="fa-brands fa-youtube text-red-500"></i><span>YouTube Shorts</span></span>
+                    <span class="text-red-400 font-bold">BLOCKED</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[10.5px] text-slate-300 px-1">
+                    <span class="flex items-center gap-1.5"><i class="fa-brands fa-x-twitter text-slate-300"></i><span>X (Twitter)</span></span>
+                    <span class="text-red-400 font-bold">BLOCKED</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Focus Mode Schedules Card -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-1.5 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-[9.5px] font-bold text-white">Focus Mode Schedules</h4>
+                  <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">ACTIVE</span>
+                </div>
+                <div class="bg-[#081517] rounded-xl p-2 border border-white/5 flex items-center justify-between">
+                  <div>
+                    <p class="text-[11px] font-bold text-slate-200">Work & Prayer Focus</p>
+                    <p class="text-[10px] text-slate-400">09:00 – 17:00</p>
+                  </div>
+                  <div class="flex items-center gap-0.5">
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Su</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">M</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Tu</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">W</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Th</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-emerald-500 text-slate-950">F</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Sa</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ==========================================================
+                 PANE 3: JUMU'AH TOPICS (KHUTBAH ROSTER & SCHOLARS)
+                 ========================================================== -->
+            <div class="phone-screen-pane space-y-2.5" data-pane="3" id="pane-jumuah">
+              
+              <!-- Screen 3 Header -->
+              <div class="flex items-center justify-between pt-0.5 flex-shrink-0">
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-microphone text-deen-gold text-xs"></i>
+                  <div>
+                    <h3 class="text-xs font-bold font-display text-white">Jumu'ah Topics</h3>
+                    <p class="text-[10.5px] text-slate-400">Upcoming Friday Khutbahs & Scholars</p>
+                  </div>
+                </div>
+                <button onclick="openPhoneSubModal('add-juma')" class="px-2.5 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[9px] hover:bg-[#c28424] transition-colors flex items-center gap-1">
+                  <i class="fa-solid fa-plus text-[10px]"></i>
+                  <span>Add Friday Topic</span>
+                </button>
+              </div>
+
+              <!-- 4 Symmetrical Filter Chips -->
+              <div class="grid grid-cols-4 gap-1 flex-shrink-0">
+                <button onclick="filterJumuahTopics('all', this)" class="jumuah-filter-chip active py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10px] text-center transition-all">
+                  All Upcoming
+                </button>
+                <button onclick="filterJumuahTopics('nearby', this)" class="jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[10px] text-center transition-all">
+                  Nearby Masjids
+                </button>
+                <button onclick="filterJumuahTopics('khateeb', this)" class="jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[10px] text-center transition-all">
+                  By Khateeb
+                </button>
+                <button onclick="filterJumuahTopics('masjid', this)" class="jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[10px] text-center transition-all">
+                  By Masjid
+                </button>
+              </div>
+
+              <!-- Khutbah Cards List -->
+              <div id="jumuah-cards-list" class="space-y-2 flex-shrink-0">
+                
+                <!-- Khutbah Card 1 -->
+                <div class="jumuah-topic-card bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-1.5 shadow-sm" data-category="makkah" data-khateeb="ibrahim" data-distance="250">
+                  <div class="flex items-center justify-between">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40">
+                      Upcoming Friday Khutbah
+                    </span>
+                    <span class="text-[10.5px] font-mono text-emerald-400 font-bold">01:00 PM - 01:30 PM</span>
+                  </div>
+
+                  <div>
+                    <h4 class="text-xs font-bold text-white leading-tight">Importance of Sincerity (Ikhlas) & Safeguarding the Tongue</h4>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Historic Makkah Masjid • 250 m</p>
+                  </div>
+
+                  <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-0.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-deen-gold/20 flex items-center justify-center text-deen-gold text-[10.5px] font-bold">
+                        <i class="fa-solid fa-user-tie"></i>
+                      </div>
+                      <div>
+                        <p class="text-[11px] font-bold text-white">Maulana Hafiz Mohammed Ibrahim</p>
+                        <p class="text-[10px] text-emerald-400">Senior Islamic Scholar & Resident Aalim</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="text-[10px] text-slate-400 flex items-center justify-between px-0.5">
+                    <span>Created By: <strong>Hafiz Ibrahim</strong></span>
+                    <span>Created On: 28/10/2026</span>
+                  </div>
+
+                  <!-- Past Weeks Accordion -->
+                  <div class="border-t border-white/5 pt-1">
+                    <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full text-left text-[10.5px] font-bold text-deen-gold hover:underline flex items-center justify-between">
+                      <span class="flex items-center gap-1"><i class="fa-solid fa-calendar text-[10px]"></i><span>Past Weeks' Khutbahs (2) ⌵</span></span>
+                      <span class="text-[9.5px] text-slate-400">View Archive</span>
+                    </button>
+                    <div class="hidden mt-1 p-1.5 bg-[#081517] rounded-lg border border-white/5 space-y-1 text-[10px] text-slate-300">
+                      <div><strong class="text-slate-200 block">• Last Week:</strong> Rights of Neighbors in Islam (Maulana Ibrahim)</div>
+                      <div><strong class="text-slate-200 block">• 2 Weeks Ago:</strong> Steadfastness in Tahajjud (Maulana Ibrahim)</div>
+                    </div>
+                  </div>
+
+                  <!-- Footer Actions -->
+                  <div class="flex items-center justify-between pt-1 border-t border-white/5">
+                    <button onclick="likeJumuahTopic(this)" class="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-[10.5px] font-semibold flex items-center gap-1 transition-colors">
+                      <i class="fa-solid fa-heart text-red-400 text-[10.5px]"></i>
+                      <span><span class="like-num">18</span> Helpful</span>
+                    </button>
+                    <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white text-[10.5px] flex items-center gap-1 transition-colors">
+                      <i class="fa-solid fa-compass text-emerald-400"></i>
+                      <span>Directions</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Khutbah Card 2 -->
+                <div class="jumuah-topic-card bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-1.5 shadow-sm" data-category="bilal" data-khateeb="saleh" data-distance="420">
+                  <div class="flex items-center justify-between">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40">
+                      Upcoming Friday Khutbah
+                    </span>
+                    <span class="text-[10.5px] font-mono text-emerald-400 font-bold">12:45 PM - 01:20 PM</span>
+                  </div>
+
+                  <div>
+                    <h4 class="text-xs font-bold text-white leading-tight">Purification of the Heart & Digital Mindfulness</h4>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Jamia Masjid Bilal • 420 m</p>
+                  </div>
+
+                  <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-0.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-[10.5px] font-bold">
+                        <i class="fa-solid fa-user-check"></i>
+                      </div>
+                      <div>
+                        <p class="text-[11px] font-bold text-white">Shaikh Saleh Saed Ba Yazid</p>
+                        <p class="text-[10px] text-cyan-300">Verified Scholar (isAalim)</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="text-[10px] text-slate-400 flex items-center justify-between px-0.5">
+                    <span>Created By: <strong>Syed Ahmed</strong></span>
+                    <span>Created On: 29/10/2026</span>
+                  </div>
+
+                  <!-- Footer Actions -->
+                  <div class="flex items-center justify-between pt-1 border-t border-white/5">
+                    <button onclick="likeJumuahTopic(this)" class="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-[10.5px] font-semibold flex items-center gap-1 transition-colors">
+                      <i class="fa-solid fa-heart text-red-400 text-[10.5px]"></i>
+                      <span><span class="like-num">12</span> Helpful</span>
+                    </button>
+                    <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white text-[10.5px] flex items-center gap-1 transition-colors">
+                      <i class="fa-solid fa-compass text-emerald-400"></i>
+                      <span>Directions</span>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ==========================================================
+                 PANE 4: DEEN HUB & MORE (3x3 SPIRITUAL & COMMUNITY TOOLS)
+                 ========================================================== -->
+            <div class="phone-screen-pane space-y-2.5" data-pane="4" id="pane-more">
+              
+              <!-- Screen 4 Top Bar -->
+              <div class="flex items-center justify-between pt-0.5 flex-shrink-0">
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-table-cells-large text-deen-gold text-xs"></i>
+                  <div>
+                    <h3 class="text-xs font-bold font-display text-white">Deen Hub & More</h3>
+                    <p class="text-[10.5px] text-slate-400">Spiritual companion, community tools & settings</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Account Banner -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-deen-gold/20 flex items-center justify-center text-deen-gold text-xs font-bold">
+                    <i class="fa-solid fa-user"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <h4 class="text-[10px] font-bold text-white">Qasim Bhai</h4>
+                      <span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Area Coordinator</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400">qasim@salahtime.org</p>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-1 text-right">
+                  <span class="text-[9.5px] text-deen-gold font-bold">Account Profile</span>
+                  <span class="text-[9.5px] text-slate-400">Guide: Add Masjid</span>
+                </div>
+              </div>
+
+              <!-- SalahTime Community Network Card -->
+              <div onclick="openPhoneSubModal('network')" class="bg-[#0c2326] border border-white/5 hover:border-deen-gold/40 rounded-2xl p-2.5 space-y-1.5 cursor-pointer transition-colors flex-shrink-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-[9.5px] font-bold text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-globe text-deen-gold text-xs"></i>
+                    <span>SalahTime Community Network</span>
+                  </span>
+                  <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Live Network</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 bg-[#081517] rounded-xl p-1.5 text-center text-[10px] font-mono border border-white/5">
+                  <div><strong class="text-deen-gold block text-[9px]">140+</strong>Connected Masjids</div>
+                  <div><strong class="text-white block text-[9px]">2,840</strong>Active Musallis</div>
+                  <div><strong class="text-emerald-400 block text-[9px]">482</strong>JazakAllah Sent</div>
+                </div>
+                <div class="text-[10px] text-deen-gold font-bold text-right flex items-center justify-end gap-1">
+                  <span>View Full Network Directory & Stats</span>
+                  <i class="fa-solid fa-arrow-right text-[9.5px]"></i>
+                </div>
+              </div>
+
+              <!-- Deen Hub 3x3 Symmetrical Grid -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-1.5 flex-shrink-0">
+                <h4 class="text-[9.5px] font-bold text-white flex items-center gap-1">
+                  <i class="fa-solid fa-shapes text-deen-gold text-xs"></i>
+                  <span>Spiritual & Community Tools</span>
+                </h4>
+                
+                <div class="grid grid-cols-3 gap-1.5">
+                  <!-- Row 1 -->
+                  <button onclick="openPhoneQiblaCompass()" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
+                    <i class="fa-solid fa-compass text-deen-gold text-sm mb-1"></i>
+                    <span class="text-[11px] font-bold text-white">Find Qibla</span>
+                    <span class="text-[9.5px] text-slate-400">Compass</span>
+                  </button>
+                  <button onclick="openPhoneSubModal('azkar')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
+                    <i class="fa-solid fa-book-open text-emerald-400 text-sm mb-1"></i>
+                    <span class="text-[11px] font-bold text-white">Daily Azkar</span>
+                    <span class="text-[9.5px] text-slate-400">Hisnul Muslim</span>
+                  </button>
+                  <button onclick="openPhoneSubModal('names99')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
+                    <i class="fa-solid fa-hands-praying text-amber-400 text-sm mb-1"></i>
+                    <span class="text-[11px] font-bold text-white">99 Names</span>
+                    <span class="text-[9.5px] text-slate-400">Attributes</span>
+                  </button>
+
+                  <!-- Row 2 -->
+                  <button onclick="openPhoneSubModal('azkar')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
+                    <i class="fa-solid fa-book-quran text-cyan-400 text-sm mb-1"></i>
+                    <span class="text-[11px] font-bold text-white">Holy Quran</span>
+                    <span class="text-[9.5px] text-slate-400">114 Surahs</span>
+                  </button>
+                  <button onclick="handleTriggerPhoneTab(3)" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
+                    <i class="fa-solid fa-microphone text-deen-gold text-sm mb-1"></i>
+                    <span class="text-[11px] font-bold text-white">Jumu'ah Topics</span>
+                    <span class="text-[9.5px] text-slate-400">Khutbah Roster</span>
+                  </button>
+                  <button onclick="openPhoneSubModal('fasting')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
+                    <i class="fa-solid fa-moon text-amber-300 text-sm mb-1"></i>
+                    <span class="text-[11px] font-bold text-white">Hijri Fasting</span>
+                    <span class="text-[9.5px] text-slate-400">Sahar & Iftar</span>
+                  </button>
+
+                  <!-- Row 3 -->
+                  <button onclick="openPhoneSubModal('prayer-api')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
+                    <i class="fa-solid fa-sun text-emerald-400 text-sm mb-1"></i>
+                    <span class="text-[11px] font-bold text-white">Prayer Times (API)</span>
+                    <span class="text-[9.5px] text-slate-400">Solar & Global</span>
+                  </button>
+                  <button onclick="openPhoneSubModal('clean-stats')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
+                    <i class="fa-solid fa-shield text-emerald-400 text-sm mb-1"></i>
+                    <span class="text-[11px] font-bold text-white">Days Clean</span>
+                    <span class="text-[9.5px] text-slate-400">Streak & Stats</span>
+                  </button>
+                  <button onclick="openPhoneSubModal('community')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
+                    <i class="fa-solid fa-trophy text-deen-gold text-sm mb-1"></i>
+                    <span class="text-[11px] font-bold text-white">Community</span>
+                    <span class="text-[9.5px] text-slate-400">Leaderboard</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Admin Console Banner -->
+              <button onclick="openPhoneSubModal('admin')" class="w-full bg-[#0c2326] border border-deen-gold/30 hover:border-deen-gold rounded-2xl p-2.5 flex items-center justify-between text-left transition-colors flex-shrink-0">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-shield-halved text-deen-gold text-sm"></i>
+                  <div>
+                    <h4 class="text-[9.5px] font-bold text-white">Admin Console</h4>
+                    <p class="text-[10px] text-slate-400">Users, Masjid Approvals & FCM Broadcasts</p>
+                  </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-deen-gold text-[9px]"></i>
+              </button>
+
+              <!-- App Preferences & Settings Card -->
+              <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-2 flex-shrink-0">
+                <h4 class="text-[9.5px] font-bold text-white">Preferences & System Settings</h4>
+                
+                <!-- Appearance Switcher -->
+                <div class="flex items-center justify-between text-[10.5px] text-slate-300">
+                  <span>Appearance</span>
+                  <div class="flex items-center gap-1 bg-[#081517] p-0.5 rounded-lg border border-white/5">
+                    <button data-theme-btn="dark" class="px-2 py-0.5 rounded text-[10px] font-bold transition-colors">Dark</button>
+                    <button data-theme-btn="light" class="px-2 py-0.5 rounded text-[10px] font-bold transition-colors">Light</button>
+                    <button data-theme-btn="system" class="px-2 py-0.5 rounded text-[10px] font-bold transition-colors">Auto</button>
+                  </div>
+                </div>
+
+                <!-- Language -->
+                <div class="flex items-center justify-between text-[10.5px] text-slate-300">
+                  <span>App Language</span>
+                  <div class="flex items-center gap-1 font-mono text-[9.5px]">
+                    <span class="px-1.5 py-0.5 rounded bg-deen-gold text-slate-950 font-bold">English</span>
+                    <span class="px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">اردو</span>
+                    <span class="px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">العربية</span>
+                    <span class="px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">తెలుగు</span>
+                  </div>
+                </div>
+
+                <!-- Solar Calculation Method -->
+                <div class="flex items-center justify-between text-[10.5px] text-slate-300">
+                  <span>Calculation Method</span>
+                  <span class="px-1.5 py-0.5 rounded bg-slate-900 text-deen-gold font-mono text-[10px] border border-white/5">Karachi (Hanafi)</span>
+                </div>
+
+                <!-- Private DNS Shield -->
+                <div class="flex items-center justify-between text-[10.5px] text-slate-300">
+                  <span>Private DNS Shield</span>
+                  <button onclick="navigator.clipboard && navigator.clipboard.writeText('dns.adguard-family.com'); this.textContent='Copied!';" class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[9.5px] font-mono">
+                    dns.adguard-family.com
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ==========================================================
+                 DYNAMIC SUB-SCREEN OVERLAY MODAL (REUSABLE 1:1 CONTAINER)
+                 ========================================================== -->
+            <div id="phone-subscreen-modal" class="phone-modal-overlay hidden p-3" style="display: none !important;">
+            </div>
+
+<div id="phone-pin-modal" class="phone-modal-overlay hidden p-4 justify-between" style="display: none !important;">
+              <div class="text-center pt-3">
+                <div class="w-10 h-10 rounded-full bg-[#081517] border border-deen-gold/40 mx-auto flex items-center justify-center text-deen-gold text-base mb-2 shadow-md">
+                  <i class="fa-solid fa-lock"></i>
+                </div>
+                <h4 class="text-xs font-bold text-white font-display">Security Passcode</h4>
+                <p class="text-[9px] text-slate-400 mt-0.5">10,000-Round SHA-256 Protected</p>
+                
+                <!-- 4-Digit Indicator Dots -->
+                <div class="flex items-center justify-center space-x-2.5 my-3">
+                  <span class="pin-dot w-2.5 h-2.5 rounded-full border border-deen-gold bg-transparent"></span>
+                  <span class="pin-dot w-2.5 h-2.5 rounded-full border border-deen-gold bg-transparent"></span>
+                  <span class="pin-dot w-2.5 h-2.5 rounded-full border border-deen-gold bg-transparent"></span>
+                  <span class="pin-dot w-2.5 h-2.5 rounded-full border border-deen-gold bg-transparent"></span>
+                </div>
+                <p class="text-[9.5px] text-emerald-400 font-medium" id="pin-feedback-msg">Demo PIN: 1234</p>
+              </div>
+
+              <!-- Numeric Keypad -->
+              <div class="grid grid-cols-3 gap-1.5 px-2 pb-2">
+                <button onclick="pressPinDigit('1')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">1</button>
+                <button onclick="pressPinDigit('2')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">2</button>
+                <button onclick="pressPinDigit('3')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">3</button>
+                <button onclick="pressPinDigit('4')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">4</button>
+                <button onclick="pressPinDigit('5')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">5</button>
+                <button onclick="pressPinDigit('6')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">6</button>
+                <button onclick="pressPinDigit('7')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">7</button>
+                <button onclick="pressPinDigit('8')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">8</button>
+                <button onclick="pressPinDigit('9')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">9</button>
+                <button onclick="closePinModal()" class="py-2 rounded-xl bg-black/40 text-slate-400 text-[10px] font-semibold hover:text-white">Cancel</button>
+                <button onclick="pressPinDigit('0')" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-white font-display text-sm font-bold hover:bg-slate-800 active:scale-95 transition-transform">0</button>
+                <button onclick="pressPinBackspace()" class="py-2 rounded-xl bg-[#081517] border border-white/10 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"><i class="fa-solid fa-delete-left text-xs"></i></button>
+              </div>
+            </div>
+
+            <!-- ==========================================================
+                 ISOLATED MODAL 2: 1:1 QIBLA COMPASS (GUARANTEED HIDDEN BY DEFAULT)
+                 ========================================================== -->
+            <div id="phone-qibla-modal" class="phone-modal-overlay hidden p-3.5 justify-between" style="display: none !important;">
+              <!-- Top Bar -->
+              <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                <div class="flex items-center space-x-2">
+                  <div class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-compass"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold font-display text-white">Qibla Direction</h4>
+                    <p class="text-[11px] text-slate-400">Al-Masjid al-Haram, Makkah</p>
+                  </div>
+                </div>
+                <button onclick="closeQiblaCompass()" class="w-6 h-6 rounded-full bg-white/5 text-slate-400 hover:text-white flex items-center justify-center text-xs" title="Close Compass">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+
+              <!-- Compass Dial (1:1 Visual Alignment) -->
+              <div class="w-36 h-36 mx-auto relative flex items-center justify-center my-1">
+                <div class="compass-dial-ring w-full h-full relative flex items-center justify-center">
+                  
+                  <!-- Top Qibla Gate Target Notch -->
+                  <div class="absolute -top-1.5 flex flex-col items-center">
+                    <div class="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-emerald-400"></div>
+                    <span class="text-[9.5px] font-bold text-emerald-400 tracking-wider">QIBLA</span>
+                  </div>
+
+                  <!-- Angle Markers -->
+                  <span class="absolute left-1.5 text-[10.5px] font-mono text-slate-500">-90°</span>
+                  <span class="absolute right-1.5 text-[10.5px] font-mono text-slate-500">+90°</span>
+                  <span class="absolute bottom-1 text-[10.5px] font-mono text-slate-500">180°</span>
+
+                  <!-- Gold North Badge -->
+                  <div class="absolute top-2 right-6 w-3.5 h-3.5 rounded-full bg-deen-gold/20 border border-deen-gold/50 flex items-center justify-center text-[10px] font-bold text-deen-gold">
+                    N
+                  </div>
+
+                  <!-- Center Readout Hub -->
+                  <div class="w-14 h-14 rounded-full bg-[#0c2326] border-2 border-emerald-400/80 flex flex-col items-center justify-center z-20 shadow-md">
+                    <span class="text-xs font-extrabold text-emerald-400 leading-none">283°</span>
+                    <span class="text-[10px] font-bold text-deen-gold mt-0.5">WNW</span>
+                  </div>
+
+                  <!-- Needle Line pointing into Qibla gate -->
+                  <div id="compass-needle" class="absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-out" style="transform: rotate(0deg);">
+                    <div class="w-0.5 h-28 relative flex flex-col items-center justify-between">
+                      <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[14px] border-b-emerald-400"></div>
+                      <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[14px] border-t-slate-600"></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Alignment Badge & Info Details -->
+              <div class="space-y-2">
+                <!-- Aligned Pill -->
+                <div class="bg-emerald-500/20 border border-emerald-500/40 rounded-full py-1 text-center">
+                  <span class="text-[9.5px] text-emerald-300 font-bold flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-circle-check text-[10px]"></i>
+                    <span>Aligned with the Kaaba</span>
+                  </span>
+                </div>
+
+                <!-- Stats 3-Col Card -->
+                <div class="bg-[#081517] border border-white/5 rounded-xl p-2 text-[11px] flex items-center justify-around text-center">
+                  <div>
+                    <span class="text-slate-500 block uppercase">Bearing</span>
+                    <strong class="text-deen-gold">283° WNW</strong>
+                  </div>
+                  <div class="w-px h-4 bg-white/10"></div>
+                  <div>
+                    <span class="text-slate-500 block uppercase">Distance</span>
+                    <strong class="text-white">4,069 km</strong>
+                  </div>
+                  <div class="w-px h-4 bg-white/10"></div>
+                  <div>
+                    <span class="text-slate-500 block uppercase">Device</span>
+                    <strong class="text-emerald-400">283°</strong>
+                  </div>
+                </div>
+
+                <!-- Instruction -->
+                <p class="text-[10.5px] text-slate-400 text-center leading-relaxed">
+                  Turn your device until the green needle points straight up into the Qibla target. The dial will highlight emerald when facing the Kaaba.
+                </p>
+
+                <!-- Done Button -->
+                <button onclick="closeQiblaCompass()" class="w-full py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-[10.5px] uppercase tracking-wider transition-colors">
+                  Done
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- ==========================================================
+               PHONE BOTTOM NAVIGATION BAR (WORKING 5 TABS)
+               ========================================================== -->
+          <nav class="h-[50px] border-t border-white/10 bg-[#081416] flex items-center justify-around px-1 z-20 select-none" id="phone-nav-bar">
+            
+            <button data-tab="0" onclick="handleTriggerPhoneTab(0)" class="phone-tab-btn active flex flex-col items-center justify-center flex-1 py-1 text-deen-gold">
+              <i class="fa-solid fa-house text-xs"></i>
+              <span class="text-[10.5px] font-semibold mt-0.5">Home</span>
+            </button>
+
+            <button data-tab="1" onclick="handleTriggerPhoneTab(1)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
+              <i class="fa-solid fa-location-dot text-xs"></i>
+              <span class="text-[10.5px] font-semibold mt-0.5">Masjid</span>
+            </button>
+
+            <button data-tab="2" onclick="handleTriggerPhoneTab(2)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
+              <i class="fa-solid fa-bullseye text-xs"></i>
+              <span class="text-[10.5px] font-semibold mt-0.5">Focus</span>
+            </button>
+
+            <button data-tab="3" onclick="handleTriggerPhoneTab(3)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
+              <i class="fa-solid fa-microphone text-xs"></i>
+              <span class="text-[10.5px] font-semibold mt-0.5">Jumu'ah</span>
+            </button>
+
+            <button data-tab="4" onclick="handleTriggerPhoneTab(4)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
+              <i class="fa-solid fa-table-cells-large text-xs"></i>
+              <span class="text-[10.5px] font-semibold mt-0.5">More</span>
+            </button>
+
+          </nav>
+
+        </div>
+
+        <!-- Mobile-Only Synchronized Module Context Card (Visible on < lg screens) -->
+        <div id="mobile-active-module-card" class="block lg:hidden w-full max-w-[340px] mt-6 bg-deen-card/70 border border-slate-800 rounded-2xl p-4 shadow-xl backdrop-blur-sm transition-all duration-300">
+          <div class="flex items-center justify-between mb-2">
+            <span id="mobile-card-tag" class="text-[10px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 01 / Core Shield</span>
+            <span id="mobile-card-badge" class="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">67 DAYS CLEAN</span>
+          </div>
+          <h3 id="mobile-card-title" class="text-base font-display font-bold text-white tracking-tight mb-1">
+            Digital Guardian & Streak Habit Shield
+          </h3>
+          <p id="mobile-card-desc" class="text-xs text-slate-300 leading-relaxed mb-3">
+            Engineered to safeguard spiritual mindfulness through device-level defense. Combines a native Android Accessibility Service with compiled word-boundary regular expressions to eliminate Scunthorpe false positives, alongside a local DNS sinkhole for adult content isolation.
+          </p>
+          <div class="bg-slate-900/90 border border-slate-800/80 rounded-xl p-2.5 flex items-center gap-2">
+            <span id="mobile-card-prompt" class="text-[11px] font-medium text-emerald-300 leading-snug">
+              Tap the Shield toggle or Lock icon inside the simulator above to interact.
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       4. FOOTER & CALL TO ACTION
+       ========================================================================= -->
+  <footer class="mt-12 border-t border-slate-900 bg-[#060c0e] py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <div class="flex items-center justify-center">
+        <img 
+          src="/assets/new-app-icon.png" 
+          alt="DeenHub Logo" 
+          class="h-20 w-20 sm:h-24 sm:w-24 object-contain mx-auto drop-shadow-[0_0_16px_rgba(20,184,166,0.3)] hover:scale-105 transition-transform duration-300" 
+        />
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-slate-400">
+        <a href="/" class="text-slate-400 hover:text-white transition-colors">Back to Homepage</a>
+        <span class="text-slate-700">•</span>
+        <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors">GitHub Repository</a>
+        <span class="text-slate-700">•</span>
+        <a href="/assets/deen-app-v3.2.0.apk" download="DeenHub-v3.2.0.apk" class="text-slate-400 hover:text-white transition-colors">Download Standalone APK (v3.2.0)</a>
+      </div>
+      <p class="text-[11px] text-slate-500 max-w-xl mx-auto leading-relaxed">
+        &copy; 2026 Deen Labs founded by Syed Aamair Shareef Ahmed. Engineered with reverence, mathematical precision, and uncompromising privacy.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Mount point for Framer Motion Custom Cursor & Physics Controller -->
+  <div id="motion-cursor-root"></div>
+
+  <!-- Dedicated Interactive Controller Script for Deen-AI -->
+  <script type="module" src="./deen-ai.js"></script>
+</body>
+</html>
