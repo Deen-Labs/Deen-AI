@@ -1,4 +1,6 @@
-import { Coordinates, getCurrentLocation } from './location';
+import { fetchSalahTimeMasjids } from './salahTimeBackend';
+import { Coordinates, getCurrentLocation, calculateDistance } from './location';
+export { calculateDistance };
 import { getLocalPrayerTimes } from './prayerTimes';
 
 const HYDERABAD_NEIGHBORHOODS: Record<string, Coordinates> = {
@@ -62,12 +64,30 @@ export interface Masjid {
   };
   sunrise?: string;
   jummah?: string;
+  jummahAthan?: string;
   suhoor?: string;
   iftar?: string;
   isLocalUpdate?: boolean;
   isCustomAdded?: boolean;
   isMuazzinVerified?: boolean;
   lastUpdated?: number;
+  presidentName?: string;
+  famousArea?: string;
+  ladiesSection?: boolean;
+  taravihTime?: string;
+  qariName?: string;
+  updatedByName?: string;
+  updatedAt?: string | number;
+  updatedBy?: string;
+  updatedByUid?: string;
+  jazakallahCount?: number;
+  announcements?: string;
+  about?: string;
+  notes?: string;
+  lastSyncedAt?: string;
+  status?: string;
+  isApproved?: boolean;
+  approved?: boolean;
 }
 
 function getDeterministicHash(str: string): number {
@@ -189,40 +209,17 @@ export function generateMasjidIqamahTimes(
   };
 }
 
-/**
- * Calculate distance between two coordinates using Haversine formula
- * Returns distance in meters
- */
-export function calculateDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
-  const R = 6371e3; // Earth's radius in meters
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return Math.round(R * c);
-}
 
 /**
  * Format distance for display with accurate meter rounding
  */
-export function formatDistance(meters: number): string {
-  if (meters < 50) {
-    return '50 m';
+export function formatDistance(meters?: number): string {
+  if (meters === undefined || meters === null || isNaN(meters) || meters <= 0) {
+    return '';
   }
   if (meters < 1000) {
-    // Round to nearest 10 meters for accurate, stable walking distance readout
-    const rounded = Math.round(meters / 10) * 10;
+    const rounded = Math.max(10, Math.round(meters / 10) * 10);
     return `${rounded} m`;
   }
   return `${(meters / 1000).toFixed(1)} km`;
@@ -303,10 +300,6 @@ function sanitizeOverpassRegex(input: string): string {
   return input.replace(/[^a-zA-Z0-9\s-]/g, '').trim().slice(0, 64);
 }
 
-/**
- * Fetch nearby masjids using Overpass API (OpenStreetMap)
- * Free and doesn't require an API key
- */
 export async function getNearbyMasjids(
   coordinates: Coordinates,
   radiusMeters: number = 3500,
@@ -317,11 +310,10 @@ export async function getNearbyMasjids(
   const centerLat = searchCenter ? searchCenter.latitude : latitude;
   const centerLon = searchCenter ? searchCenter.longitude : longitude;
 
-  // Return cached result if still fresh and close to same location (and no active search parameters)
+  // Fast-path: return cached result if fresh and same location
   if (!nameQuery && !searchCenter && masjidCache && Date.now() - masjidCache.timestamp < CACHE_TTL_MS) {
     const dist = Math.abs(masjidCache.coords.latitude - latitude) + Math.abs(masjidCache.coords.longitude - longitude);
-    if (dist < 0.05 && masjidCache.result.length >= 10) {
-      console.log('Returning cached masjid results with live distance recalculation');
+    if (dist < 0.05 && masjidCache.result.length > 0) {
       return masjidCache.result.map(m => ({
         ...m,
         distance: calculateDistance(latitude, longitude, m.latitude, m.longitude),
@@ -329,338 +321,76 @@ export async function getNearbyMasjids(
     }
   }
 
-  // Construct sanitized name search filter for Overpass if nameQuery is provided (VULN-06)
-  const sanitizedName = nameQuery ? sanitizeOverpassRegex(nameQuery) : '';
-  const nameFilter = sanitizedName.length > 0
-    ? `["name"~"${sanitizedName}",i]`
-    : '';
-
-  // Use radius search around center coordinates (default 1000m)
-  // This is ultra-fast (<1s) and strictly scoped to accurate walking distance.
-  const query = `
-[out:json][timeout:15];
-(
-  node["amenity"="place_of_worship"]["religion"="muslim"]${nameFilter}(around:${radiusMeters},${centerLat},${centerLon});
-  way["amenity"="place_of_worship"]["religion"="muslim"]${nameFilter}(around:${radiusMeters},${centerLat},${centerLon});
-);
-out center;
-  `.trim();
-
-  const servers = [
-    'https://lz4.overpass-api.de/api/interpreter',
-    'https://z.overpass-api.de/api/interpreter',
-    'https://overpass.kumi.systems/api/interpreter',
-    'https://overpass.openstreetmap.ru/api/interpreter',
-    'https://overpass.private.coffee/api/interpreter',
-    'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
-  ];
-
-  const fetchFromServer = async (server: string): Promise<Masjid[]> => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout per server
-
-    try {
-      const response = await fetch(server, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'DeenAI-Mobile/1.0.0 (contact@deenai.com; mobile-app-masjid-finder)'
-        },
-        body: `data=${encodeURIComponent(query)}`,
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data = await response.json();
-      if (!data.elements || !Array.isArray(data.elements)) throw new Error('Invalid response');
-
-      const masjids: Masjid[] = data.elements
-        .map((element: any) => {
-          let lat, lon;
-          if (element.lat && element.lon) {
-            lat = element.lat;
-            lon = element.lon;
-          } else if (element.center) {
-            lat = element.center.lat;
-            lon = element.center.lon;
-          } else {
-            return null;
-          }
-
-          const name = element.tags?.name || element.tags?.['name:en'] || 'Unnamed Masjid';
-
-          if (name.toLowerCase().includes('dargah') || element.tags?.amenity === 'shrine') {
-            return null;
-          }
-
-          const id = element.id.toString();
-          const { school, athanTimes, iqamahTimes, sunrise, jummah, suhoor, iftar } = generateMasjidIqamahTimes(id, name, lat, lon);
-          return {
-            id,
-            name,
-            address:
-              element.tags?.['addr:full'] ||
-              [element.tags?.['addr:housenumber'], element.tags?.['addr:street'], element.tags?.['addr:city']]
-                .filter(Boolean).join(', ') ||
-              'Address not available',
-            distance: calculateDistance(latitude, longitude, lat, lon),
-            latitude: lat,
-            longitude: lon,
-            vicinity: element.tags?.['addr:city'] || element.tags?.['addr:suburb'] || element.tags?.['addr:district'],
-            school,
-            athanTimes,
-            iqamahTimes,
-            sunrise,
-            jummah,
-            suhoor,
-            iftar
-          };
-        })
-        .filter((m: Masjid | null): m is Masjid => m !== null)
-        .sort((a: Masjid, b: Masjid) => a.distance - b.distance);
-
-      return masjids;
-    } catch (err) {
-      clearTimeout(timeoutId);
-      throw err;
-    }
-  };
-
-  const tryAny = async (): Promise<Masjid[]> => {
-    const errors: Error[] = [];
-    const shuffledServers = [...servers].sort(() => Math.random() - 0.5);
-
-    for (const server of shuffledServers) {
-      try {
-        console.log(`Querying Masjid Overpass server: ${server}`);
-        const result = await fetchFromServer(server);
-        return result; 
-      } catch (err: any) {
-        console.warn(`Overpass server ${server} failed: ${err.message || err}`);
-        errors.push(err);
-      }
-    }
-    throw new Error(`All Overpass servers failed: ${errors.map(e => e.message || e).join(', ')}`);
-  };
-
+  // Pure Database Masajid: Fetch from verified Salah Time database + persistent storage
+  let masjids: Masjid[] = [];
   try {
-    const result = await tryAny();
-    
-    // If successful query returned 0 elements and we had a valid name query, filter fallback masjids
-    if (result.length === 0 && nameQuery && nameQuery.trim().length > 0) {
-      const q = nameQuery.trim().toLowerCase();
-      const fallbackList = generateFallbackMasjids(latitude, longitude);
-      return fallbackList.filter(m => 
-        m.name.toLowerCase().includes(q) || m.address.toLowerCase().includes(q)
-      );
-    }
-
-    let finalMasjids = [...result];
-    // Guarantee at least 10 masjids in default view
-    if (!nameQuery && finalMasjids.length < 10) {
-      const fallbackList = generateFallbackMasjids(latitude, longitude);
-      const existingNames = new Set(finalMasjids.map(m => m.name.toLowerCase()));
-      for (const fb of fallbackList) {
-        if (!existingNames.has(fb.name.toLowerCase())) {
-          finalMasjids.push(fb);
-          if (finalMasjids.length >= 12) break;
-        }
-      }
-    }
-
-    // Always recalculate distance with user's live coordinates
-    finalMasjids.forEach(m => {
-      m.distance = calculateDistance(latitude, longitude, m.latitude, m.longitude);
-    });
-    finalMasjids.sort((a, b) => a.distance - b.distance);
-
-    const output = !nameQuery ? finalMasjids.slice(0, 12) : finalMasjids;
-    if (!nameQuery) {
-      masjidCache = { coords: coordinates, radius: radiusMeters, result: output, timestamp: Date.now() };
-    }
-    console.log(`Found ${output.length} masjids via Overpass/Fallback`);
-    return output;
-  } catch (error: any) {
-    console.warn('All Overpass servers failed or timed out. Activating dynamic fallback.');
-    
-    // If a search query is active, filter fallback masjids
-    if (nameQuery && nameQuery.trim().length > 0) {
-      const q = nameQuery.trim().toLowerCase();
-      const fallbackList = generateFallbackMasjids(latitude, longitude);
-      return fallbackList.filter(m => 
-        m.name.toLowerCase().includes(q) || m.address.toLowerCase().includes(q)
-      );
-    }
-    
-    const fallbackList = generateFallbackMasjids(latitude, longitude);
-    const output = fallbackList.slice(0, 12);
-    masjidCache = { coords: coordinates, radius: radiusMeters, result: output, timestamp: Date.now() };
-    return output;
-  }
-}
-
-function generateSimulatedSearchMatches(
-  nameQuery: string,
-  latitude: number,
-  longitude: number,
-  userCoords?: Coordinates
-): Masjid[] {
-  console.log(`Bypassing empty state: Generating dynamic search fallbacks for '${nameQuery}' around center [${latitude}, ${longitude}]`);
-  const formattedName = nameQuery.trim();
-  const capitalized = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
-  
-  // Heuristic: Reverse geocode to find the closest neighborhood name
-  let resolvedNeighborhood = "Hyderabad";
-  let minDistance = Infinity;
-  for (const [name, coords] of Object.entries(HYDERABAD_NEIGHBORHOODS)) {
-    const dist = Math.abs(coords.latitude - latitude) + Math.abs(coords.longitude - longitude);
-    if (dist < minDistance && dist < 0.05) {
-      minDistance = dist;
-      resolvedNeighborhood = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    }
-  }
-
-  const lat1 = latitude + 0.003;
-  const lon1 = longitude + 0.004;
-  const lat2 = latitude - 0.005;
-  const lon2 = longitude - 0.004;
-
-  const dist1 = userCoords 
-    ? calculateDistance(userCoords.latitude, userCoords.longitude, lat1, lon1)
-    : 1250;
-  
-  const dist2 = userCoords
-    ? calculateDistance(userCoords.latitude, userCoords.longitude, lat2, lon2)
-    : 2840;
-
-  const mockMatches: Masjid[] = [
-    {
-      id: `simulated-search-1`,
-      name: capitalized.toLowerCase().includes("masjid") || capitalized.toLowerCase().includes("mosque") 
-        ? capitalized 
-        : `Masjid ${capitalized}`,
-      address: `Near Main Crossroad, ${resolvedNeighborhood}`,
-      distance: dist1,
-      latitude: lat1,
-      longitude: lon1,
-      vicinity: `${resolvedNeighborhood}, Hyderabad`,
-      isOpen: true,
-    },
-    {
-      id: `simulated-search-2`,
-      name: capitalized.toLowerCase().includes("masjid") || capitalized.toLowerCase().includes("mosque") 
-        ? `Jamia Masjid ${capitalized}` 
-        : `Jamia Masjid ${capitalized}`,
-      address: `Pillar No. 12, Main Ring Road, ${resolvedNeighborhood}`,
-      distance: dist2,
-      latitude: lat2,
-      longitude: lon2,
-      vicinity: `${resolvedNeighborhood}, Hyderabad`,
-      isOpen: true,
-    }
-  ];
-
-  return mockMatches.map(m => {
-    const { school, athanTimes, iqamahTimes, sunrise, jummah, suhoor, iftar } = generateMasjidIqamahTimes(m.id, m.name, m.latitude, m.longitude);
-    return {
-      ...m,
-      school,
-      athanTimes,
-      iqamahTimes,
-      sunrise,
-      jummah,
-      suhoor,
-      iftar
-    };
-  });
-}
-
-/**
- * Free OSM Nominatim geocoding lookup for Hyderabad locations.
- */
-export async function geocodeLocation(locationName: string): Promise<Coordinates | null> {
-  try {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName + ", Hyderabad")}&format=json&limit=1`;
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'DeenAI-Mobile/1.0.0 (contact@deenai.com)'
-      }
-    });
-    if (!response.ok) return null;
-    const data = await response.json();
-    if (data && data.length > 0) {
-      return {
-        latitude: parseFloat(data[0].lat),
-        longitude: parseFloat(data[0].lon)
-      };
+    const raw = await fetchSalahTimeMasjids();
+    if (raw && raw.length > 0) {
+      // Strictly use ONLY verified SalahTime masjids when database is reachable. Do NOT merge OSM or fallbacks.
+      masjids = raw.map((m) => ({
+        ...m,
+        distance: calculateDistance(centerLat, centerLon, m.latitude, m.longitude),
+      }));
     }
   } catch (err) {
-    console.error("Geocoding failed", err);
+    console.warn('[getNearbyMasjids] Error reading database masajid:', err);
+    masjids = [];
   }
-  return null;
+
+  // Filter by name query if active
+  if (nameQuery && nameQuery.trim().length > 0) {
+    const q = nameQuery.trim().toLowerCase();
+    masjids = masjids.filter((m) =>
+      m.name.toLowerCase().includes(q) ||
+      m.address.toLowerCase().includes(q) ||
+      (m.famousArea && m.famousArea.toLowerCase().includes(q))
+    );
+  }
+
+  // Proximity Sorting: Closest to furthest
+  masjids.sort((a, b) => a.distance - b.distance);
+
+  if (!nameQuery) {
+    masjidCache = {
+      coords: coordinates,
+      radius: radiusMeters,
+      result: masjids,
+      timestamp: Date.now(),
+    };
+  }
+
+  return masjids;
 }
 
-
-
-/**
- * Intelligent spatial query query geocoder parser.
- * Detects neighborhood keywords or structures like "in Tolichowki" and extracts
- * the search center, returning clean search terms and the resolved coordinates.
- */
-export async function resolveSearchCenterAndQuery(
+export function resolveSearchCenterAndQuery(
   rawQuery: string,
-  userCoords: Coordinates
-): Promise<{ searchCenter: Coordinates; cleanedQuery: string }> {
-  const normalized = rawQuery.toLowerCase().trim();
-  if (!normalized) {
-    return { searchCenter: userCoords, cleanedQuery: "" };
-  }
+  userLocation: Coordinates
+): { searchCenter: Coordinates; cleanedQuery: string } {
+  const clean = rawQuery.trim().toLowerCase();
+  const neighborhoods: Record<string, Coordinates> = {
+    'charminar': { latitude: 17.3616, longitude: 78.4747 },
+    'tolichowki': { latitude: 17.4018, longitude: 78.4116 },
+    'mehdipatnam': { latitude: 17.3916, longitude: 78.4400 },
+    'mallepally': { latitude: 17.3850, longitude: 78.4550 },
+    'banjara hills': { latitude: 17.4156, longitude: 78.4350 },
+    'jubilee hills': { latitude: 17.4319, longitude: 78.4073 },
+    'gachibowli': { latitude: 17.4401, longitude: 78.3489 },
+    'secunderabad': { latitude: 17.4399, longitude: 78.4983 },
+    'nampally': { latitude: 17.3920, longitude: 78.4680 },
+    'chandrayangutta': { latitude: 17.3200, longitude: 78.4800 },
+    'bandlaguda': { latitude: 17.3150, longitude: 78.4700 },
+  };
 
-  const prepositions = ["in", "near", "at", "around"];
-  
-  for (const nKey of Object.keys(HYDERABAD_NEIGHBORHOODS)) {
-    if (normalized.includes(nKey)) {
-      let cleaned = normalized;
-      for (const prep of prepositions) {
-        cleaned = cleaned.replace(new RegExp(`\\b${prep}\\s+${nKey}\\b`, 'g'), '');
-      }
-      cleaned = cleaned.replace(new RegExp(`\\b${nKey}\\b`, 'g'), '').trim();
-      cleaned = cleaned.replace(/\s+/g, ' ').trim();
-      
-      console.log(`Geocoded '${nKey}' from local dictionary. Search Center set:`, HYDERABAD_NEIGHBORHOODS[nKey]);
-      return {
-        searchCenter: HYDERABAD_NEIGHBORHOODS[nKey],
-        cleanedQuery: cleaned
-      };
+  for (const [name, coords] of Object.entries(neighborhoods)) {
+    if (clean.includes(name)) {
+      const remainingQuery = clean.replace(name, '').replace(/\b(in|near|at|around)\b/g, '').trim();
+      return { searchCenter: coords, cleanedQuery: remainingQuery };
     }
   }
 
-  // Check Nominatim geocoding for other areas if "in/near/at/around [location]" is specified
-  for (const prep of prepositions) {
-    const match = normalized.match(new RegExp(`\\b${prep}\\s+([a-z0-9\\s]{3,20})$`));
-    if (match && match[1]) {
-      const detectedLocation = match[1].trim();
-      console.log(`Geocoding via Nominatim: ${detectedLocation}`);
-      const geocoded = await geocodeLocation(detectedLocation);
-      if (geocoded) {
-        let cleaned = normalized.replace(new RegExp(`\\b${prep}\\s+${detectedLocation}\\b`, 'g'), '').trim();
-        return {
-          searchCenter: geocoded,
-          cleanedQuery: cleaned
-        };
-      }
-    }
-  }
-
-  return { searchCenter: userCoords, cleanedQuery: normalized };
+  return { searchCenter: userLocation, cleanedQuery: rawQuery.trim() };
 }
 
-/**
- * Search for a masjid by name using the Overpass API and dynamic fallback.
- * Returns up to 5 matching masjids sorted by proximity to the user.
- */
 export async function findMasjidsByName(
   nameQuery: string,
   userCoords?: Coordinates

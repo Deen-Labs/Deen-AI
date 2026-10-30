@@ -2,6 +2,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface AppSettings {
   notificationsEnabled: boolean;
+  notifyAtAthan: boolean;
+  notifyBeforeJamaat: boolean;
+  beforeJamaatMinutes?: number;
+  perPrayerEnabled: {
+    Fajr: boolean;
+    Dhuhr: boolean;
+    Asr: boolean;
+    Maghrib: boolean;
+    Isha: boolean;
+    Jummah: boolean;
+  };
   autoLocation: boolean;
   calculationMethod: string;
   calculationMethodValue: number;
@@ -11,6 +22,17 @@ const SETTINGS_KEY = '@deen_ai_settings';
 
 const DEFAULT_SETTINGS: AppSettings = {
   notificationsEnabled: true,
+  notifyAtAthan: true,
+  notifyBeforeJamaat: true,
+  beforeJamaatMinutes: 15,
+  perPrayerEnabled: {
+    Fajr: true,
+    Dhuhr: true,
+    Asr: true,
+    Maghrib: true,
+    Isha: true,
+    Jummah: true,
+  },
   autoLocation: true,
   calculationMethod: 'MAKKAH',
   calculationMethodValue: 4,
@@ -25,13 +47,21 @@ export const CALCULATION_METHODS = [
 ];
 
 /**
- * Load settings from storage
+ * Load settings from storage with legacy fallback support.
  */
 export async function loadSettings(): Promise<AppSettings> {
   try {
     const jsonValue = await AsyncStorage.getItem(SETTINGS_KEY);
     if (jsonValue !== null) {
-      return JSON.parse(jsonValue);
+      const parsed = JSON.parse(jsonValue);
+      return {
+        ...DEFAULT_SETTINGS,
+        ...parsed,
+        perPrayerEnabled: {
+          ...DEFAULT_SETTINGS.perPrayerEnabled,
+          ...(parsed.perPrayerEnabled || {}),
+        },
+      };
     }
     return DEFAULT_SETTINGS;
   } catch (error) {

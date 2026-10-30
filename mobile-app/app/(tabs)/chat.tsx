@@ -24,6 +24,9 @@ import { nativeContentProtection } from '../../lib/nativeContentProtection';
 import { getStreak, recordVPNDisabled } from '../../lib/streak';
 import PINModal from '../../components/PINModal';
 import { getCachedPrayerTimesSync, formatTime } from '../../lib/prayerTimes';
+import { useTheme } from '../../lib/theme';
+import { useLanguage } from '../../lib/i18n';
+import { useResponsiveLayout } from '../../lib/responsive';
 
 const SUGGESTED_QUESTIONS = [
     "How to maintain consistency in Fajr prayer?",
@@ -33,6 +36,9 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 export default function ChatScreen() {
+    const { colors, isDark } = useTheme();
+    const { t } = useLanguage();
+    const { contentContainerStyle } = useResponsiveLayout();
     const [inputText, setInputText] = useState('');
     const {
         messages,
@@ -297,22 +303,22 @@ export default function ChatScreen() {
             ]}>
                 <View style={[
                     styles.messageBubble,
-                    isUser ? styles.userBubble : styles.aiBubble
+                    isUser ? [styles.userBubble, { backgroundColor: colors.accentGold }] : [styles.aiBubble, { backgroundColor: colors.surface, borderColor: colors.border }]
                 ]}>
-                    <Text selectable={true} style={styles.messageText}>{displayText}</Text>
+                    <Text selectable={true} style={[styles.messageText, isUser ? { color: '#0f1718' } : { color: colors.text }]}>{displayText}</Text>
 
                     {/* Collapsible Sources Section */}
                     {hasSources && (
                         <View style={styles.sourcesWrapper}>
                             <TouchableOpacity
-                                style={styles.sourcesHeader}
+                                style={[styles.sourcesHeader, { backgroundColor: colors.pill }]}
                                 onPress={() => toggleExpand(item.id)}
                                 activeOpacity={0.7}
                             >
-                                <Text style={styles.sourcesTitle}>
+                                <Text style={[styles.sourcesTitle, { color: colors.accentGold }]}>
                                      Verified Sources ({item.sources!.length})
                                 </Text>
-                                <Text style={styles.dropdownArrow}>
+                                <Text style={[styles.dropdownArrow, { color: colors.accentGold }]}>
                                     {isExpanded ? '▲' : '▼'}
                                 </Text>
                             </TouchableOpacity>
@@ -322,17 +328,17 @@ export default function ChatScreen() {
                                     {item.sources!.map((source, index) => (
                                         <TouchableOpacity
                                             key={index}
-                                            style={styles.sourceCard}
+                                            style={[styles.sourceCard, { backgroundColor: colors.surface, borderColor: colors.borderSubtle }]}
                                             onPress={() => handleOpenLink(source.url)}
                                             activeOpacity={0.8}
                                         >
-                                            <Text style={styles.sourceBookTitle} numberOfLines={1}>
+                                            <Text style={[styles.sourceBookTitle, { color: colors.text }]} numberOfLines={1}>
                                                 {source.title}
                                             </Text>
-                                            <Text style={styles.sourceBookAuthor} numberOfLines={1}>
+                                            <Text style={[styles.sourceBookAuthor, { color: colors.textMuted }]} numberOfLines={1}>
                                                 By {source.author}
                                             </Text>
-                                            <Text style={styles.tapToOpenText}>
+                                            <Text style={[styles.tapToOpenText, { color: colors.accentGold }]}>
                                                 Tap to read on Internet Archive →
                                             </Text>
                                         </TouchableOpacity>
@@ -352,15 +358,12 @@ export default function ChatScreen() {
                                 </Text>
                             </View>
                             {item.masjids.map((m) => (
-                                <View key={m.id} style={styles.inlineMasjidCard}>
+                                <View key={m.id} style={[styles.inlineMasjidCard, { backgroundColor: colors.card, borderColor: colors.accentGreen }]}>
                                     <View style={styles.inlineMasjidTop}>
-                                        <Text style={styles.inlineMasjidName} numberOfLines={1}>{m.name}</Text>
-                                        <Text style={styles.inlineMasjidDistance}>{formatDistance(m.distance)}</Text>
+                                        <Text style={[styles.inlineMasjidName, { color: colors.text }]} numberOfLines={1}>{m.name}</Text>
+                                        <Text style={[styles.inlineMasjidDistance, { color: colors.accentGold }]}>{formatDistance(m.distance)}</Text>
                                     </View>
-                                    <Text style={styles.inlineMasjidAddress} numberOfLines={2}>{m.address}</Text>
-                                    {m.school && (
-                                        <Text style={styles.inlineMasjidSchool}>{m.school}</Text>
-                                    )}
+                                    <Text style={[styles.inlineMasjidAddress, { color: colors.textMuted }]} numberOfLines={2}>{m.address}</Text>
                                     <TouchableOpacity
                                         style={styles.inlineDirectionsButton}
                                         onPress={() => openMasjidInMaps(m)}
@@ -372,6 +375,36 @@ export default function ChatScreen() {
                                 </View>
                             ))}
                         </View>
+                    )}
+
+                    {/* Quick Hub Navigation Action Button */}
+                    {item.actionCommand && (item.actionCommand as any).action === 'navigate_hub' && (
+                        <TouchableOpacity
+                            style={styles.inlineHubButton}
+                            onPress={() => {
+                                const targetRoute = (item.actionCommand as any).route;
+                                const ALLOWED_HUB_ROUTES = [
+                                    '/hub/azkar',
+                                    '/hub/asma-ul-husna',
+                                    '/hub/quran-hadith-search',
+                                    '/hub/tasbih',
+                                    '/(tabs)/friday-topics',
+                                    '/hub/ramadhan',
+                                    '/hub/madrasa',
+                                    '/hub/community-feedback',
+                                    '/hub/settings',
+                                ];
+                                if (ALLOWED_HUB_ROUTES.includes(targetRoute)) {
+                                    router.push(targetRoute as any);
+                                }
+                            }}
+                            activeOpacity={0.8}
+                        >
+                            <Feather name="arrow-right-circle" size={15} color="#0f1718" style={{ marginRight: 6 }} />
+                            <Text style={styles.inlineHubButtonText}>
+                                {(item.actionCommand as any).buttonText || 'Open in Deen Hub'}
+                            </Text>
+                        </TouchableOpacity>
                     )}
 
                     {/* Quick Focus Action Button */}
@@ -400,25 +433,25 @@ export default function ChatScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={["top"]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["top"]}>
             <KeyboardAvoidingView
                 style={styles.keyboardAvoid}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 keyboardVerticalOffset={Platform.OS === "ios" ? tabBarHeight : 0}
             >
-                <View style={styles.header}>
+                <View style={[styles.header, contentContainerStyle]}>
                     <View style={styles.headerContentRow}>
                         <View style={styles.headerTitleRow}>
-                            <View style={styles.headerAvatar}>
+                            <View style={[styles.headerAvatar, { backgroundColor: colors.accentGold }]}>
                                 <Feather name="message-circle" size={20} color="#0f1718" />
                             </View>
                             <View style={styles.headerTextWrap}>
-                                <Text style={styles.headerTitle} numberOfLines={1}>
+                                <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
                                     {currentSession && getSessionDisplayTitle(currentSession) !== 'New Conversation'
                                         ? getSessionDisplayTitle(currentSession)
                                         : 'Imam AI'}
                                 </Text>
-                                <Text style={styles.headerSubtitle} numberOfLines={1}>
+                                <Text style={[styles.headerSubtitle, { color: colors.textMuted }]} numberOfLines={1}>
                                     Verified Scholarly RAG via Internet Archive
                                 </Text>
                             </View>
@@ -426,15 +459,22 @@ export default function ChatScreen() {
 
                         <View style={styles.headerActions}>
                             <TouchableOpacity
-                                style={styles.headerActionBtn}
+                                style={[styles.headerActionBtn, { backgroundColor: colors.pill }]}
+                                onPress={() => router.push('/hub/quran-hadith-search')}
+                                activeOpacity={0.7}
+                            >
+                                <Feather name="book-open" size={17} color={colors.accentGold} />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.headerActionBtn, { backgroundColor: colors.pill }]}
                                 onPress={() => setSessionsModalVisible(true)}
                                 activeOpacity={0.7}
                                 accessibilityLabel="Chat Sessions History"
                             >
-                                <Feather name="clock" size={18} color="#e2a23b" />
+                                <Feather name="clock" size={18} color={colors.accentGold} />
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.headerActionBtn, styles.newChatBtn]}
+                                style={[styles.headerActionBtn, styles.newChatBtn, { backgroundColor: colors.accentGold }]}
                                 onPress={() => startNewChat()}
                                 activeOpacity={0.7}
                                 accessibilityLabel="Start New Chat"
@@ -450,54 +490,58 @@ export default function ChatScreen() {
                     data={messages}
                     keyExtractor={(item) => item.id}
                     renderItem={renderMessage}
-                    contentContainerStyle={styles.listContent}
+                    contentContainerStyle={[styles.listContent, contentContainerStyle]}
                     keyboardShouldPersistTaps="handled"
                     onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
                     onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
                     ListHeaderComponent={
                         messages.length <= 1 ? (
-                            <View style={styles.suggestionsContainer}>
+                            <View style={[styles.suggestionsContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
                                 <View style={styles.suggestionsHeaderRow}>
-                                    <Feather name="compass" size={14} color="#e2a23b" />
-                                    <Text style={styles.suggestionsTitle}>Suggested Inquiries</Text>
+                                    <Feather name="compass" size={14} color={colors.accentGold} />
+                                    <Text style={[styles.suggestionsTitle, { color: colors.accentSoft }]}>Suggested Inquiries</Text>
                                 </View>
                                 <View style={styles.chipsWrapper}>
                                     {SUGGESTED_QUESTIONS.map((q, idx) => (
                                         <TouchableOpacity
                                             key={idx}
-                                            style={styles.suggestionChip}
+                                            style={[styles.suggestionChip, { backgroundColor: colors.pill, borderColor: colors.borderSubtle }]}
                                             onPress={() => sendMessage(q)}
                                             activeOpacity={0.7}
                                         >
-                                            <Text style={styles.suggestionChipText}>{q}</Text>
-                                            <Feather name="arrow-up-right" size={14} color="#e2a23b" />
+                                            <Text style={[styles.suggestionChipText, { color: colors.text }]}>{q}</Text>
+                                            <Feather name="arrow-up-right" size={14} color={colors.accentGold} />
                                         </TouchableOpacity>
                                     ))}
                                 </View>
                             </View>
-                        ) : null
+                        ) : undefined
                     }
                 />
 
                 {isTyping && (
                     <View style={styles.typingIndicator}>
-                        <ActivityIndicator size="small" color="#e2a23b" />
-                        <Text style={styles.typingText}>ImamAI is thinking...</Text>
+                        <ActivityIndicator size="small" color={colors.accentGold} />
+                        <Text style={[styles.typingText, { color: colors.textMuted }]}>ImamAI is thinking...</Text>
                     </View>
                 )}
 
-                <View style={styles.inputContainer}>
+                <View style={[styles.inputContainer, { backgroundColor: colors.surface, borderTopColor: colors.borderSubtle }, contentContainerStyle]}>
                     <TextInput
-                        style={styles.textInput}
+                        style={[styles.textInput, { backgroundColor: colors.inputBg, color: colors.text, borderColor: colors.borderSubtle }]}
                         value={inputText}
                         onChangeText={setInputText}
                         placeholder="Ask a question..."
-                        placeholderTextColor="#4b6465"
+                        placeholderTextColor={isDark ? "#4b6465" : "#94a3b8"}
                         multiline
                         maxLength={500}
                     />
                     <TouchableOpacity
-                        style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+                        style={[
+                            styles.sendButton,
+                            { backgroundColor: colors.accentGoldBg },
+                            (!inputText.trim() || isTyping) && { opacity: 0.5 },
+                        ]}
                         onPress={handleSend}
                         disabled={!inputText.trim() || isTyping}
                     >
@@ -526,33 +570,33 @@ export default function ChatScreen() {
                 onRequestClose={() => setSessionsModalVisible(false)}
             >
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                        <View style={[styles.modalHeader, { borderBottomColor: colors.borderSubtle }]}>
                             <View style={styles.modalTitleRow}>
-                                <Feather name="message-square" size={20} color="#e2a23b" />
-                                <Text style={styles.modalTitle}>Chat Conversations</Text>
-                                <View style={styles.modalBadge}>
-                                    <Text style={styles.modalBadgeText}>{sessions.length}</Text>
+                                <Feather name="message-square" size={20} color={colors.accentGold} />
+                                <Text style={[styles.modalTitle, { color: colors.text }]}>Chat Conversations</Text>
+                                <View style={[styles.modalBadge, { backgroundColor: colors.pill }]}>
+                                    <Text style={[styles.modalBadgeText, { color: colors.accentGold }]}>{sessions.length}</Text>
                                 </View>
                             </View>
                             <TouchableOpacity
-                                style={styles.modalCloseBtn}
+                                style={[styles.modalCloseBtn, { backgroundColor: colors.pill }]}
                                 onPress={() => setSessionsModalVisible(false)}
                             >
-                                <Feather name="x" size={20} color="#94a4a2" />
+                                <Feather name="x" size={20} color={colors.textMuted} />
                             </TouchableOpacity>
                         </View>
 
                         <TouchableOpacity
-                            style={styles.modalNewChatBtn}
+                            style={[styles.modalNewChatBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
                             onPress={async () => {
                                 await startNewChat();
                                 setSessionsModalVisible(false);
                             }}
                             activeOpacity={0.8}
                         >
-                            <Feather name="plus-circle" size={18} color="#e2a23b" />
-                            <Text style={styles.modalNewChatText}>Start New Conversation</Text>
+                            <Feather name="plus-circle" size={18} color={colors.accentGold} />
+                            <Text style={[styles.modalNewChatText, { color: colors.accentGold }]}>Start New Conversation</Text>
                         </TouchableOpacity>
 
                         <FlatList
@@ -564,7 +608,11 @@ export default function ChatScreen() {
                                 const msgCount = item.messages.filter(m => m.id !== 'welcome').length;
                                 return (
                                     <TouchableOpacity
-                                        style={[styles.sessionCard, isActive && styles.sessionCardActive]}
+                                        style={[
+                                            styles.sessionCard,
+                                            { backgroundColor: colors.surface, borderColor: colors.borderSubtle },
+                                            isActive && [styles.sessionCardActive, { backgroundColor: colors.pill, borderColor: colors.accentGold }],
+                                        ]}
                                         onPress={async () => {
                                             await switchSession(item.id);
                                             setSessionsModalVisible(false);
@@ -575,21 +623,25 @@ export default function ChatScreen() {
                                             <Feather
                                                 name={isActive ? "check-circle" : "message-circle"}
                                                 size={18}
-                                                color={isActive ? "#e2a23b" : "#4b6465"}
+                                                color={isActive ? colors.accentGold : colors.textMuted}
                                             />
                                             <View style={{ flex: 1 }}>
                                                 <Text
-                                                    style={[styles.sessionCardTitle, isActive && styles.sessionCardTitleActive]}
+                                                    style={[
+                                                        styles.sessionCardTitle,
+                                                        { color: colors.text },
+                                                        isActive && [styles.sessionCardTitleActive, { color: colors.accentGold }],
+                                                    ]}
                                                     numberOfLines={1}
                                                 >
                                                     {getSessionDisplayTitle(item)}
                                                 </Text>
                                                 <View style={styles.sessionCardMetaRow}>
-                                                    <Text style={styles.sessionCardMetaText}>
+                                                    <Text style={[styles.sessionCardMetaText, { color: colors.textMuted }]}>
                                                         {formatSessionTime(item.updatedAt)}
                                                     </Text>
-                                                    <Text style={styles.sessionCardDot}>•</Text>
-                                                    <Text style={styles.sessionCardMetaText}>
+                                                    <Text style={[styles.sessionCardDot, { color: colors.textMuted }]}>•</Text>
+                                                    <Text style={[styles.sessionCardMetaText, { color: colors.textMuted }]}>
                                                         {msgCount === 1 ? '1 query' : `${msgCount} queries`}
                                                     </Text>
                                                 </View>
@@ -608,7 +660,7 @@ export default function ChatScreen() {
                             }}
                             ListEmptyComponent={
                                 <View style={styles.emptySessions}>
-                                    <Text style={styles.emptySessionsText}>No conversations yet.</Text>
+                                    <Text style={[styles.emptySessionsText, { color: colors.textMuted }]}>No conversations yet.</Text>
                                 </View>
                             }
                         />
@@ -1092,5 +1144,21 @@ const styles = StyleSheet.create({
     emptySessionsText: {
         fontSize: 13,
         color: '#94a4a2',
+    },
+    inlineHubButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#e2a23b',
+        borderRadius: 8,
+        paddingVertical: 9,
+        paddingHorizontal: 12,
+        marginTop: 8,
+        marginBottom: 4,
+    },
+    inlineHubButtonText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#0f1718',
     },
 });

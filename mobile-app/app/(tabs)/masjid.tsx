@@ -1,20 +1,54 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Linking, Platform, Alert, LayoutAnimation, UIManager, TextInput, Keyboard } from "react-native";
+export function toTitleCase(str?: string): string {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+import { useTheme } from "../../lib/theme";
+import { useLanguage } from "../../lib/i18n";
+import { useResponsiveLayout } from "../../lib/responsive";
+import MasjidLedBoard from "../../components/MasjidLedBoard";
+import { getNextPrayer, formatTime } from "../../lib/prayerTimes";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { fetchSalahTimeJuma, SalahTimeJuma, fetchSalahTimeTopics, SalahTimeTopic, getMasjidJumaTopics, MasjidJumaHistory } from "../../lib/salahTimeBackend";
+import { syncMuazzinKhutbahReminders, checkAndScheduleUpdaterReminders } from "../../lib/muazzinNotifications";
+import { View, Text, StyleSheet, FlatList, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl, Linking, Platform, Alert, LayoutAnimation, UIManager, TextInput, Keyboard } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState, useMemo } from "react";
-import { getCurrentLocation, getQuickLocation, Coordinates } from "../../lib/location";
+import { getCurrentLocation, getQuickLocation, subscribeToLocationUpdates, forceRefreshLocation, Coordinates } from "../../lib/location";
 import { getNearbyMasjids, Masjid, formatDistance, resolveSearchCenterAndQuery, getCachedMasjidsSync, calculateDistance } from "../../lib/masjid";
 import { subscribeToWarmup } from "../../lib/backgroundWarmup";
 import { Feather } from "@expo/vector-icons";
-// UpdateMasjidTimingModal bypassed in favor of direct Google Form sync
+import UpdateMasjidTimingModal, { TimingFormData } from "../../components/UpdateMasjidTimingModal";
+import MuazzinLoginModal from "../../components/MuazzinLoginModal";
+import MasjidFeedbackModal from "../../components/MasjidFeedbackModal";
+import FirstTimeWalkthroughModal from "../../components/FirstTimeWalkthroughModal";
+import { logoutImam, clearAllCustomAddedMasjids, deleteCustomAddedMasjid, getDefaultMasjidId, setDefaultMasjidId } from "../../lib/masjidTimingSync";
+import { getCurrentUser, UserProfile, canManageMasjid, getDisplayRoleLabel } from "../../lib/auth";
+import { formatLastUpdated, isTimingStale, getMasjidJazakCount, getBaselineJazakCount, sendJazakAllahToUpdater, requestTimingUpdate } from "../../lib/community";
 import {
   applyTimingOverridesToMasjids,
   saveLocalTimingOverride,
   saveCustomAddedMasjid,
+  submitNewMasjidToFirestore,
   submitTimingUpdateToBackend,
+  getPinnedMasjidId,
+  setPinnedMasjidId,
+  resolveActiveMasjid,
+  pushMasjidTimingToFirestore,
+  getImamSession,
+  verifyAndLoginImam,
+  ImamSession,
 } from "../../lib/masjidTimingSync";
 
-// Enable LayoutAnimation on Android
-if (Platform.OS === 'android') {
+// Enable LayoutAnimation on Android in Old Architecture (no-op in Fabric New Architecture)
+const isFabric = Boolean(
+  (global as any).nativeFabricUIManager ||
+  (global as any).__turboModuleProxy
+);
+if (Platform.OS === 'android' && !isFabric) {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
@@ -23,6 +57,9 @@ if (Platform.OS === 'android') {
 export const MASJID_UPDATE_FORM_URL: string = "https://docs.google.com/forms/d/e/1FAIpQLScEZdkbOjZG98Be0TuVvZDaDDq58SVmivTJ-3zBtrgO2OPEKQ/viewform";
 
 export default function MasjidScreen() {
+  const { colors, isDark } = useTheme();
+  const { t } = useLanguage();
+  const { contentContainerStyle, tableMaxWidthStyle } = useResponsiveLayout();
   const cached = getCachedMasjidsSync();
   const [masjids, setMasjids] = useState<Masjid[]>(cached || []);
   const [loading, setLoading] = useState(!cached || cached.length === 0);
@@ -30,21 +67,329 @@ export default function MasjidScreen() {
   const [error, setError] = useState<string | null>(null);
   const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(null);
   const [selectedMasjidId, setSelectedMasjidId] = useState<string | null>(null);
+  const PAGE_SIZE = 10;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [expandedMasjidIds, setExpandedMasjidIds] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState("");
-  const handleOpenAddMasjid = async () => {
+  const [sortMode, setSortMode] = useState<'nearby' | 'az'>('nearby');
+  const [updateModalScope, setUpdateModalScope] = useState<'all' | 'details' | 'timings'>('all');
+  const [masjidJazakCounts, setMasjidJazakCounts] = useState<Record<string, number>>({});
+
+  const handleSendJazak = async (m: Masjid) => {
     try {
-      await Linking.openURL(MASJID_UPDATE_FORM_URL);
-    } catch (err) {
-      Alert.alert("Unable to Open Form", "Please check your internet connection.");
+      const res = await sendJazakAllahToUpdater(m.id, m.name, m.updatedBy, m.updatedByUid);
+      if (res.success) {
+        setMasjidJazakCounts(prev => ({ ...prev, [m.id]: res.newCount }));
+        Alert.alert("🤲 JazakAllahu Khairan!", res.message);
+      } else {
+        Alert.alert("Cooldown Active", res.message);
+      }
+    } catch (err: any) {
+      Alert.alert("Notice", err.message || "Could not send JazakAllah.");
     }
   };
 
-  const handleUpdateTimings = async (item?: Masjid) => {
+  const handleRequestUpdate = async (m: Masjid) => {
     try {
-      await Linking.openURL(MASJID_UPDATE_FORM_URL);
-    } catch (err) {
-      Alert.alert("Unable to Open Form", "Please check your internet connection.");
+      const res = await requestTimingUpdate(m.id, m.name);
+      Alert.alert("Request Submitted", res.message);
+    } catch {
+      Alert.alert("Notice", "Unable to submit update request. Please check internet connection.");
     }
+  };
+  const [editingMasjid, setEditingMasjid] = useState<Masjid | null>(null);
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+  const [modalMode, setModalMode] = useState<'update' | 'add'>('update');
+  const [defaultMasjidId, setDefaultMasjidIdState] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [imamSession, setImamSession] = useState<ImamSession | null>(null);
+  const [isMuazzinLoginModalVisible, setIsMuazzinLoginModalVisible] = useState(false);
+  const [feedbackMasjid, setFeedbackMasjid] = useState<Masjid | null>(null);
+  const [isFeedbackModalVisible, setIsFeedbackModalVisible] = useState(false);
+  const router = useRouter();
+  const searchParams = useLocalSearchParams<{ openAdd?: string; walkthrough?: string }>();
+  const [isWalkthroughVisible, setIsWalkthroughVisible] = useState(false);
+  const [walkthroughMode, setWalkthroughMode] = useState<'general' | 'masjid_onboarding'>('masjid_onboarding');
+  const [activeFilterTab, setActiveFilterTab] = useState<'nearby' | 'juma' | 'taraweeh'>('nearby');
+  const [jumaList, setJumaList] = useState<SalahTimeJuma[]>([]);
+  const [topics, setTopics] = useState<SalahTimeTopic[]>([]);
+
+  // Nearest masjid Jumu'ah Khutbah topic based on live user GPS proximity
+  const nearestKhutbah = useMemo(() => {
+    if (!jumaList || jumaList.length === 0) return null;
+    for (const m of masjids) {
+      const history = getMasjidJumaTopics(m.id, m.name, jumaList);
+      if (history.current) {
+        return {
+          masjidName: m.name,
+          distance: m.distance,
+          topic: history.current,
+        };
+      }
+    }
+    return {
+      masjidName: jumaList[0].masjidName,
+      distance: undefined,
+      topic: jumaList[0],
+    };
+  }, [masjids, jumaList]);
+  useEffect(() => {
+    getDefaultMasjidId().then((def) => {
+      setDefaultMasjidIdState(def);
+    });
+    getCurrentUser().then((u) => {
+      setUserProfile(u);
+    });
+    getImamSession().then((session) => {
+      setImamSession(session);
+      syncMuazzinKhutbahReminders(session).catch(() => {});
+    });
+    fetchSalahTimeJuma().then((jumas) => {
+      setJumaList(jumas);
+    }).catch(() => {});
+    fetchSalahTimeTopics().then((tList) => {
+      setTopics(tList);
+    }).catch(() => {});
+  }, []);
+
+  const handleMuazzinBadgePress = () => {
+    if (!imamSession) {
+      setIsMuazzinLoginModalVisible(true);
+      return;
+    }
+
+    Alert.alert(
+      'Muazzin Session Active',
+      `Logged in as: ${imamSession.imamName}\nYou have official verified timing publishing privileges.`,
+      [
+        {
+          text: 'Quick Update Timings',
+          onPress: () => {
+            const active = selectedMasjidId ? masjids.find(m => m.id === selectedMasjidId) : masjids[0];
+            handleUpdateTimings(active || undefined);
+          },
+        },
+        {
+          text: 'Logout Session',
+          style: 'destructive',
+          onPress: async () => {
+            await logoutImam();
+            setImamSession(null);
+            syncMuazzinKhutbahReminders(null).catch(() => {});
+            Alert.alert('Logged Out', 'You have logged out of Muazzin mode.');
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
+
+  const handleDeleteCustomMasjid = async (masjidId: string) => {
+    Alert.alert(
+      'Delete Masjid',
+      'Are you sure you want to remove this custom added masjid?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteCustomAddedMasjid(masjidId);
+            await loadMasjids();
+            Alert.alert('Deleted', 'Custom masjid has been removed.');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleOpenAddMasjid = () => {
+    if (!userProfile && !imamSession) {
+      Alert.alert(
+        'Account Required',
+        'Please sign in or create a free account to add a new masjid to the community network.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'View Walkthrough',
+            onPress: () => {
+              setWalkthroughMode('masjid_onboarding');
+              setIsWalkthroughVisible(true);
+            },
+          },
+          {
+            text: 'Sign In',
+            onPress: () => router.push('/auth/login'),
+          },
+          {
+            text: 'Sign Up',
+            onPress: () => router.push('/auth/signup'),
+          },
+        ]
+      );
+      return;
+    }
+    setEditingMasjid(null);
+    setModalMode('add');
+    setUpdateModalScope('all');
+    setIsUpdateModalVisible(true);
+  };
+
+  useEffect(() => {
+    if (searchParams?.walkthrough === 'masjid_onboarding') {
+      setWalkthroughMode('masjid_onboarding');
+      setIsWalkthroughVisible(true);
+    }
+    if (searchParams?.openAdd === 'true') {
+      handleOpenAddMasjid();
+    }
+  }, [searchParams?.walkthrough, searchParams?.openAdd]);
+
+  const canUserEditMasjid = (item: Masjid): boolean => {
+    if (canManageMasjid(userProfile, item.id)) return true;
+    const role = (userProfile?.role || imamSession?.role || '').toUpperCase();
+    if (role === 'ADMIN' || role === 'SUPER_USER2') return true;
+    if (role === 'SUPER_USER' || role === 'MUAZZIN' || role === 'IMAM' || role === 'PRESIDENT' || role === 'SECRETARY') {
+      const assignedMasjidId = userProfile?.masjidId || imamSession?.masjidId;
+      if (!assignedMasjidId) return false;
+      const cleanItem = item.id.replace(/^salahtime-/, '').trim().toLowerCase();
+      const cleanAssigned = assignedMasjidId.replace(/^salahtime-/, '').trim().toLowerCase();
+      return cleanItem === cleanAssigned;
+    }
+    return false;
+  };
+
+  const handleUpdateTimings = (item?: Masjid) => {
+    if (item && !canUserEditMasjid(item)) {
+      Alert.alert(
+        'Access Restricted',
+        'Only a verified Muazzin, Imam, or Committee President assigned to this masjid (or an Administrator) can edit its prayer timings.'
+      );
+      return;
+    }
+    setEditingMasjid(item || null);
+    setModalMode('update');
+    setUpdateModalScope('all');
+    setIsUpdateModalVisible(true);
+  };
+
+  const toggleDefaultMasjid = async (masjidId: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    if (defaultMasjidId === masjidId) {
+      await setDefaultMasjidId(null);
+      setDefaultMasjidIdState(null);
+    } else {
+      await setDefaultMasjidId(masjidId);
+      setDefaultMasjidIdState(masjidId);
+    }
+  };
+
+  const handleModalSubmit = async (formData: TimingFormData) => {
+    // 1. If adding a new masjid, route through role-gated submitNewMasjidToFirestore
+    if (modalMode === 'add') {
+      const res = await submitNewMasjidToFirestore(formData, userProfile, currentLocation);
+      if (res.status === 'pending') {
+        Alert.alert(
+          'Submitted for Admin Review 🕌',
+          'JazakAllahu Khairan! Because your account is not an Area Coordinator (SUPER_USER2) or Admin, your masjid submission has been queued for manual review. It will appear in the public directory once approved by an Admin.'
+        );
+      } else if (res.status === 'approved') {
+        Alert.alert(
+          'Masjid Published Live 🌟',
+          'Your new masjid has been auto-approved and is now live in the public directory.'
+        );
+        await loadMasjids();
+      } else {
+        Alert.alert('Notice', res.error || 'Submission could not be completed.');
+      }
+      setIsUpdateModalVisible(false);
+      return;
+    }
+
+    // 2. Editing existing masjid timings
+    let session = await getImamSession();
+    if (!session && formData.muazzinPasscode) {
+      const loginRes = await verifyAndLoginImam(
+        formData.imamName || 'Imam / Muazzin',
+        formData.muazzinPasscode,
+        editingMasjid?.id
+      );
+      if (loginRes.success && loginRes.session) {
+        session = loginRes.session;
+        setImamSession(session);
+      }
+    }
+
+    const targetMasjid: Masjid = editingMasjid || {
+      id: `custom-${Date.now()}`,
+      name: formData.name || 'New Masjid',
+      address: formData.address || 'Hyderabad, Telangana',
+      distance: 0,
+      latitude: currentLocation?.latitude || 17.385044,
+      longitude: currentLocation?.longitude || 78.486671,
+      school: formData.school,
+      isOpen: true,
+      isCustomAdded: true,
+    };
+
+    // TASK 3: If session is null, check userProfile / currentUser
+    if (!session) {
+      const u = userProfile || (await getCurrentUser());
+      if (u && canManageMasjid(u, targetMasjid.id)) {
+        session = {
+          imamName: u.name,
+          email: u.email,
+          uid: u.uid,
+          masjidId: u.masjidId || targetMasjid.id,
+          role: u.role,
+          token: u.token || 'auth_user_token',
+          loggedInAt: Date.now(),
+        };
+      }
+    }
+
+    if (session) {
+      const pushRes = await pushMasjidTimingToFirestore(targetMasjid, formData, session, updateModalScope);
+      if (!pushRes.success) {
+        Alert.alert('Update Notice', pushRes.error || 'Failed to update timings.');
+        return;
+      }
+      const pointsMsg = pushRes?.pointsResult?.awarded
+        ? `\n\n🌟 ${pushRes.pointsResult.reason} Total Points: ${pushRes.pointsResult.newTotalPoints}`
+        : pushRes?.pointsResult?.reason ? `\n\n🛡️ ${pushRes.pointsResult.reason}` : '';
+      Alert.alert(
+        "Verified Timings Published",
+        `Timings for ${targetMasjid.name} have been updated live in the 100+ masjid network!${pointsMsg}`
+      );
+    } else {
+      await saveLocalTimingOverride({
+        masjidId: targetMasjid.id,
+        name: targetMasjid.name,
+        address: targetMasjid.address,
+        athanTimes: formData.athanTimes,
+        iqamahTimes: formData.iqamahTimes,
+        jummah: formData.jummah,
+        jummahAthan: formData.jummahAthan,
+        sunrise: formData.sunrise,
+        sahar: formData.sahar,
+        iftar: formData.iftar,
+        notes: formData.notes,
+        announcements: formData.notes || '',
+        updatedBy: userProfile?.name || 'Local User',
+        updatedByUid: userProfile?.uid || '',
+        muazzinPasscode: formData.muazzinPasscode,
+        isMuazzinVerified: false,
+        updatedAt: Date.now(),
+        syncStatus: 'pending',
+        isCustomAdded: targetMasjid.isCustomAdded,
+      });
+      Alert.alert(
+        "Timings Saved Locally",
+        "Timings saved on your device. Enter an authorized Imam Security Code to publish updates live to all users."
+      );
+    }
+
+    await loadMasjids();
   };
 
   // Listen to background warm-up service
@@ -98,6 +443,10 @@ export default function MasjidScreen() {
     return query.replace(/\s+/g, ' ').trim();
   };
 
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [searchQuery, activeFilterTab]);
+
   const filteredMasjids = useMemo(() => {
     const query = getCleanedLocalQuery();
     return masjids
@@ -105,7 +454,9 @@ export default function MasjidScreen() {
         if (!query) return true;
         return (
           masjid.name.toLowerCase().includes(query) ||
-          masjid.address.toLowerCase().includes(query) ||
+          (masjid.address && masjid.address.toLowerCase().includes(query)) ||
+          (masjid.famousArea && masjid.famousArea.toLowerCase().includes(query)) ||
+          (masjid.presidentName && masjid.presidentName.toLowerCase().includes(query)) ||
           (masjid.vicinity && masjid.vicinity.toLowerCase().includes(query)) ||
           (masjid.school && masjid.school.toLowerCase().includes(query))
         );
@@ -119,8 +470,24 @@ export default function MasjidScreen() {
         }
         return masjid;
       })
-      .sort((a, b) => a.distance - b.distance);
-  }, [masjids, searchQuery, currentLocation]);
+      .sort((a, b) => {
+        if (defaultMasjidId) {
+          const cleanDef = defaultMasjidId.replace(/^salahtime-/, '').trim().toLowerCase();
+          const isADefault = a.id === defaultMasjidId || a.id.replace(/^salahtime-/, '').trim().toLowerCase() === cleanDef;
+          const isBDefault = b.id === defaultMasjidId || b.id.replace(/^salahtime-/, '').trim().toLowerCase() === cleanDef;
+          if (isADefault && !isBDefault) return -1;
+          if (!isADefault && isBDefault) return 1;
+        }
+        if (sortMode === 'az') {
+          return a.name.localeCompare(b.name);
+        }
+        return (a.distance ?? 0) - (b.distance ?? 0);
+      });
+  }, [masjids, searchQuery, currentLocation, defaultMasjidId, sortMode]);
+
+  const displayedMasjids = useMemo(() => {
+    return filteredMasjids.slice(0, visibleCount);
+  }, [filteredMasjids, visibleCount]);
 
   const loadMasjids = async (queryToSearch: string = searchQuery) => {
     try {
@@ -139,17 +506,35 @@ export default function MasjidScreen() {
       const nearbyMasjids = await getNearbyMasjids(location, searchRadius, cleanedQuery, searchCenter);
       const withOverrides = await applyTimingOverridesToMasjids(nearbyMasjids, location);
       setMasjids(withOverrides);
+
+      // Pre-load JazakAllah counts for loaded masjids so cards never display 0
+      const initialJazakMap: Record<string, number> = {};
+      await Promise.all(
+        withOverrides.slice(0, 30).map(async (m) => {
+          initialJazakMap[m.id] = await getMasjidJazakCount(m.id);
+        })
+      );
+      setMasjidJazakCounts((prev) => ({ ...prev, ...initialJazakMap }));
+      if (withOverrides.length > 0 && !searchQuery) {
+        const def = await getDefaultMasjidId();
+        const initialId = def || withOverrides[0].id;
+        setSelectedMasjidId(initialId);
+        setExpandedMasjidIds(prev => {
+          if (Object.keys(prev).length === 0) {
+            return { [initialId]: true };
+          }
+          return prev;
+        });
+      }
       setLoading(false);
 
       // In the background, request fresh high-accuracy GPS coordinates and update distance
       getCurrentLocation().then(async (freshLoc) => {
         if (freshLoc) {
           setCurrentLocation(freshLoc);
-          if (Math.abs(freshLoc.latitude - location.latitude) > 0.01 || Math.abs(freshLoc.longitude - location.longitude) > 0.01) {
-            const freshMasjids = await getNearbyMasjids(freshLoc, searchRadius, cleanedQuery, searchCenter);
-            const freshWithOverrides = await applyTimingOverridesToMasjids(freshMasjids, freshLoc);
-            setMasjids(freshWithOverrides);
-          }
+          const freshMasjids = await getNearbyMasjids(freshLoc, searchRadius, cleanedQuery, searchCenter);
+          const freshWithOverrides = await applyTimingOverridesToMasjids(freshMasjids, freshLoc);
+          setMasjids(freshWithOverrides);
         }
       }).catch(() => {});
     } catch (err) {
@@ -163,16 +548,24 @@ export default function MasjidScreen() {
 
   useEffect(() => {
     loadMasjids();
+    return subscribeToLocationUpdates((coords) => {
+      setCurrentLocation(coords);
+    });
   }, []);
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    loadMasjids();
+    setVisibleCount(PAGE_SIZE);
+    await forceRefreshLocation();
+    await loadMasjids();
   };
 
   const toggleMasjidTimings = (masjidId: string) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setSelectedMasjidId(prevId => prevId === masjidId ? null : masjidId);
+    setSelectedMasjidId(masjidId);
+    setExpandedMasjidIds(prev => ({
+      ...prev,
+      [masjidId]: !prev[masjidId],
+    }));
   };
 
   const openInMaps = async (masjid: Masjid) => {
@@ -222,54 +615,184 @@ export default function MasjidScreen() {
     }
   };
 
-  const renderMasjidItem = ({ item }: { item: Masjid }) => {
-    const isExpanded = selectedMasjidId === item.id;
+  const renderMasjidItem = ({ item, index }: { item: Masjid; index: number }) => {
+    const isPinned = item.id === defaultMasjidId || (item.id.replace(/^salahtime-/, '') === (defaultMasjidId || '').replace(/^salahtime-/, ''));
+    const isAutoClosest = !defaultMasjidId && index === 0 && !searchQuery;
+    const isExpanded = !!expandedMasjidIds[item.id];
+    const jumaHistory = getMasjidJumaTopics(item.id, item.name, jumaList);
+
+    const nextMasjidPrayer = item.iqamahTimes
+      ? getNextPrayer({
+          Fajr: item.iqamahTimes.Fajr || '05:30 AM',
+          Sunrise: item.sunrise || '06:15 AM',
+          Dhuhr: item.iqamahTimes.Dhuhr || '01:15 PM',
+          Asr: item.iqamahTimes.Asr || '04:45 PM',
+          Maghrib: item.iqamahTimes.Maghrib || '06:20 PM',
+          Isha: item.iqamahTimes.Isha || '08:30 PM',
+        })
+      : null;
+
     return (
-      <View style={styles.masjidCard}>
-        {/* Card Header: Name, Address, and Distance */}
-        <View style={styles.masjidHeader}>
-          <View style={{ flex: 1, marginRight: 12 }}>
-            <Text style={styles.masjidName}>{item.name}</Text>
-            <Text style={styles.address} numberOfLines={2}>{item.address}</Text>
-            {item.school && (
-              <Text style={[
-                styles.schoolTag,
-                item.school === 'Ahle Hadees' ? styles.schoolAhleHadees : styles.schoolHanafi
-              ]}>
-                {item.school}
-              </Text>
+      <View style={[styles.masjidCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        {/* If Pinned or Auto-Closest, show prominent top status row */}
+        {(isPinned || isAutoClosest) ? (
+          <View style={styles.cardTopRow}>
+            {isPinned ? (
+              <View style={styles.pinnedMasjidBadge}>
+                <Feather name="bookmark" size={11} color="#10b981" style={{ marginRight: 4 }} />
+                <Text style={styles.pinnedMasjidBadgeText}>{t('masjid.defaultMasjid', 'Default Masjid')}</Text>
+              </View>
+            ) : (
+              <View style={styles.autoClosestBadge}>
+                <Feather name="navigation" size={10} color="#0f172a" style={{ marginRight: 4 }} />
+                <Text style={styles.autoClosestBadgeText}>{t('masjid.closestAuto', 'Closest to You (Auto-Selected)')}</Text>
+              </View>
             )}
-            {item.isMuazzinVerified ? (
-              <View style={[styles.localUpdateBadge, styles.muazzinVerifiedBadge]}>
-                <Feather name="shield" size={10} color="#f59e0b" style={{ marginRight: 3 }} />
-                <Text style={[styles.localUpdateBadgeText, styles.muazzinVerifiedBadgeText]}>
-                  Verified by Muazzin 🕌
+            <View style={styles.distanceBadge}>
+              <Feather name="map-pin" size={11} color="#e2a23b" style={{ marginRight: 4 }} />
+              <Text style={styles.distanceText}>{formatDistance(item.distance)}</Text>
+            </View>
+          </View>
+        ) : null}
+
+        {/* Masjid Name & Distance Row (When unpinned, Name and Distance share the top line to eliminate wasted space) */}
+        {(isPinned || isAutoClosest) ? (
+          <Text style={[styles.masjidName, { color: colors.text }]}>{item.name}</Text>
+        ) : (
+          <View style={styles.cardNameDistanceRow}>
+            <Text style={[styles.masjidName, styles.inlineMasjidName, { color: colors.text }]} numberOfLines={1}>
+              {item.name}
+            </Text>
+            <View style={styles.distanceBadge}>
+              <Feather name="map-pin" size={11} color="#e2a23b" style={{ marginRight: 4 }} />
+              <Text style={styles.distanceText}>{formatDistance(item.distance)}</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Address */}
+        <Text style={[styles.address, { color: colors.textSecondary }]} numberOfLines={2}>{item.address}</Text>
+
+        {/* Symmetrical Attribute Tags Row (Hidden if Pinned & Collapsed) */}
+        {(!isPinned || isExpanded) && (
+        <View style={styles.metaTagsRow}>
+          {item.presidentName ? (
+            <View style={[styles.presidentBadge, { backgroundColor: colors.pill, borderColor: colors.border }]}>
+              <Feather name="user-check" size={10} color={colors.accentGold} style={{ marginRight: 4 }} />
+              <Text style={[styles.presidentBadgeText, { color: colors.textSecondary }]}>President: {toTitleCase(item.presidentName)}</Text>
+            </View>
+          ) : null}
+          {item.famousArea ? (
+            <View style={[styles.famousAreaBadge, { backgroundColor: colors.pill, borderColor: colors.border }]}>
+              <Feather name="map" size={10} color="#94a4a2" style={{ marginRight: 4 }} />
+              <Text style={[styles.famousAreaBadgeText, { color: colors.textSecondary }]}>{item.famousArea}</Text>
+            </View>
+          ) : null}
+          {item.ladiesSection ? (
+            <View style={styles.ladiesBadge}>
+              <Feather name="check-circle" size={10} color="#10b981" style={{ marginRight: 4 }} />
+              <Text style={styles.ladiesBadgeText}>{t('home.ladiesSection', 'Ladies Section: Available')}</Text>
+            </View>
+          ) : (
+            <View style={[styles.ladiesBadge, { backgroundColor: colors.pill, borderColor: colors.borderSubtle }]}>
+              <Feather name="x-circle" size={10} color={colors.textMuted} style={{ marginRight: 4 }} />
+              <Text style={[styles.ladiesBadgeText, { color: colors.textMuted }]}>{t('home.ladiesSectionUnavail', 'Ladies Section: Not Available')}</Text>
+            </View>
+          )}
+          {item.isMuazzinVerified ? (
+            <View style={[styles.localUpdateBadge, styles.muazzinVerifiedBadge]}>
+              <Feather name="shield" size={10} color="#f59e0b" style={{ marginRight: 4 }} />
+              <Text style={[styles.localUpdateBadgeText, styles.muazzinVerifiedBadgeText]}>
+                Verified by Muazzin
+              </Text>
+            </View>
+          ) : item.isCustomAdded ? (
+            <View style={[styles.localUpdateBadge, styles.customAddedBadge]}>
+              <Feather name="plus-circle" size={10} color="#e2a23b" style={{ marginRight: 4 }} />
+              <Text style={[styles.localUpdateBadgeText, { color: '#e2a23b' }]}>Added by you</Text>
+            </View>
+          ) : item.isLocalUpdate ? (
+            <View style={styles.localUpdateBadge}>
+              <Feather name="check" size={10} color="#10b981" style={{ marginRight: 4 }} />
+              <Text style={styles.localUpdateBadgeText}>Updated by you</Text>
+            </View>
+          ) : null}
+
+
+        </View>
+
+        )}
+
+        {/* Updated By & JazakAllah Card Row (Hidden if Pinned & Collapsed) */}
+        {(!isPinned || isExpanded) && (
+        <View style={[styles.updaterCard, { backgroundColor: colors.surface, borderColor: colors.borderSubtle }]}>
+          <View style={styles.updaterInfoCol}>
+            <View style={styles.updaterHeaderLine}>
+              <Feather name="user-check" size={12} color={colors.accentGold} style={{ marginRight: 5 }} />
+              <Text style={[styles.updaterNameText, { color: colors.text }]}>
+                Updated by: <Text style={{ color: colors.accentGold, fontWeight: '700' }}>{item.updatedBy || 'Masjid Committee'}</Text>
+              </Text>
+              <Text style={[styles.updaterTimeText, { color: colors.textMuted }]}>
+                • {formatLastUpdated(item.updatedAt)}
+              </Text>
+            </View>
+
+            <View style={styles.updaterActionsRow}>
+              <View style={[styles.jazakBadge, { backgroundColor: colors.pill, borderColor: colors.border }]}>
+                <Text style={{ fontSize: 11, marginRight: 4 }}>🤲</Text>
+                <Text style={[styles.jazakBadgeText, { color: colors.accentGold }]}>
+                  {masjidJazakCounts[item.id] ?? (item.jazakallahCount || getBaselineJazakCount(item.id))} JazakAllah
                 </Text>
               </View>
-            ) : item.isCustomAdded ? (
-              <View style={[styles.localUpdateBadge, styles.customAddedBadge]}>
-                <Feather name="plus-circle" size={10} color="#e2a23b" />
-                <Text style={[styles.localUpdateBadgeText, { color: '#e2a23b' }]}>Added by you</Text>
-              </View>
-            ) : item.isLocalUpdate ? (
-              <View style={styles.localUpdateBadge}>
-                <Feather name="check" size={10} color="#10b981" />
-                <Text style={styles.localUpdateBadgeText}>Updated by you</Text>
-              </View>
-            ) : null}
+
+              <TouchableOpacity
+                style={[styles.sendJazakBtn, { backgroundColor: colors.accentGoldBg }]}
+                onPress={() => handleSendJazak(item)}
+                activeOpacity={0.8}
+              >
+                <Text style={{ fontSize: 12, marginRight: 4 }}>🤲</Text>
+                <Text style={styles.sendJazakBtnText}>Send JazakAllahu Khairan</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <Text style={styles.distance}>{formatDistance(item.distance)}</Text>
         </View>
+
+        )}
+
+        {/* Stale Timing Alert Banner (10d+ Old) */}
+        {(!isPinned || isExpanded) && isTimingStale(item.updatedAt) && (
+          <View style={[styles.staleAlertBanner, { backgroundColor: 'rgba(239, 68, 68, 0.12)', borderColor: 'rgba(239, 68, 68, 0.3)' }]}>
+            <View style={styles.staleAlertLeft}>
+              <Feather name="alert-triangle" size={13} color="#ef4444" style={{ marginRight: 6 }} />
+              <Text style={styles.staleAlertText}>
+                Timings not updated recently (10d+ old)
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.requestUpdateBtn}
+              onPress={() => handleRequestUpdate(item)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.requestUpdateBtnText}>Request Update</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Toggle Timing Board Button */}
         <TouchableOpacity
-          style={[styles.toggleButton, isExpanded && styles.toggleButtonActive]}
+          style={[styles.toggleButton, { backgroundColor: colors.pill, borderColor: colors.border }, isExpanded && { backgroundColor: isDark ? "rgba(226, 162, 59, 0.15)" : colors.surface, borderColor: colors.border }]}
           onPress={() => toggleMasjidTimings(item.id)}
           activeOpacity={0.7}
         >
           <View style={styles.toggleButtonContent}>
-            <Text style={styles.toggleButtonText}>
-              {isExpanded ? "Hide Timings" : "View Timings"}
+            <Text style={[styles.toggleButtonText, { color: isExpanded ? colors.accentGold : colors.text }]}>
+              {isExpanded
+                ? t('masjid.hideTimings', 'Hide Timings')
+                : `${t('masjid.viewTimings', 'View Timings')}${
+                    nextMasjidPrayer && nextMasjidPrayer.time !== '--:--'
+                      ? `  •  Next: ${nextMasjidPrayer.name} (${formatTime(nextMasjidPrayer.time, nextMasjidPrayer.name)})`
+                      : ''
+                  }`}
             </Text>
             <Feather
               name={isExpanded ? "chevron-up" : "chevron-down"}
@@ -282,147 +805,135 @@ export default function MasjidScreen() {
         {/* Mahmood Watch Co. Style Digital LED Board (Expands and collapses with layout animation) */}
         {isExpanded && (
           <View style={styles.boardWrapper}>
-            <View style={styles.ledBoard}>
-              {/* Calligraphy Header Banner */}
-              <View style={styles.ledBanner}>
-                <Text style={styles.ledCalligraphy}>لَا إِلٰهَ إِلَّا ٱللَّٰهُ مُحَمَّدٌ رَسُولُ ٱللَّٰهِ</Text>
-                {item.isMuazzinVerified && (
-                  <View style={styles.muazzinBoardBanner}>
-                    <Feather name="shield" size={10} color="#f59e0b" style={{ marginRight: 4 }} />
-                    <Text style={styles.muazzinBoardBannerText}>Official Timings • Verified by Muazzin</Text>
-                  </View>
-                )}
-              </View>
+            <MasjidLedBoard
+              masjid={item}
+              isFallback={Boolean(!item.iqamahTimes?.Fajr || item.iqamahTimes.Fajr === '--:--' || item.id?.startsWith('fallback-'))}
+              compact={false}
+            />
 
-              {/* Column Header Titles */}
-              <View style={styles.ledRowHeader}>
-                <Text style={[styles.ledHeaderCell, { flex: 1.4, textAlign: 'left' }]}>PRAYER</Text>
-                <Text style={[styles.ledHeaderCell, { color: '#00ff66', textShadowColor: 'rgba(0, 255, 102, 0.5)' }]}>ATHAN</Text>
-                <Text style={[styles.ledHeaderCell, { color: '#ff2a2a', textShadowColor: 'rgba(255, 42, 42, 0.5)' }]}>JAMA'AT</Text>
-              </View>
-
-              {/* Fajr */}
-              <View style={styles.ledRow}>
-                <View style={styles.ledLabelCol}>
-                  <Text style={styles.ledArabicLabel}>فجر</Text>
-                  <Text style={styles.ledEnglishLabel}>FAJR</Text>
+            {/* Announcements & About Masjid Box */}
+            {(item.announcements || item.about || item.notes) ? (
+              <View style={[styles.announcementsBox, { backgroundColor: colors.surface, borderColor: colors.borderSubtle }]}>
+                <View style={styles.announcementsHeader}>
+                  <Feather name="volume-2" size={12} color={colors.accentGold} style={{ marginRight: 5 }} />
+                  <Text style={[styles.announcementsTitle, { color: colors.accentGold }]}>Announcements & Information</Text>
                 </View>
-                <Text style={styles.ledAthanTime}>{item.athanTimes?.Fajr || "--:--"}</Text>
-                <Text style={styles.ledJamaatTime}>{item.iqamahTimes?.Fajr || "--:--"}</Text>
+                <Text style={[styles.announcementsContent, { color: colors.textSecondary }]}>
+                  {item.announcements || item.about || item.notes}
+                </Text>
               </View>
+            ) : null}
 
-              {/* Sunrise */}
-              <View style={styles.ledRow}>
-                <View style={styles.ledLabelCol}>
-                  <Text style={styles.ledArabicLabel}>طلوع</Text>
-                  <Text style={styles.ledEnglishLabel}>SUNRISE</Text>
-                </View>
-                <Text style={styles.ledAthanTime}>{item.sunrise || "--:--"}</Text>
-                <Text style={styles.ledDisabledTime}>--:--</Text>
-              </View>
 
-              {/* Dhuhr */}
-              <View style={styles.ledRow}>
-                <View style={styles.ledLabelCol}>
-                  <Text style={styles.ledArabicLabel}>ظهر</Text>
-                  <Text style={styles.ledEnglishLabel}>DHUHR</Text>
-                </View>
-                <Text style={styles.ledAthanTime}>{item.athanTimes?.Dhuhr || "--:--"}</Text>
-                <Text style={styles.ledJamaatTime}>{item.iqamahTimes?.Dhuhr || "--:--"}</Text>
-              </View>
 
-              {/* Asr */}
-              <View style={styles.ledRow}>
-                <View style={styles.ledLabelCol}>
-                  <Text style={styles.ledArabicLabel}>عصر</Text>
-                  <Text style={styles.ledEnglishLabel}>ASR</Text>
-                </View>
-                <Text style={styles.ledAthanTime}>{item.athanTimes?.Asr || "--:--"}</Text>
-                <Text style={styles.ledJamaatTime}>{item.iqamahTimes?.Asr || "--:--"}</Text>
-              </View>
-
-              {/* Maghrib */}
-              <View style={styles.ledRow}>
-                <View style={styles.ledLabelCol}>
-                  <Text style={styles.ledArabicLabel}>مغرب</Text>
-                  <Text style={styles.ledEnglishLabel}>MAGHRIB</Text>
-                </View>
-                <Text style={styles.ledAthanTime}>{item.athanTimes?.Maghrib || "--:--"}</Text>
-                <Text style={styles.ledJamaatTime}>{item.iqamahTimes?.Maghrib || "--:--"}</Text>
-              </View>
-
-              {/* Isha */}
-              <View style={styles.ledRow}>
-                <View style={styles.ledLabelCol}>
-                  <Text style={styles.ledArabicLabel}>عشاء</Text>
-                  <Text style={styles.ledEnglishLabel}>ISHA</Text>
-                </View>
-                <Text style={styles.ledAthanTime}>{item.athanTimes?.Isha || "--:--"}</Text>
-                <Text style={styles.ledJamaatTime}>{item.iqamahTimes?.Isha || "--:--"}</Text>
-              </View>
-
-              <View style={styles.ledBoardDivider} />
-
-              {/* Jummah */}
-              <View style={styles.ledRow}>
-                <View style={styles.ledLabelCol}>
-                  <Text style={styles.ledArabicLabel}>جمعة</Text>
-                  <Text style={styles.ledEnglishLabel}>JUMMAH</Text>
-                </View>
-                <Text style={styles.ledDisabledTime}>--:--</Text>
-                <Text style={styles.ledJamaatTime}>{item.jummah || "1:30"}</Text>
-              </View>
-
-              {/* Sahar */}
-              <View style={styles.ledRow}>
-                <View style={styles.ledLabelCol}>
-                  <Text style={styles.ledArabicLabel}>سحر</Text>
-                  <Text style={styles.ledEnglishLabel}>SAHAR</Text>
-                </View>
-                <Text style={styles.ledAthanTime}>{item.suhoor || "--:--"}</Text>
-                <Text style={styles.ledDisabledTime}>--:--</Text>
-              </View>
-
-              {/* Iftar */}
-              <View style={styles.ledRow}>
-                <View style={styles.ledLabelCol}>
-                  <Text style={styles.ledArabicLabel}>افطار</Text>
-                  <Text style={styles.ledEnglishLabel}>IFTAR</Text>
-                </View>
-                <Text style={styles.ledDisabledTime}>--:--</Text>
-                <Text style={styles.ledJamaatTime}>{item.iftar || "--:--"}</Text>
-              </View>
-            </View>
-
-            {/* Sadaqah Jariyah Update Timings Prompt */}
+            {/* Pin / Auto-Closest Toggle Button */}
             <TouchableOpacity
-              style={styles.updatePromptContainer}
-              onPress={() => handleUpdateTimings(item)}
+              style={[
+                styles.pinToggleBtn,
+                !isPinned && { backgroundColor: colors.pill, borderColor: colors.border },
+                isPinned && styles.pinToggleBtnActive,
+              ]}
+              onPress={() => toggleDefaultMasjid(item.id)}
               activeOpacity={0.8}
             >
-              <View style={styles.updatePromptHeader}>
-                <View style={styles.updatePromptTitleRow}>
-                  <Feather name="edit-3" size={13} color="#e2a23b" style={{ marginRight: 6 }} />
-                  <Text style={styles.updatePromptTitle}>Update Timings</Text>
-                </View>
-                <View style={styles.updatePromptBadge}>
-                  <Text style={styles.updatePromptBadgeText}>Earn Sadaqah</Text>
-                </View>
-              </View>
-              <Text style={styles.updatePromptText}>
-                Help your community pray on time. Tap to submit verified prayer times.
+              <Feather
+                name={isPinned ? "bookmark" : "map-pin"}
+                size={13}
+                color={isPinned ? "#10b981" : colors.accentGold}
+                style={{ marginRight: 6 }}
+              />
+              <Text
+                style={[
+                  styles.pinToggleBtnText,
+                  !isPinned && { color: colors.accentGold },
+                  isPinned && styles.pinToggleBtnTextActive,
+                ]}
+              >
+                {isPinned ? t('masjid.resetDefault', 'Default Masjid (Tap to Reset to Auto-GPS)') : t('masjid.setAsDefault', 'Set as Default Masjid')}
               </Text>
             </TouchableOpacity>
 
-            {/* Google Maps Direction Button */}
-            <TouchableOpacity
-              style={styles.googleMapsButton}
-              onPress={() => openInMaps(item)}
-              activeOpacity={0.8}
-            >
-              <Feather name="navigation" size={16} color="#0d1a1b" style={{ marginRight: 8 }} />
-              <Text style={styles.googleMapsButtonText}>Get Directions</Text>
-            </TouchableOpacity>
+            {/* Jumu'ah Khutbah Topics Connected Directly to this Masjid (This week X + past 2 weeks Y & Z) */}
+            {jumaHistory.current && (
+              <View style={[styles.masjidJumaCardBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <View style={styles.masjidJumaCardHeader}>
+                  <View style={styles.masjidJumaHeaderBadge}>
+                    <Feather name="book-open" size={11} color={colors.accentGold} style={{ marginRight: 4 }} />
+                    <Text style={[styles.masjidJumaHeaderBadgeText, { color: colors.accentGold }]}>{t('masjid.thisWeeksKhutbah', "This Week's Khutbah")}</Text>
+                  </View>
+                  {jumaHistory.current.fridayDateStr ? (
+                    <Text style={[styles.masjidJumaDateText, { color: colors.textMuted }]}>{jumaHistory.current.fridayDateStr.split(' ')[0]}</Text>
+                  ) : null}
+                </View>
+
+                <Text style={[styles.masjidJumaTopicTitle, { color: colors.text }]}>{jumaHistory.current.topicName}</Text>
+                <View style={styles.masjidJumaSpeakerRow}>
+                  <Feather name="user" size={11} color={colors.accentGold} style={{ marginRight: 4 }} />
+                  <Text style={[styles.masjidJumaSpeakerText, { color: colors.textSecondary }]}>
+                    {t('masjid.khateeb', 'Khateeb')}: {jumaHistory.current.speakerName} • {jumaHistory.current.timing}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+
+
+            {/* Delete Custom Masjid Button (If added by user) */}
+            {item.isCustomAdded && (
+              <TouchableOpacity
+                style={styles.deleteCustomMasjidBtn}
+                onPress={() => handleDeleteCustomMasjid(item.id)}
+                activeOpacity={0.8}
+              >
+                <Feather name="trash-2" size={13} color="#ef4444" style={{ marginRight: 6 }} />
+                <Text style={styles.deleteCustomMasjidBtnText}>Delete Custom Masjid</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Authorized Roles: Separate Edit Timings vs Edit Masjid Details Buttons */}
+            {canUserEditMasjid(item) && (
+              <View style={styles.authEditRow}>
+                <TouchableOpacity
+                  style={[styles.editTimingsBtn, { backgroundColor: colors.accentGoldBg }]}
+                  onPress={() => {
+                    setEditingMasjid(item);
+                    setModalMode('update');
+                    setUpdateModalScope('timings');
+                    setIsUpdateModalVisible(true);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Feather name="clock" size={13} color="#0f1718" style={{ marginRight: 5 }} />
+                  <Text style={styles.editTimingsBtnText}>Edit Timings</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.editDetailsBtn, { backgroundColor: colors.pill, borderColor: colors.border }]}
+                  onPress={() => {
+                    setEditingMasjid(item);
+                    setModalMode('update');
+                    setUpdateModalScope('details');
+                    setIsUpdateModalVisible(true);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Feather name="edit-2" size={13} color={colors.accentGold} style={{ marginRight: 5 }} />
+                  <Text style={[styles.editDetailsBtnText, { color: colors.accentGold }]}>Edit Masjid</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Symmetrical Google Maps Directions Button */}
+            <View style={styles.cardActionRow}>
+              <TouchableOpacity
+                style={[styles.googleMapsButton, { width: '100%', justifyContent: 'center' }]}
+                onPress={() => openInMaps(item)}
+                activeOpacity={0.8}
+              >
+                <Feather name="map-pin" size={15} color="#0d1a1b" style={{ marginRight: 6 }} />
+                <Text style={styles.googleMapsButtonText}>{t('masjid.getDirections', 'Get Directions via Google Maps')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </View>
@@ -430,30 +941,69 @@ export default function MasjidScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={["top"]}>
+      {/* Top Header with Locked Symmetrical Search Bar */}
+      <View style={[styles.header, contentContainerStyle]}>
+        {/* Top Header Row: Title/Subtitle on Left & Unified Compact Login on Right */}
         <View style={styles.headerTopRow}>
-          <View style={{ flex: 1, marginRight: 12 }}>
-            <Text style={styles.title}>Nearby Masjid</Text>
-            <Text style={styles.subtitle}>
-              Find and connect to local masajid
-            </Text>
+          <View style={styles.headerTitleGroup}>
+            <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>{t('masjid.title', 'Nearby Masajid')}</Text>
+            <Text style={[styles.subtitle, { color: colors.textMuted }]} numberOfLines={1}>{t('masjid.subtitle', 'Find and connect to local masajid')}</Text>
           </View>
-          <TouchableOpacity
-            style={styles.headerAddBtn}
-            onPress={handleOpenAddMasjid}
-            activeOpacity={0.8}
-          >
-            <Feather name="plus" size={14} color="#0f172a" style={{ marginRight: 4 }} />
-            <Text style={styles.headerAddBtnText}>Add Masjid</Text>
-          </TouchableOpacity>
+          {userProfile || imamSession ? (
+            <TouchableOpacity
+              style={[
+                styles.muazzinActiveBadge,
+                {
+                  backgroundColor: isDark ? 'rgba(0, 255, 102, 0.12)' : colors.card,
+                  borderColor: isDark ? '#00ff66' : colors.border,
+                  maxWidth: 135,
+                },
+              ]}
+              onPress={() => router.push('/auth/profile')}
+              activeOpacity={0.8}
+            >
+              <Feather
+                name="user-check"
+                size={12}
+                color={isDark ? '#00ff66' : colors.accentGreen}
+                style={{ marginRight: 5 }}
+              />
+              <Text
+                style={[
+                  styles.muazzinActiveBadgeText,
+                  { color: isDark ? '#00ff66' : colors.text },
+                ]}
+                numberOfLines={1}
+              >
+                {userProfile?.name?.split(' ')[0] || imamSession?.imamName?.split(' ')[0] || 'Profile'}
+                {userProfile ? ` (${getDisplayRoleLabel(userProfile)})` : ''}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.muazzinLoginBtn,
+                {
+                  backgroundColor: isDark ? 'rgba(226, 162, 59, 0.15)' : colors.card,
+                  borderColor: isDark ? 'rgba(226, 162, 59, 0.4)' : colors.border,
+                },
+              ]}
+              onPress={() => router.push('/auth/login')}
+              activeOpacity={0.8}
+            >
+              <Feather name="log-in" size={12} color={colors.accentGold} style={{ marginRight: 5 }} />
+              <Text style={[styles.muazzinLoginBtnText, { color: colors.accentGold }]}>{t('masjid.loginSignup', 'Login / Sign Up')}</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        {/* Sleek Search Bar */}
-        <View style={styles.searchBarContainer}>
+        {/* Locked Symmetrical Search Bar */}
+        <View style={[styles.searchBarContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Feather name="search" size={16} color="#94a4a2" style={styles.searchIcon} />
           <TextInput
-            style={styles.searchInput}
-            placeholder="Search masajids here"
+            style={[styles.searchInput, { color: colors.text }]}
+            placeholder={t('masjid.searchPlaceholder', 'Search masajids here')}
             placeholderTextColor="#5c7375"
             value={searchQuery}
             onChangeText={(text) => {
@@ -482,7 +1032,70 @@ export default function MasjidScreen() {
             onPress={handleGlobalSearch}
             activeOpacity={0.7}
           >
-            <Text style={styles.searchActionButtonText}>Search</Text>
+            <Text style={styles.searchActionButtonText}>{t('masjid.searchBtn', 'Search')}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Filter Chips: Nearby (GPS) & A-Z Sort */}
+        <View style={[styles.sortFilterChipsRow, { marginTop: 10, marginBottom: 2, marginHorizontal: 0 }]}>
+          <TouchableOpacity
+            style={[
+              styles.sortFilterChip,
+              {
+                backgroundColor: sortMode === 'nearby' ? colors.accentGold : colors.surface,
+                borderColor: sortMode === 'nearby' ? colors.accentGold : colors.border,
+              },
+            ]}
+            onPress={() => setSortMode('nearby')}
+            activeOpacity={0.8}
+          >
+            <Feather
+              name="navigation"
+              size={12}
+              color={sortMode === 'nearby' ? '#0f1718' : colors.accentGold}
+              style={{ marginRight: 6 }}
+            />
+            <Text
+              style={[
+                styles.sortFilterChipText,
+                {
+                  color: sortMode === 'nearby' ? '#0f1718' : colors.textSecondary,
+                  fontWeight: sortMode === 'nearby' ? '700' : '500',
+                },
+              ]}
+            >
+              Nearby (GPS)
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.sortFilterChip,
+              {
+                backgroundColor: sortMode === 'az' ? colors.accentGold : colors.surface,
+                borderColor: sortMode === 'az' ? colors.accentGold : colors.border,
+              },
+            ]}
+            onPress={() => setSortMode('az')}
+            activeOpacity={0.8}
+          >
+            <Feather
+              name="type"
+              size={12}
+              color={sortMode === 'az' ? '#0f1718' : colors.accentGold}
+              style={{ marginRight: 6 }}
+            />
+            <Text
+              style={[
+                styles.sortFilterChipText,
+                {
+                  color: sortMode === 'az' ? '#0f1718' : colors.textSecondary,
+                  fontWeight: sortMode === 'az' ? '700' : '500',
+                },
+              ]}
+            >
+              A–Z Sort
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -521,54 +1134,317 @@ export default function MasjidScreen() {
         </View>
       ) : (
         <FlatList
-          data={filteredMasjids}
+          data={displayedMasjids}
           renderItem={renderMasjidItem}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, contentContainerStyle]}
+          initialNumToRender={PAGE_SIZE}
+          maxToRenderPerBatch={PAGE_SIZE}
+          windowSize={7}
+          removeClippedSubviews={false}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#e2a23b"
+              tintColor={colors.accentGold}
+              colors={[colors.accentGold]}
             />
+          }
+          ListFooterComponent={
+            <View style={[styles.listFooterContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              {visibleCount < filteredMasjids.length ? (
+                <TouchableOpacity
+                  style={[styles.loadMoreBtn, { backgroundColor: colors.card, borderColor: colors.accentGold }]}
+                  onPress={() => setVisibleCount(prev => prev + PAGE_SIZE)}
+                  activeOpacity={0.8}
+                >
+                  <Feather name="chevron-down" size={16} color={colors.accentGold} style={{ marginRight: 6 }} />
+                  <Text style={[styles.loadMoreBtnText, { color: colors.text }]}>
+                    {t('masjid.loadMore', 'Load More Masjids')} (+10)  •  {displayedMasjids.length} of {filteredMasjids.length}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                filteredMasjids.length > 0 && (
+                  <Text style={[styles.allLoadedText, { color: colors.textMuted }]}>
+                    Showing all {filteredMasjids.length} nearby masjids
+                  </Text>
+                )
+              )}
+              <Text style={[styles.listFooterSubtext, { color: colors.textSecondary }]}>
+                {searchQuery
+                  ? "Don't see your local masjid in the search results?"
+                  : "Can't find your local masjid in the list?"}
+              </Text>
+              <TouchableOpacity
+                style={[styles.footerAddBtn, { backgroundColor: colors.accentGoldBg }]}
+                onPress={handleOpenAddMasjid}
+                activeOpacity={0.8}
+              >
+                <Feather name="plus-circle" size={14} color="#0f1718" style={{ marginRight: 6 }} />
+                <Text style={styles.footerAddBtnText}>{t('masjid.addMasjid', 'Add Missing Masjid')}</Text>
+              </TouchableOpacity>
+            </View>
           }
         />
       )}
 
-      {/* Rerouting to Google Form directly for seamless sync and zero location bias */}
+      <UpdateMasjidTimingModal
+        visible={isUpdateModalVisible}
+        masjid={editingMasjid}
+        mode={modalMode}
+        editScope={updateModalScope}
+        currentLocation={currentLocation}
+        onClose={() => setIsUpdateModalVisible(false)}
+        onSubmit={handleModalSubmit}
+      />
+
+      <MuazzinLoginModal
+        visible={isMuazzinLoginModalVisible}
+        activeMasjid={selectedMasjidId ? (masjids.find(m => m.id === selectedMasjidId) || masjids[0]) : masjids[0]}
+        availableMasjids={masjids}
+        onClose={() => setIsMuazzinLoginModalVisible(false)}
+        onSuccess={(session, masjid) => {
+          setImamSession(session);
+          syncMuazzinKhutbahReminders(session).catch(() => {});
+          Alert.alert(
+            'Verified as Muazzin',
+            `Welcome, ${session.imamName}! You now have official publishing privileges. Opening timings editor...`,
+            [
+              {
+                text: 'Proceed',
+                onPress: () => {
+                  handleUpdateTimings(masjid || undefined);
+                },
+              },
+            ]
+          );
+        }}
+      />
+
+      <MasjidFeedbackModal
+        visible={isFeedbackModalVisible}
+        masjid={feedbackMasjid}
+        onClose={() => {
+          setIsFeedbackModalVisible(false);
+          setFeedbackMasjid(null);
+        }}
+      />
+
+      <FirstTimeWalkthroughModal
+        visible={isWalkthroughVisible}
+        mode={walkthroughMode}
+        onClose={() => setIsWalkthroughVisible(false)}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  sortFilterChipsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginHorizontal: 16,
+    marginBottom: 10,
+  },
+  sortFilterChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  sortFilterChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  authEditRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  editTimingsBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  editTimingsBtnText: {
+    color: '#0f1718',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  editDetailsBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  editDetailsBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  updaterCard: {
+    marginTop: 8,
+    marginBottom: 6,
+    padding: 9,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  updaterInfoCol: {
+    gap: 6,
+  },
+  updaterHeaderLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  updaterNameText: {
+    fontSize: 11,
+  },
+  updaterTimeText: {
+    fontSize: 11,
+  },
+  updaterActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  jazakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  jazakBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  sendJazakBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 6,
+  },
+  sendJazakBtnText: {
+    color: '#0f1718',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  staleAlertBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 4,
+    marginBottom: 6,
+  },
+  staleAlertLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 6,
+  },
+  staleAlertText: {
+    color: '#ef4444',
+    fontSize: 11,
+    fontWeight: '600',
+    flexShrink: 1,
+  },
+  requestUpdateBtn: {
+    backgroundColor: '#ef4444',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  requestUpdateBtnText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  announcementsBox: {
+    marginTop: 8,
+    marginBottom: 8,
+    padding: 9,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  announcementsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  announcementsTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  announcementsContent: {
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  directEditBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 9,
+    borderRadius: 8,
+    marginTop: 6,
+    marginBottom: 6,
+  },
+  directEditBtnText: {
+    color: '#0f1718',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
   container: {
     flex: 1,
     backgroundColor: "#0f1718",
   },
   header: {
-    padding: 20,
-    paddingBottom: 12,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 10,
   },
   searchBarContainer: {
     flexDirection: "row",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: "#0c2729",
+    borderColor: "rgba(226, 162, 59, 0.25)",
     borderWidth: 1,
     borderRadius: 12,
-    marginTop: 14,
-    paddingHorizontal: 12,
+    marginTop: 12,
+    paddingLeft: 12,
+    paddingRight: 6,
     alignItems: "center",
     height: 48,
+  },
+  searchIcon: {
+    marginRight: 8,
   },
   searchInput: {
     flex: 1,
     color: "#f3f7f6",
     fontSize: 14,
     height: "100%",
-    paddingVertical: 4,
+    paddingVertical: 0,
   },
   clearSearchButton: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -581,8 +1457,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e2a23b",
     borderRadius: 8,
     paddingHorizontal: 14,
-    paddingVertical: 8,
-    marginLeft: 6,
+    height: 36,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -591,15 +1466,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "700",
     color: "#f3f7f6",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#94a4a2",
   },
   centerContent: {
@@ -671,12 +1547,6 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
     alignSelf: "flex-start",
-  },
-  schoolHanafi: {
-    color: "#ffdda8",
-  },
-  schoolAhleHadees: {
-    color: "#8ce2ff",
   },
   distance: {
     fontSize: 14,
@@ -779,16 +1649,18 @@ const styles = StyleSheet.create({
     borderColor: "#0f0f0f",
   },
   ledLabelCol: {
-    flex: 1.4,
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
   ledArabicLabel: {
     fontSize: 13,
     fontWeight: "bold",
     color: "#e2a23b",
-    width: 45,
-    textAlign: "left",
+    minWidth: 42,
+    textAlign: "right",
     textShadowColor: "rgba(226, 162, 59, 0.4)",
     textShadowRadius: 4,
   },
@@ -796,6 +1668,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "700",
     color: "#e2a23b",
+    minWidth: 62,
+    textAlign: "left",
     textShadowColor: "rgba(226, 162, 59, 0.4)",
     textShadowRadius: 4,
   },
@@ -833,14 +1707,14 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   googleMapsButton: {
+    flex: 1.2,
     backgroundColor: "#e2a23b",
     borderRadius: 12,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
@@ -913,6 +1787,107 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "700",
     marginLeft: 4,
+  },
+  headerActionCluster: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  muazzinLoginBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(226, 162, 59, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.4)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 38,
+    minWidth: 72,
+  },
+  muazzinLoginBtnText: {
+    color: '#ffdda8',
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  muazzinActiveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 255, 102, 0.15)',
+    borderWidth: 1,
+    borderColor: '#00ff66',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 38,
+    minWidth: 72,
+    maxWidth: 110,
+  },
+  muazzinActiveBadgeText: {
+    color: '#00ff66',
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  reportIssueChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(226, 162, 59, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.3)',
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    justifyContent: "center",
+  },
+  reportIssueChipText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#e2a23b',
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  cardActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 12,
+  },
+  reportFeedbackButton: {
+    flex: 1,
+    backgroundColor: 'rgba(226, 162, 59, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.35)',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reportFeedbackButtonText: {
+    color: '#ffdda8',
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  deleteCustomMasjidBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.35)',
+    borderRadius: 10,
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    marginTop: 10,
+  },
+  deleteCustomMasjidBtnText: {
+    color: '#ef4444',
+    fontSize: 12,
+    fontWeight: '700',
   },
   headerTopRow: {
     flexDirection: "row",
@@ -987,5 +1962,573 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#f59e0b",
     letterSpacing: 0.3,
+  },
+  autoClosestBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e2a23b',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    justifyContent: "center",
+  },
+  autoClosestBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#0f172a',
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  pinnedMasjidBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    borderWidth: 1,
+    borderColor: '#10b981',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    justifyContent: "center",
+  },
+  pinnedMasjidBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#10b981',
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  pinToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(226, 162, 59, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.3)',
+    borderRadius: 10,
+    paddingVertical: 11,
+    paddingHorizontal: 14,
+    marginTop: 14,
+    marginBottom: 10,
+  },
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  statusBadgeGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  distanceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(226, 162, 59, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.25)',
+    justifyContent: "center",
+  },
+  distanceText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#e2a23b',
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  metaTagsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 6,
+    marginBottom: 4,
+  },
+  pinToggleBtnActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#10b981',
+  },
+  pinToggleBtnText: {
+    color: '#e2a23b',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  pinToggleBtnTextActive: {
+    color: '#10b981',
+  },
+  // Onboarded Friday Khutbah Topics Card
+  khutbahCard: {
+    backgroundColor: '#0c3033',
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.3)',
+  },
+  khutbahCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  khutbahBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(226, 162, 59, 0.15)',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.25)',
+  },
+  khutbahBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#e2a23b',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  khutbahViewAllRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  khutbahViewAllText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#e2a23b',
+  },
+  khutbahTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffdda8',
+    marginBottom: 3,
+  },
+  khutbahDescription: {
+    fontSize: 11,
+    color: '#94a4a2',
+    lineHeight: 15,
+    marginBottom: 8,
+  },
+  khutbahFooterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  khutbahSpeakerPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(7, 31, 33, 0.8)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  khutbahSpeakerText: {
+    fontSize: 10,
+    color: '#ffdda8',
+    fontWeight: '600',
+  },
+  khutbahCitationPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  khutbahCitationText: {
+    fontSize: 10,
+    color: '#10b981',
+    fontWeight: '600',
+  },
+  ledBoardFacilityRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#1a1a1a',
+    marginTop: 8,
+    paddingTop: 6,
+    paddingHorizontal: 4,
+  },
+  ledFacilityQariText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#ffdda8',
+  },
+  ledFacilityLadiesText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#00ff66',
+  },
+  deleteCustomBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  deleteCustomBtnText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#ef4444',
+  },
+  presidentBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(226, 162, 59, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.3)',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    justifyContent: "center",
+  },
+  presidentBadgeText: {
+    fontSize: 9,
+    fontWeight: '600',
+    color: '#ffdda8',
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  famousAreaBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    justifyContent: "center",
+  },
+  famousAreaBadgeText: {
+    fontSize: 9,
+    color: '#94a4a2',
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  ladiesBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    justifyContent: "center",
+  },
+  ladiesBadgeText: {
+    fontSize: 9,
+    fontWeight: '600',
+    color: '#10b981',
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  jumaTimingPanel: {
+    flexDirection: 'row',
+    backgroundColor: '#071f21',
+    borderRadius: 10,
+    padding: 12,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#0b383b',
+    alignItems: 'center',
+  },
+  jumaTimeColumn: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  jumaDividerVertical: {
+    width: 1,
+    height: 36,
+    backgroundColor: '#1b4a4d',
+  },
+  jumaTimeSublabel: {
+    fontSize: 9,
+    color: '#94a4a2',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  jumaAthanTimeText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#00ff66',
+  },
+  jumaJamaatTimeText: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#ffdda8',
+  },
+  khutbahTopicBox: {
+    backgroundColor: 'rgba(15, 23, 24, 0.7)',
+    borderRadius: 8,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.25)',
+    marginBottom: 10,
+  },
+  khutbahHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  khutbahTopicTitle: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#e2a23b',
+    textTransform: 'uppercase',
+  },
+  khutbahTopicText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#ffffff',
+    lineHeight: 16,
+  },
+  legacyKhutbahSpeakerText: {
+    fontSize: 11,
+    color: '#ffdda8',
+    marginTop: 3,
+  },
+  taraweehPanel: {
+    backgroundColor: '#071f21',
+    borderRadius: 10,
+    padding: 12,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#0b383b',
+  },
+  taraweehHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    paddingBottom: 6,
+  },
+  taraweehPanelTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#ffdda8',
+  },
+  taraweehRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  taraweehLabel: {
+    fontSize: 11,
+    color: '#94a4a2',
+  },
+  taraweehTimeValue: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#00ff66',
+  },
+  taraweehQariValue: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  taraweehAvailableText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#10b981',
+  },
+  taraweehUnavailableText: {
+    fontSize: 11,
+    color: '#64748b',
+  },
+  ramadhanShortcutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(226, 162, 59, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.35)',
+    borderRadius: 8,
+    paddingVertical: 10,
+    marginTop: 2,
+  },
+  ramadhanShortcutBtnText: {
+    color: '#e2a23b',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  headerSubRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  cardNameDistanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  inlineMasjidName: {
+    flex: 1,
+    marginBottom: 0,
+    marginRight: 8,
+  },
+  khutbahMasjidNearRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  khutbahMasjidNearText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#10b981',
+  },
+  masjidJumaCardBox: {
+    backgroundColor: 'rgba(12, 48, 51, 0.7)',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.3)',
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 10,
+    marginBottom: 8,
+  },
+  masjidJumaCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  masjidJumaHeaderBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(226, 162, 59, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    justifyContent: "center",
+  },
+  masjidJumaHeaderBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#e2a23b',
+    textTransform: 'uppercase',
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  masjidJumaDateText: {
+    fontSize: 10,
+    color: '#94a4a2',
+  },
+  masjidJumaTopicTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffdda8',
+    marginBottom: 4,
+  },
+  masjidJumaSpeakerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  masjidJumaSpeakerText: {
+    fontSize: 11,
+    color: '#94a4a2',
+  },
+  masjidPastTopicsBox: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+    paddingTop: 8,
+    marginTop: 6,
+  },
+  masjidPastTopicsTitle: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#e2a23b',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  masjidPastTopicItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 4,
+  },
+  masjidPastTopicName: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#f1f5f9',
+  },
+  masjidPastTopicMeta: {
+    fontSize: 10,
+    color: '#64748b',
+  },
+  headerTitleGroup: {
+    flex: 1,
+    marginRight: 10,
+  },
+  loadMoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(11, 37, 39, 0.85)',
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.4)',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 16,
+    width: '100%',
+  },
+  loadMoreBtnText: {
+    color: '#ffdda8',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  allLoadedText: {
+    color: '#6b8280',
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  listFooterContainer: {
+    alignItems: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 30,
+    backgroundColor: 'rgba(15, 30, 32, 0.45)',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 162, 59, 0.2)',
+    borderStyle: 'dashed',
+  },
+  listFooterSubtext: {
+    color: '#94a4a2',
+    fontSize: 12,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  footerAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e2a23b',
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 10,
+  },
+  footerAddBtnText: {
+    color: '#0f172a',
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

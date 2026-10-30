@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import { Feather } from '@expo/vector-icons';
+import { useTheme } from '../lib/theme';
 import { getCurrentLocation, Coordinates } from '../lib/location';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -69,6 +70,7 @@ interface QiblaCompassModalProps {
 }
 
 export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModalProps) {
+  const { colors, isDark } = useTheme();
   const [qibla, setQibla] = useState<QiblaInfo>({
     bearing: 292,
     cardinal: 'WNW',
@@ -216,20 +218,20 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.titleRow}>
-              <View style={[styles.iconCircle, isFacingQibla && styles.iconCircleAligned]}>
-                <Feather name="compass" size={20} color={isFacingQibla ? "#00ff66" : "#e2a23b"} />
+              <View style={[styles.iconCircle, { backgroundColor: 'rgba(0, 255, 102, 0.12)' }, isFacingQibla && styles.iconCircleAligned]}>
+                <Feather name="compass" size={20} color={isFacingQibla ? colors.accentGreen : colors.accentGold} />
               </View>
               <View>
-                <Text style={styles.title}>Qibla Direction</Text>
-                <Text style={styles.subtitle}>Al-Masjid al-Haram, Makkah</Text>
+                <Text style={[styles.title, { color: colors.text }]}>Qibla Direction</Text>
+                <Text style={[styles.subtitle, { color: colors.textMuted }]}>Al-Masjid al-Haram, Makkah</Text>
               </View>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Feather name="x" size={20} color="#94a4a2" />
+              <Feather name="x" size={20} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
 
@@ -301,7 +303,7 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
             <Feather
               name={isFacingQibla ? "check-circle" : (compassHeading !== null ? "compass" : "alert-circle")}
               size={14}
-              color={isFacingQibla ? "#00ff66" : "#e2a23b"}
+              color={isFacingQibla ? colors.accentGreen : colors.accentGold}
               style={{ marginRight: 6 }}
             />
             <Text style={[styles.alignmentBadgeText, isFacingQibla && styles.alignmentBadgeTextActive]}>
@@ -310,42 +312,42 @@ export default function QiblaCompassModal({ visible, onClose }: QiblaCompassModa
           </View>
 
           {/* Details Card */}
-          <View style={styles.detailsCard}>
+          <View style={[styles.detailsCard, { backgroundColor: colors.surface, borderColor: colors.borderSubtle }]}>
             <View style={styles.detailRow}>
               <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>QIBLA BEARING</Text>
-                <Text style={styles.detailValue}>
+                <Text style={[styles.detailLabel, { color: colors.textMuted }]}>QIBLA BEARING</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>
                   {qibla.bearing}° {qibla.cardinal}
                 </Text>
               </View>
-              <View style={styles.detailDivider} />
+              <View style={[styles.detailDivider, { backgroundColor: colors.borderSubtle }]} />
               <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>DISTANCE</Text>
-                <Text style={styles.detailValue}>
+                <Text style={[styles.detailLabel, { color: colors.textMuted }]}>DISTANCE</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>
                   {qibla.distanceKm.toLocaleString()} km
                 </Text>
               </View>
-              <View style={styles.detailDivider} />
+              <View style={[styles.detailDivider, { backgroundColor: colors.borderSubtle }]} />
               <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>DEVICE</Text>
-                <Text style={styles.detailValue}>
+                <Text style={[styles.detailLabel, { color: colors.textMuted }]}>DEVICE</Text>
+                <Text style={[styles.detailValue, { color: colors.text }]}>
                   {compassHeading !== null ? `${compassHeading}°` : 'Flat'}
                 </Text>
               </View>
             </View>
 
-            <Text style={styles.explanationText}>
+            <Text style={[styles.explanationText, { color: colors.textSecondary }]}>
               Turn your device until the green needle points straight up into the Qibla target. The dial will highlight emerald when facing the Kaaba.
             </Text>
           </View>
 
           {/* Action Button */}
           <TouchableOpacity
-            style={styles.actionButton}
+            style={[styles.actionButton, { backgroundColor: colors.accentGold }]}
             onPress={onClose}
             activeOpacity={0.8}
           >
-            <Text style={styles.actionButtonText}>Done</Text>
+            <Text style={[styles.actionButtonText, { color: '#0f1718' }]}>Done</Text>
           </TouchableOpacity>
         </View>
       </View>
