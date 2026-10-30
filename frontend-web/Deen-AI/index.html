@@ -138,6 +138,14 @@
       transition: max-width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    /* Custom cursor active only on fine pointer devices */
+    @media (pointer: fine) {
+      body.custom-cursor,
+      body.custom-cursor * {
+        cursor: none !important;
+      }
+    }
+
     /* Ambient background glow */
     .deen-bg-glow {
       position: fixed;
@@ -1684,6 +1692,9 @@
       </p>
     </div>
   </footer>
+
+  <!-- Mount point for Framer Motion Custom Cursor & Physics Controller -->
+  <div id="motion-cursor-root"></div>
 
   <!-- Dedicated Interactive Controller Script for Deen-AI -->
   <script type="module" src="./deen-ai.js"></script>
