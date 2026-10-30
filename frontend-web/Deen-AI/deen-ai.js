@@ -730,7 +730,7 @@ function renderSubModalContent(type) {
       <!-- Modal Header -->
       <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/10 flex-shrink-0">
         <div class="flex items-center gap-1.5">
-          <i class="${iconClass} text-deen-gold text-xs"></i>
+          <i class="${iconClass} text-deen-gold text-sm"></i>
           <h4 class="text-xs font-bold text-white font-display">${title}</h4>
         </div>
         <button onclick="closePhoneSubModal()" class="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-xs transition-colors">
@@ -738,7 +738,7 @@ function renderSubModalContent(type) {
         </button>
       </div>
       <!-- Modal Scrollable Body -->
-      <div class="flex-1 overflow-y-auto space-y-2 pr-0.5 text-[9px] leading-relaxed">
+      <div class="flex-1 overflow-y-auto space-y-2 pr-0.5 text-[10px] leading-relaxed no-scrollbar">
         ${bodyHtml}
       </div>
     </div>
@@ -751,46 +751,46 @@ function renderSubModalContent(type) {
         "fa-solid fa-shield",
         `
         <div class="bg-[#081517] border border-white/5 rounded-2xl p-3 text-center">
-          <div class="w-20 h-20 mx-auto rounded-full border-2 border-deen-gold flex flex-col items-center justify-center shadow-lg my-1">
-            <span class="text-2xl font-extrabold text-deen-gold leading-none">67</span>
-            <span class="text-[7px] font-bold text-white uppercase tracking-wider mt-0.5">DAYS CLEAN</span>
+          <div class="w-20 h-20 mx-auto rounded-full border-2 border-deen-gold flex flex-col items-center justify-center shadow-lg my-1 bg-deen-gold/5">
+            <span class="text-3xl font-extrabold text-deen-gold leading-none">67</span>
+            <span class="text-[8.5px] font-bold text-white uppercase tracking-wider mt-0.5">DAYS CLEAN</span>
           </div>
-          <p class="text-[8.5px] text-emerald-400 font-semibold mt-1">Status: Clean & Protected</p>
+          <p class="text-[10px] text-emerald-400 font-semibold mt-1">Status: Clean & Protected</p>
         </div>
 
         <div class="grid grid-cols-3 gap-1.5">
           <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
-            <strong class="text-deen-gold text-xs block">67</strong>
-            <span class="text-[7.5px] text-slate-400">Max Clean</span>
+            <strong class="text-deen-gold text-sm block">67</strong>
+            <span class="text-[9px] text-slate-400">Max Clean</span>
           </div>
           <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
-            <strong class="text-white text-xs block">42</strong>
-            <span class="text-[7.5px] text-slate-400">Avg Streak</span>
+            <strong class="text-white text-sm block">42</strong>
+            <span class="text-[9px] text-slate-400">Avg Streak</span>
           </div>
           <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
-            <strong class="text-emerald-400 text-xs block">3</strong>
-            <span class="text-[7.5px] text-slate-400">Blocks Saved</span>
+            <strong class="text-emerald-400 text-sm block">3</strong>
+            <span class="text-[9px] text-slate-400">Blocks Saved</span>
           </div>
         </div>
 
-        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-2">
-          <strong class="text-emerald-300 block text-[8px] mb-0.5">Surah Al-Baqarah (2:222)</strong>
-          <p class="text-[7.5px] text-slate-300 italic">"Indeed, Allah loves those who are constantly repentant and loves those who purify themselves."</p>
+        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-2.5">
+          <strong class="text-emerald-300 block text-[10px] mb-0.5">Surah Al-Baqarah (2:222)</strong>
+          <p class="text-[9.5px] text-slate-300 italic">"Indeed, Allah loves those who are constantly repentant and loves those who purify themselves."</p>
         </div>
 
-        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1">
-          <strong class="text-white text-[8px] block">Purity Journey History</strong>
-          <div class="flex items-center justify-between text-[7.5px] text-slate-400 py-0.5 border-b border-white/5">
+        <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
+          <strong class="text-white text-[10px] block font-bold">Purity Journey History</strong>
+          <div class="flex items-center justify-between text-[9.5px] text-slate-400 py-1 border-b border-white/5">
             <span>Milestone: 60 Days Clean</span>
-            <span class="text-emerald-400 font-mono">Achieved</span>
+            <span class="text-emerald-400 font-mono font-bold">Achieved</span>
           </div>
-          <div class="flex items-center justify-between text-[7.5px] text-slate-400 py-0.5 border-b border-white/5">
+          <div class="flex items-center justify-between text-[9.5px] text-slate-400 py-1 border-b border-white/5">
             <span>Milestone: 30 Days Clean</span>
-            <span class="text-emerald-400 font-mono">Achieved</span>
+            <span class="text-emerald-400 font-mono font-bold">Achieved</span>
           </div>
-          <div class="flex items-center justify-between text-[7.5px] text-slate-400 py-0.5">
+          <div class="flex items-center justify-between text-[9.5px] text-slate-400 py-1">
             <span>Milestone: 7 Days Shield Start</span>
-            <span class="text-emerald-400 font-mono">Achieved</span>
+            <span class="text-emerald-400 font-mono font-bold">Achieved</span>
           </div>
         </div>
         `
@@ -801,49 +801,103 @@ function renderSubModalContent(type) {
         "Khadim-e-Masjid Community",
         "fa-solid fa-trophy",
         `
-        <div class="grid grid-cols-4 gap-1 text-[7.5px] font-bold text-center">
-          <span class="py-1 rounded bg-deen-gold text-slate-950">Ranks</span>
-          <span class="py-1 rounded bg-[#081517] text-slate-300">Community</span>
-          <span class="py-1 rounded bg-[#081517] text-slate-300">Requests</span>
-          <span class="py-1 rounded bg-[#081517] text-slate-300">Reach Us</span>
+        <div class="grid grid-cols-4 gap-1 text-[9.5px] font-bold text-center" id="community-tab-bar">
+          <button onclick="switchCommunityTab('ranks')" id="community-tab-btn-ranks" class="community-tab-btn py-1 rounded bg-deen-gold text-slate-950 transition-all font-bold">Ranks</button>
+          <button onclick="switchCommunityTab('community')" id="community-tab-btn-community" class="community-tab-btn py-1 rounded bg-[#081517] text-slate-300 hover:text-white transition-all">Community</button>
+          <button onclick="switchCommunityTab('requests')" id="community-tab-btn-requests" class="community-tab-btn py-1 rounded bg-[#081517] text-slate-300 hover:text-white transition-all">Requests</button>
+          <button onclick="switchCommunityTab('reach')" id="community-tab-btn-reach" class="community-tab-btn py-1 rounded bg-[#081517] text-slate-300 hover:text-white transition-all">Reach Us</button>
         </div>
 
-        <div class="bg-amber-950/30 border border-amber-500/30 rounded-xl p-2 text-[7.5px] text-amber-200">
-          <strong class="block mb-0.5 text-[8px]">Sadaqah Point Engine Legend</strong>
-          <span>+100 pts New Masjid • +50 pts Unique Masjid • +10 pts Verified Timing Update</span>
+        <div id="community-tab-content-ranks" class="community-tab-pane space-y-2">
+          <div class="bg-amber-950/30 border border-amber-500/30 rounded-xl p-2.5 text-[9.5px] text-amber-200">
+            <strong class="block mb-0.5 text-[10.5px] font-bold text-deen-gold">Sadaqah Point Engine Legend</strong>
+            <span>+100 pts New Masjid • +50 pts Unique Masjid • +10 pts Verified Timing Update</span>
+          </div>
+
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-2">
+            <strong class="text-white text-[10.5px] block font-bold">Top Khadims (Leaderboard)</strong>
+            
+            <div class="flex items-center justify-between p-2 rounded-lg bg-black/40 border border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-deen-gold text-slate-950 font-bold text-[10px] flex items-center justify-center">1</span>
+                <div><strong class="text-white text-[11px] block">Qasim Bhai</strong><span class="text-slate-400 text-[9px]">Historic Makkah Masjid</span></div>
+              </div>
+              <span class="text-deen-gold font-bold font-mono text-xs">3,940 pts</span>
+            </div>
+
+            <div class="flex items-center justify-between p-2 rounded-lg bg-black/40 border border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-slate-400 text-slate-950 font-bold text-[10px] flex items-center justify-center">2</span>
+                <div><strong class="text-white text-[11px] block">Hafiz Ibrahim</strong><span class="text-slate-400 text-[9px]">Resident Aalim & Qari</span></div>
+              </div>
+              <span class="text-slate-300 font-bold font-mono text-xs">2,460 pts</span>
+            </div>
+
+            <div class="flex items-center justify-between p-2 rounded-lg bg-black/40 border border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-amber-700 text-white font-bold text-[10px] flex items-center justify-center">3</span>
+                <div><strong class="text-white text-[11px] block">Syed Ahmed Quadri</strong><span class="text-slate-400 text-[9px]">Jamia Masjid Bilal</span></div>
+              </div>
+              <span class="text-amber-400 font-bold font-mono text-xs">1,920 pts</span>
+            </div>
+          </div>
+
+          <button onclick="this.textContent='Reset Completed'; setTimeout(() => this.textContent='Reset Leaderboard Stats', 1200)" class="w-full py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-red-500 text-slate-400 hover:text-red-300 text-[10px] font-bold transition-colors">
+            Reset Leaderboard Stats
+          </button>
         </div>
 
-        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1.5">
-          <strong class="text-white text-[8px] block">Top Khadims (Leaderboard)</strong>
-          
-          <div class="flex items-center justify-between p-1.5 rounded-lg bg-black/40 border border-white/5">
-            <div class="flex items-center gap-1.5">
-              <span class="w-4 h-4 rounded-full bg-deen-gold text-slate-950 font-bold text-[8px] flex items-center justify-center">1</span>
-              <div><strong class="text-white block">Qasim Bhai</strong><span class="text-slate-400 text-[7px]">Historic Makkah Masjid</span></div>
+        <div id="community-tab-content-community" class="community-tab-pane hidden space-y-2">
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-2">
+            <strong class="text-white text-[10.5px] block font-bold">Khadim Volunteer Network</strong>
+            <p class="text-[9.5px] text-slate-300 leading-relaxed">
+              Over 38 verified muazzins and 140+ community volunteers maintain real-time timings across Hyderabad. Every timing update is checked with anti-spam cooldowns.
+            </p>
+            <div class="grid grid-cols-2 gap-1.5 pt-1 text-center">
+              <div class="bg-black/40 rounded-lg p-2 border border-white/5"><strong class="text-deen-gold text-xs block">38</strong>Verified Muazzins</div>
+              <div class="bg-black/40 rounded-lg p-2 border border-white/5"><strong class="text-emerald-400 text-xs block">12</strong>Zonal Clusters</div>
             </div>
-            <span class="text-deen-gold font-bold font-mono">3,940 pts</span>
-          </div>
-
-          <div class="flex items-center justify-between p-1.5 rounded-lg bg-black/40 border border-white/5">
-            <div class="flex items-center gap-1.5">
-              <span class="w-4 h-4 rounded-full bg-slate-400 text-slate-950 font-bold text-[8px] flex items-center justify-center">2</span>
-              <div><strong class="text-white block">Hafiz Ibrahim</strong><span class="text-slate-400 text-[7px]">Resident Aalim & Qari</span></div>
-            </div>
-            <span class="text-slate-300 font-bold font-mono">2,460 pts</span>
-          </div>
-
-          <div class="flex items-center justify-between p-1.5 rounded-lg bg-black/40 border border-white/5">
-            <div class="flex items-center gap-1.5">
-              <span class="w-4 h-4 rounded-full bg-amber-700 text-white font-bold text-[8px] flex items-center justify-center">3</span>
-              <div><strong class="text-white block">Syed Ahmed Quadri</strong><span class="text-slate-400 text-[7px]">Jamia Masjid Bilal</span></div>
-            </div>
-            <span class="text-amber-400 font-bold font-mono">1,920 pts</span>
           </div>
         </div>
 
-        <button onclick="this.textContent='Reset Completed'; setTimeout(() => this.textContent='Reset Leaderboard Stats', 1200)" class="w-full py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-red-500 text-slate-400 hover:text-red-300 text-[8px] font-bold transition-colors">
-          Reset Leaderboard Stats
-        </button>
+        <div id="community-tab-content-requests" class="community-tab-pane hidden space-y-2">
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-2">
+            <strong class="text-white text-[10.5px] block font-bold">Timing Verification Requests (2)</strong>
+            <div class="flex items-center justify-between text-[10px] bg-black/40 p-2 rounded-lg border border-white/5">
+              <div>
+                <span class="text-white font-bold block">Masjid Al-Noor</span>
+                <span class="text-slate-400 text-[8.5px]">Requested by 4 Musallis • Asr Changed</span>
+              </div>
+              <button onclick="this.textContent='Verified (+10 pts)'; this.className='px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[9px]'" class="px-2 py-0.5 rounded bg-deen-gold text-slate-950 font-bold text-[9px]">Verify</button>
+            </div>
+            <div class="flex items-center justify-between text-[10px] bg-black/40 p-2 rounded-lg border border-white/5">
+              <div>
+                <span class="text-white font-bold block">Jamia Masjid Darulshifa</span>
+                <span class="text-slate-400 text-[8.5px]">Fajr Jama'at changed to 05:30 AM</span>
+              </div>
+              <button onclick="this.textContent='Verified (+10 pts)'; this.className='px-2 py-0.5 rounded bg-emerald-600 text-white font-bold text-[9px]'" class="px-2 py-0.5 rounded bg-deen-gold text-slate-950 font-bold text-[9px]">Verify</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="community-tab-content-reach" class="community-tab-pane hidden space-y-2">
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-2 text-[10px]">
+            <strong class="text-white text-[10.5px] block font-bold">Reach the SalahTime Desk</strong>
+            <p class="text-slate-300 leading-relaxed">
+              Have feedback, need your local masjid added, or want to become a verified muazzin updater? Connect with us directly:
+            </p>
+            <div class="space-y-1 pt-1">
+              <div class="flex items-center justify-between p-1.5 rounded-lg bg-black/40 border border-white/5">
+                <span>Email Desk:</span>
+                <span class="text-deen-gold font-bold">support@salahtime.org</span>
+              </div>
+              <div class="flex items-center justify-between p-1.5 rounded-lg bg-black/40 border border-white/5">
+                <span>Khadim WhatsApp Helpline:</span>
+                <span class="text-emerald-400 font-bold">+91 98480 00000</span>
+              </div>
+            </div>
+          </div>
+        </div>
         `
       );
 
@@ -853,25 +907,25 @@ function renderSubModalContent(type) {
         "fa-solid fa-globe",
         `
         <div class="grid grid-cols-2 gap-1.5 text-center">
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-deen-gold text-sm block">140+</strong>Connected Masjids</div>
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-white text-sm block">2,840</strong>Active Musallis</div>
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-emerald-400 text-sm block">482</strong>JazakAllah Sent</div>
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-cyan-400 text-sm block">38</strong>Verified Updaters</div>
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-amber-400 text-sm block">99.4%</strong>Freshness Rate</div>
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-teal-400 text-sm block">12</strong>City Clusters</div>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5"><strong class="text-deen-gold text-base block">140+</strong>Connected Masjids</div>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5"><strong class="text-white text-base block">2,840</strong>Active Musallis</div>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5"><strong class="text-emerald-400 text-base block">482</strong>JazakAllah Sent</div>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5"><strong class="text-cyan-400 text-base block">38</strong>Verified Updaters</div>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5"><strong class="text-amber-400 text-base block">99.4%</strong>Freshness Rate</div>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5"><strong class="text-teal-400 text-base block">12</strong>City Clusters</div>
         </div>
 
-        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1">
-          <strong class="text-white text-[8px] block">Active Regional Clusters</strong>
-          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5 border-b border-white/5">
+        <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
+          <strong class="text-white text-[10.5px] block font-bold">Active Regional Clusters</strong>
+          <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5">
             <span>Hyderabad Central & Old City</span>
             <span class="text-emerald-400 font-bold">68 Masajid</span>
           </div>
-          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5 border-b border-white/5">
+          <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5">
             <span>Cyberabad (Hitec City & Gachibowli)</span>
             <span class="text-emerald-400 font-bold">42 Masajid</span>
           </div>
-          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5">
+          <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1">
             <span>Secunderabad & Cantonment</span>
             <span class="text-emerald-400 font-bold">30 Masajid</span>
           </div>
@@ -884,34 +938,34 @@ function renderSubModalContent(type) {
         "Solar Start & End Windows",
         "fa-solid fa-sun",
         `
-        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
-          <p class="text-[8.5px] text-deen-gold font-bold">Hyderabad, Telangana • Karachi (Hanafi)</p>
-          <p class="text-[7.5px] text-slate-400">Wednesday, 28 October 2026 • 17 Jumada I, 1448 AH</p>
+        <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 text-center">
+          <p class="text-[10.5px] text-deen-gold font-bold">Hyderabad, Telangana • Karachi (Hanafi)</p>
+          <p class="text-[9px] text-slate-400">Wednesday, 28 October 2026 • 17 Jumada I, 1448 AH</p>
         </div>
 
-        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-2 text-center">
-          <span class="text-[8px] text-slate-300 uppercase">Upcoming Solar Window</span>
-          <p class="text-xs font-bold text-emerald-400 mt-0.5">Asr: 03:22 PM – 05:51 PM</p>
+        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-2.5 text-center">
+          <span class="text-[9px] text-slate-300 uppercase tracking-wider font-semibold">Upcoming Solar Window</span>
+          <p class="text-sm font-bold text-emerald-400 mt-0.5">Asr: 03:22 PM – 05:51 PM</p>
         </div>
 
-        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1 font-mono text-[8px]">
-          <div class="flex items-center justify-between py-0.5 border-b border-white/5">
+        <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1 font-mono text-[9.5px]">
+          <div class="flex items-center justify-between py-1 border-b border-white/5">
             <span class="text-white font-sans font-bold">Fajr</span>
             <span class="text-slate-300">04:56 AM – 06:10 AM</span>
           </div>
-          <div class="flex items-center justify-between py-0.5 border-b border-white/5">
+          <div class="flex items-center justify-between py-1 border-b border-white/5">
             <span class="text-white font-sans font-bold">Dhuhr</span>
             <span class="text-slate-300">12:01 PM – 03:22 PM</span>
           </div>
-          <div class="flex items-center justify-between py-0.5 border-b border-white/5 text-emerald-400 font-bold">
+          <div class="flex items-center justify-between py-1 border-b border-white/5 text-emerald-400 font-bold">
             <span class="font-sans font-bold">Asr</span>
             <span>03:22 PM – 05:51 PM</span>
           </div>
-          <div class="flex items-center justify-between py-0.5 border-b border-white/5">
+          <div class="flex items-center justify-between py-1 border-b border-white/5">
             <span class="text-white font-sans font-bold">Maghrib</span>
             <span class="text-slate-300">05:51 PM – 07:21 PM</span>
           </div>
-          <div class="flex items-center justify-between py-0.5">
+          <div class="flex items-center justify-between py-1">
             <span class="text-white font-sans font-bold">Isha</span>
             <span class="text-slate-300">07:21 PM – 11:38 PM</span>
           </div>
@@ -924,79 +978,86 @@ function renderSubModalContent(type) {
         "12-Month Hijri Fasting Calendar",
         "fa-solid fa-moon",
         `
-        <div class="flex items-center gap-1 overflow-x-auto pb-1 text-[7.5px] font-bold">
-          <span class="px-2 py-0.5 rounded bg-deen-gold text-slate-950 shrink-0">1. Muharram</span>
-          <span class="px-2 py-0.5 rounded bg-[#081517] text-slate-300 shrink-0">7. Rajab</span>
-          <span class="px-2 py-0.5 rounded bg-[#081517] text-slate-300 shrink-0">8. Sha'ban</span>
-          <span class="px-2 py-0.5 rounded bg-[#081517] text-slate-300 shrink-0">9. Ramadhan</span>
-          <span class="px-2 py-0.5 rounded bg-[#081517] text-slate-300 shrink-0">12. Dhu al-Hijjah</span>
+        <!-- Wrapped 2x3 Month Selector (Zero Scrollbar Glitches) -->
+        <div class="grid grid-cols-3 gap-1.5 text-[9.5px] font-bold" id="fasting-month-chips">
+          <button onclick="selectFastingMonth(this, 'muharram')" class="fasting-month-chip py-1.5 px-1 rounded-lg bg-deen-gold text-slate-950 font-bold transition-all text-center">1. Muharram</button>
+          <button onclick="selectFastingMonth(this, 'rajab')" class="fasting-month-chip py-1.5 px-1 rounded-lg bg-[#081517] text-slate-300 hover:text-white transition-all text-center">7. Rajab</button>
+          <button onclick="selectFastingMonth(this, 'shaban')" class="fasting-month-chip py-1.5 px-1 rounded-lg bg-[#081517] text-slate-300 hover:text-white transition-all text-center">8. Sha'ban</button>
+          <button onclick="selectFastingMonth(this, 'ramadhan')" class="fasting-month-chip py-1.5 px-1 rounded-lg bg-[#081517] text-slate-300 hover:text-white transition-all text-center">9. Ramadhan</button>
+          <button onclick="selectFastingMonth(this, 'shawwal')" class="fasting-month-chip py-1.5 px-1 rounded-lg bg-[#081517] text-slate-300 hover:text-white transition-all text-center">10. Shawwal</button>
+          <button onclick="selectFastingMonth(this, 'dhulhijjah')" class="fasting-month-chip py-1.5 px-1 rounded-lg bg-[#081517] text-slate-300 hover:text-white transition-all text-center">12. Dhu al-H</button>
         </div>
 
-        <div class="grid grid-cols-2 gap-1.5 text-center">
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5">
-            <span class="text-[7.5px] text-slate-400 block">SUHOOR ENDS</span>
-            <strong class="text-deen-gold text-xs">05:05 AM</strong>
+        <div class="grid grid-cols-2 gap-2 text-center">
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5">
+            <span class="text-[9px] text-slate-400 block font-semibold uppercase">SUHOOR ENDS</span>
+            <strong id="fasting-suhoor-val" class="text-deen-gold text-sm font-mono block mt-0.5">05:05 AM</strong>
           </div>
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5">
-            <span class="text-[7.5px] text-slate-400 block">IFTAR TIME</span>
-            <strong class="text-amber-400 text-xs">06:04 PM</strong>
-          </div>
-        </div>
-
-        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1">
-          <strong class="text-white text-[8px] block">Ayam-ul-Bidh (White Days 13, 14, 15)</strong>
-          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5 border-b border-white/5">
-            <span>13th Jumada I (Sunnah Fast)</span>
-            <span class="text-deen-gold font-bold">Upcoming</span>
-          </div>
-          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5 border-b border-white/5">
-            <span>14th Jumada I (Sunnah Fast)</span>
-            <span class="text-deen-gold font-bold">Upcoming</span>
-          </div>
-          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5">
-            <span>15th Jumada I (Sunnah Fast)</span>
-            <span class="text-deen-gold font-bold">Upcoming</span>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5">
+            <span class="text-[9px] text-slate-400 block font-semibold uppercase">IFTAR TIME</span>
+            <strong id="fasting-iftar-val" class="text-amber-400 text-sm font-mono block mt-0.5">06:04 PM</strong>
           </div>
         </div>
 
-        <div class="bg-black/40 rounded-xl p-2 border border-white/5 text-[7.5px] text-slate-300">
-          <strong class="text-deen-gold block mb-0.5">Iftar Dua:</strong>
-          ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الأَجْرُ إِنْ شَاءَ اللَّهُ
+        <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
+          <strong class="text-white text-[10.5px] block font-semibold" id="fasting-white-days-title">Ayam-ul-Bidh (White Days 13, 14, 15)</strong>
+          <div id="fasting-days-container" class="space-y-1">
+            <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5">
+              <span>13th Day (Sunnah Fast)</span>
+              <span class="text-deen-gold font-bold">Upcoming</span>
+            </div>
+            <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5">
+              <span>14th Day (Sunnah Fast)</span>
+              <span class="text-deen-gold font-bold">Upcoming</span>
+            </div>
+            <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1">
+              <span>15th Day (Sunnah Fast)</span>
+              <span class="text-deen-gold font-bold">Upcoming</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-amber-950/30 rounded-xl p-2.5 border border-amber-500/25 text-[10px] text-amber-200">
+          <strong class="text-deen-gold block mb-1 font-bold">Iftar Dua (Authentic Sunnah):</strong>
+          <p class="font-arabic text-sm text-right leading-loose mb-1" dir="rtl">ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الأَجْرُ إِنْ شَاءَ اللَّهُ</p>
+          <span class="text-[9px] text-slate-300 italic block">"The thirst is gone, the veins are moistened, and the reward is confirmed, if Allah wills." (Abu Dawood)</span>
         </div>
         `
       );
 
     case "azkar":
       return wrap(
-        "Daily & Custom Azkar",
-        "fa-solid fa-book-open",
+        "Daily & Custom Azkar Counter",
+        "fa-solid fa-fingerprint",
         `
-        <div class="flex items-center justify-between text-[7.5px] font-bold border-b border-white/5 pb-1">
-          <span class="text-deen-gold">Morning Azkar</span>
-          <span class="text-slate-400">Evening Azkar</span>
-          <span class="text-slate-400">Rabbana Duas</span>
-          <span class="text-slate-400">+ Custom</span>
-        </div>
-
         <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
           <div class="flex items-center justify-between">
-            <strong class="text-white text-[8.5px]">Ayat al-Kursi (Surah 2:255)</strong>
-            <button onclick="this.querySelector('.count').textContent = (parseInt(this.querySelector('.count').textContent) + 1) % 4" class="px-2 py-0.5 rounded-full bg-deen-gold text-slate-950 font-bold text-[7.5px]">
-              Tap: <span class="count">0</span> / 3
+            <strong class="text-white text-[10.5px] font-bold">SubhanAllah</strong>
+            <button onclick="this.querySelector('.count').textContent = (parseInt(this.querySelector('.count').textContent) + 1) % 34" class="px-2.5 py-1 rounded-full bg-deen-gold text-slate-950 font-bold text-[9.5px] shadow-sm">
+              Tap: <span class="count">0</span> / 33
             </button>
           </div>
-          <p class="font-arabic text-amber-200 text-[10px] text-right" dir="rtl">اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ</p>
-          <p class="text-[7.5px] text-slate-300">"Allah! There is no deity except Him, the Ever-Living, the Sustainer of existence."</p>
+          <p class="font-arabic text-amber-200 text-sm text-right" dir="rtl">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ</p>
         </div>
 
         <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
           <div class="flex items-center justify-between">
-            <strong class="text-white text-[8.5px]">Sayyidul Istighfar</strong>
-            <button onclick="this.querySelector('.count').textContent = (parseInt(this.querySelector('.count').textContent) + 1) % 2" class="px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 font-bold text-[7.5px]">
+            <strong class="text-white text-[10.5px] font-bold">Alhamdulillah</strong>
+            <button onclick="this.querySelector('.count').textContent = (parseInt(this.querySelector('.count').textContent) + 1) % 34" class="px-2.5 py-1 rounded-full bg-deen-gold text-slate-950 font-bold text-[9.5px] shadow-sm">
+              Tap: <span class="count">0</span> / 33
+            </button>
+          </div>
+          <p class="font-arabic text-amber-200 text-sm text-right" dir="rtl">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</p>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <strong class="text-white text-[10.5px] font-bold">Sayyidul Istighfar</strong>
+            <button onclick="this.querySelector('.count').textContent = (parseInt(this.querySelector('.count').textContent) + 1) % 2" class="px-2.5 py-1 rounded-full bg-emerald-500 text-slate-950 font-bold text-[9.5px] shadow-sm">
               Tap: <span class="count">0</span> / 1
             </button>
           </div>
-          <p class="font-arabic text-amber-200 text-[10px] text-right" dir="rtl">اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ</p>
+          <p class="font-arabic text-amber-200 text-sm text-right" dir="rtl">اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ</p>
         </div>
         `
       );
@@ -1006,31 +1067,31 @@ function renderSubModalContent(type) {
         "99 Names of Allah (Asma-ul-Husna)",
         "fa-solid fa-hands-praying",
         `
-        <button id="play-all-names-btn" onclick="this.innerHTML = this.innerHTML.includes('Pause') ? '<i class=\'fa-solid fa-play text-[8px]\'></i><span>Play All (1–99)</span>' : '<i class=\'fa-solid fa-pause text-[8px]\'></i><span>Pause Audio (Playing #1)</span>'" class="w-full py-1.5 rounded-xl bg-deen-gold text-slate-950 font-bold text-[8.5px] flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-play text-[8px]"></i>
+        <button id="play-all-names-btn" onclick="this.innerHTML = this.innerHTML.includes('Pause') ? '<i class=\'fa-solid fa-play text-[9px]\'></i><span>Play All (1–99)</span>' : '<i class=\'fa-solid fa-pause text-[9px]\'></i><span>Pause Audio (Playing #1)</span>'" class="w-full py-2 rounded-xl bg-deen-gold text-slate-950 font-bold text-[10px] flex items-center justify-center gap-1.5 shadow-md">
+          <i class="fa-solid fa-play text-[9px]"></i>
           <span>Play All (1–99)</span>
         </button>
 
         <div class="grid grid-cols-2 gap-1.5">
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
-            <span class="font-arabic text-deen-gold text-xs block">الرَّحْمَٰنُ</span>
-            <strong class="text-white text-[8px] block">1. Ar-Rahman</strong>
-            <span class="text-[7px] text-slate-400">The Most Merciful</span>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 text-center">
+            <span class="font-arabic text-deen-gold text-base block mb-0.5">الرَّحْمَٰنُ</span>
+            <strong class="text-white text-[10px] block">1. Ar-Rahman</strong>
+            <span class="text-[8.5px] text-slate-400">The Most Merciful</span>
           </div>
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
-            <span class="font-arabic text-deen-gold text-xs block">الرَّحِيمُ</span>
-            <strong class="text-white text-[8px] block">2. Ar-Rahim</strong>
-            <span class="text-[7px] text-slate-400">The Bestower of Mercy</span>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 text-center">
+            <span class="font-arabic text-deen-gold text-base block mb-0.5">الرَّحِيمُ</span>
+            <strong class="text-white text-[10px] block">2. Ar-Rahim</strong>
+            <span class="text-[8.5px] text-slate-400">The Bestower of Mercy</span>
           </div>
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
-            <span class="font-arabic text-deen-gold text-xs block">الْمَلِكُ</span>
-            <strong class="text-white text-[8px] block">3. Al-Malik</strong>
-            <span class="text-[7px] text-slate-400">The King & Owner</span>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 text-center">
+            <span class="font-arabic text-deen-gold text-base block mb-0.5">الْمَلِكُ</span>
+            <strong class="text-white text-[10px] block">3. Al-Malik</strong>
+            <span class="text-[8.5px] text-slate-400">The King & Owner</span>
           </div>
-          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
-            <span class="font-arabic text-deen-gold text-xs block">الْقُدُّوسُ</span>
-            <strong class="text-white text-[8px] block">4. Al-Quddus</strong>
-            <span class="text-[7px] text-slate-400">The Absolutely Pure</span>
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 text-center">
+            <span class="font-arabic text-deen-gold text-base block mb-0.5">الْقُدُّوسُ</span>
+            <strong class="text-white text-[10px] block">4. Al-Quddus</strong>
+            <span class="text-[8.5px] text-slate-400">The Absolutely Pure</span>
           </div>
         </div>
         `
@@ -1041,38 +1102,148 @@ function renderSubModalContent(type) {
         "Admin Control Center",
         "fa-solid fa-shield-halved",
         `
-        <div class="grid grid-cols-4 gap-1 text-[7.5px] font-bold text-center">
-          <span class="py-1 rounded bg-deen-gold text-slate-950">Users</span>
-          <span class="py-1 rounded bg-[#081517] text-slate-300">Masjids</span>
-          <span class="py-1 rounded bg-[#081517] text-slate-300">Stats</span>
-          <span class="py-1 rounded bg-[#081517] text-slate-300">Broadcasts</span>
+        <!-- 4 Fully Interactive Admin Tabs -->
+        <div class="grid grid-cols-4 gap-1 text-[9.5px] font-bold text-center" id="admin-tab-bar">
+          <button onclick="switchAdminTab('users')" id="admin-tab-btn-users" class="admin-tab-btn py-1.5 rounded-lg bg-deen-gold text-slate-950 transition-all font-bold">Users</button>
+          <button onclick="switchAdminTab('masjids')" id="admin-tab-btn-masjids" class="admin-tab-btn py-1.5 rounded-lg bg-[#081517] text-slate-300 hover:text-white transition-all font-bold">Masjids</button>
+          <button onclick="switchAdminTab('stats')" id="admin-tab-btn-stats" class="admin-tab-btn py-1.5 rounded-lg bg-[#081517] text-slate-300 hover:text-white transition-all font-bold">Stats</button>
+          <button onclick="switchAdminTab('broadcasts')" id="admin-tab-btn-broadcasts" class="admin-tab-btn py-1.5 rounded-lg bg-[#081517] text-slate-300 hover:text-white transition-all font-bold">Broadcasts</button>
         </div>
 
-        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1.5">
-          <div class="flex items-center justify-between">
-            <div><strong class="text-white text-[8.5px] block">Qasim Bhai (Super Admin)</strong><span class="text-slate-400 text-[7.5px]">qasim@salahtime.org</span></div>
-            <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="px-2 py-0.5 rounded bg-deen-gold text-slate-950 font-bold text-[7.5px]">Fetch Update Count</button>
-            <span class="hidden text-emerald-400 font-bold font-mono text-[7.5px]">84 Live Updates</span>
+        <!-- 1. USERS TAB PANE -->
+        <div id="admin-tab-content-users" class="admin-tab-pane space-y-2">
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <strong class="text-white text-[11px] block">Qasim Bhai (Super Admin)</strong>
+                <span class="text-slate-400 text-[9.5px]">qasim@salahtime.org • Verified Muazzin</span>
+              </div>
+              <button onclick="toggleAdminUpdateCount(this)" class="px-2.5 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[9.5px] hover:bg-amber-400 transition-all shadow-sm">Fetch Count</button>
+            </div>
+            <div id="admin-live-updates-pill" class="hidden p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[9.5px] text-emerald-400 font-mono flex items-center justify-between">
+              <span>84 Timing Updates Synced</span>
+              <span class="text-[8.5px] text-slate-400">0.4s ago</span>
+            </div>
           </div>
+
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
+            <strong class="text-white text-[10.5px] block font-bold">Verified Khadim Officers</strong>
+            <div class="flex items-center justify-between text-[10px] p-2 rounded-lg bg-black/40 border border-white/5">
+              <div>
+                <span class="text-white font-bold block">Hafiz Ibrahim</span>
+                <span class="text-slate-400 text-[8.5px]">Resident Aalim • Historic Makkah Masjid</span>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold text-[8.5px]">Active</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] p-2 rounded-lg bg-black/40 border border-white/5">
+              <div>
+                <span class="text-white font-bold block">Syed Ahmed Quadri</span>
+                <span class="text-slate-400 text-[8.5px]">President • Jamia Masjid Bilal</span>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold text-[8.5px]">Active</span>
+            </div>
+          </div>
+
+          <button onclick="this.textContent = 'Invite Sent to Khadim Desk!'" class="w-full py-2 rounded-xl bg-deen-gold/15 border border-deen-gold/30 hover:bg-deen-gold/25 text-deen-gold text-[10px] font-bold transition-all flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-user-plus text-[9.5px]"></i>
+            <span>+ Invite New Muazzin / Khadim</span>
+          </button>
         </div>
 
-        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1.5">
-          <strong class="text-white text-[8px] block">Pending Masjid Approvals</strong>
-          <div class="flex items-center justify-between text-[7.5px] bg-black/40 p-1.5 rounded-lg border border-white/5">
-            <span>Masjid Usmani (Amberpet)</span>
-            <div class="flex items-center gap-1">
-              <button onclick="this.parentElement.innerHTML='<span class=\'text-emerald-400 font-bold\'>Approved</span>'" class="px-1.5 py-0.5 rounded bg-emerald-600 text-white font-bold">Approve</button>
-              <button onclick="this.parentElement.innerHTML='<span class=\'text-red-400 font-bold\'>Rejected</span>'" class="px-1.5 py-0.5 rounded bg-red-600 text-white font-bold">Reject</button>
+        <!-- 2. MASJIDS TAB PANE -->
+        <div id="admin-tab-content-masjids" class="admin-tab-pane hidden space-y-2">
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-2">
+            <strong class="text-white text-[10.5px] block font-bold">Pending Masjid Approvals (2)</strong>
+            <div class="flex items-center justify-between text-[10px] bg-black/40 p-2 rounded-lg border border-white/5">
+              <div>
+                <span class="text-white font-bold block">Masjid Usmani</span>
+                <span class="text-slate-400 text-[8.5px]">Amberpet Main Road • President: Irfan Khan</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="this.parentElement.innerHTML='<span class=\'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[9px]\'>Approved</span>'" class="px-2 py-1 rounded bg-emerald-600 text-white font-bold text-[9px] hover:bg-emerald-500 transition-colors">Approve</button>
+                <button onclick="this.parentElement.innerHTML='<span class=\'px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold text-[9px]\'>Rejected</span>'" class="px-2 py-1 rounded bg-red-600 text-white font-bold text-[9px] hover:bg-red-500 transition-colors">Reject</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] bg-black/40 p-2 rounded-lg border border-white/5">
+              <div>
+                <span class="text-white font-bold block">Masjid-e-Bilaliyah</span>
+                <span class="text-slate-400 text-[8.5px]">Barkas Pahadi • Muazzin: Farhan Bhai</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="this.parentElement.innerHTML='<span class=\'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[9px]\'>Approved</span>'" class="px-2 py-1 rounded bg-emerald-600 text-white font-bold text-[9px] hover:bg-emerald-500 transition-colors">Approve</button>
+                <button onclick="this.parentElement.innerHTML='<span class=\'px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold text-[9px]\'>Rejected</span>'" class="px-2 py-1 rounded bg-red-600 text-white font-bold text-[9px] hover:bg-red-500 transition-colors">Reject</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
+            <strong class="text-white text-[10.5px] block font-bold">Global Masjid Configuration</strong>
+            <div class="flex items-center justify-between text-[10px] py-1 border-b border-white/5">
+              <span class="text-slate-300">Default Pinned:</span>
+              <span class="text-deen-gold font-bold">Historic Makkah Masjid</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] py-1">
+              <span class="text-slate-300">Ladies Section Directory:</span>
+              <span class="text-emerald-400 font-bold">64 Masajid Verified</span>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1">
-          <strong class="text-white text-[8px] block">SalahTime FCM Push Broadcast</strong>
-          <input type="text" placeholder="Notification Title..." class="w-full bg-black/40 rounded p-1 text-[7.5px] text-white border border-white/10" value="Jumu'ah Timings Updated Across Hyderabad">
-          <button onclick="this.textContent='Broadcast Sent to 2,840 Musallis!'" class="w-full py-1 rounded bg-emerald-600 text-white font-bold text-[7.5px] mt-1">
-            SalahTime FCM Push Broadcast
+        <!-- 3. STATS TAB PANE -->
+        <div id="admin-tab-content-stats" class="admin-tab-pane hidden space-y-2">
+          <div class="grid grid-cols-2 gap-2 text-center">
+            <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5">
+              <strong class="text-deen-gold text-lg block">140+</strong>
+              <span class="text-[9.5px] text-slate-400">Masajid Connected</span>
+            </div>
+            <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5">
+              <strong class="text-white text-lg block">2,840</strong>
+              <span class="text-[9.5px] text-slate-400">Active Musallis</span>
+            </div>
+            <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5">
+              <strong class="text-emerald-400 text-lg block">3,940</strong>
+              <span class="text-[9.5px] text-slate-400">Sadaqah Pts Awarded</span>
+            </div>
+            <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5">
+              <strong class="text-cyan-400 text-lg block">99.4%</strong>
+              <span class="text-[9.5px] text-slate-400">Timing Freshness</span>
+            </div>
+          </div>
+          <button onclick="this.innerHTML='<i class=\'fa-solid fa-check text-emerald-400 mr-1.5\'></i>Firestore Synced at ' + new Date().toLocaleTimeString()" class="w-full py-2 rounded-xl bg-[#081517] border border-white/10 hover:border-emerald-500/50 text-slate-200 text-[10px] font-bold transition-all flex items-center justify-center">
+            <i class="fa-solid fa-arrows-rotate mr-1.5 text-deen-gold"></i>
+            <span>Sync Firestore Telemetry</span>
           </button>
+        </div>
+
+        <!-- 4. BROADCASTS TAB PANE -->
+        <div id="admin-tab-content-broadcasts" class="admin-tab-pane hidden space-y-2">
+          <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-2">
+            <strong class="text-white text-[10.5px] block font-bold">SalahTime FCM Push Broadcast</strong>
+            <div>
+              <label class="text-[9px] text-slate-400 block mb-0.5">Target Audience</label>
+              <select class="w-full bg-black/40 rounded-lg p-1.5 text-[9.5px] text-white border border-white/10">
+                <option>All Hyderabad Musallis (2,840)</option>
+                <option>Old City & Charminar Zone (1,120)</option>
+                <option>Cyberabad & Hitec City Zone (940)</option>
+                <option>Secunderabad Zone (780)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[9px] text-slate-400 block mb-0.5">Notification Title</label>
+              <input type="text" id="admin-broadcast-title" class="w-full bg-black/40 rounded-lg p-1.5 text-[9.5px] text-white border border-white/10" value="Jumu'ah Timings Updated Across Hyderabad">
+            </div>
+            <div>
+              <label class="text-[9px] text-slate-400 block mb-0.5">Message Body</label>
+              <textarea id="admin-broadcast-body" rows="2" class="w-full bg-black/40 rounded-lg p-1.5 text-[9.5px] text-white border border-white/10">All 140+ connected masajid have verified their upcoming Friday prayer schedules. Check your local masjid board in DeenHub.</textarea>
+            </div>
+            <button onclick="sendAdminBroadcast(this)" class="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] transition-colors shadow-md flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-paper-plane text-[9px]"></i>
+              <span>Send Push Notification</span>
+            </button>
+            <div id="admin-broadcast-sent" class="hidden p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9.5px] text-center font-bold">
+              Broadcast Dispatched to 2,840 Musallis!
+            </div>
+          </div>
         </div>
         `
       );
@@ -1082,10 +1253,10 @@ function renderSubModalContent(type) {
         "Add Friday Topic",
         "fa-solid fa-microphone",
         `
-        <div class="space-y-1.5">
+        <div class="space-y-2">
           <div>
-            <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Select Masjid</label>
-            <select class="w-full bg-[#081517] text-slate-200 border border-white/10 rounded-lg p-1 text-[8px]">
+            <label class="text-[9.5px] font-bold text-slate-300 block mb-0.5">Select Masjid</label>
+            <select class="w-full bg-[#081517] text-slate-200 border border-white/10 rounded-lg p-1.5 text-[9.5px]">
               <option>Historic Makkah Masjid (Charminar)</option>
               <option>Jamia Masjid Bilal (Mehdipatnam)</option>
               <option>Masjid Al-Noor (Tolichowki)</option>
@@ -1093,13 +1264,13 @@ function renderSubModalContent(type) {
           </div>
 
           <div>
-            <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Khutbah Topic Title</label>
-            <input type="text" placeholder="e.g. Importance of Sincerity & Cleanliness..." class="w-full bg-[#081517] text-white border border-white/10 rounded-lg p-1 text-[8px]">
+            <label class="text-[9.5px] font-bold text-slate-300 block mb-0.5">Khutbah Topic Title</label>
+            <input type="text" placeholder="e.g. Importance of Sincerity & Cleanliness..." class="w-full bg-[#081517] text-white border border-white/10 rounded-lg p-1.5 text-[9.5px]">
           </div>
 
           <div>
-            <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Select Verified Scholar (isAalim)</label>
-            <select class="w-full bg-[#081517] text-slate-200 border border-white/10 rounded-lg p-1 text-[8px]">
+            <label class="text-[9.5px] font-bold text-slate-300 block mb-0.5">Select Verified Scholar (isAalim)</label>
+            <select class="w-full bg-[#081517] text-slate-200 border border-white/10 rounded-lg p-1.5 text-[9.5px]">
               <option>Maulana Hafiz Mohammed Ibrahim (Resident Aalim)</option>
               <option>Shaikh Saleh Saed Ba Yazid (Verified Scholar)</option>
               <option>Mufti Abdul Qadeer (Darul Uloom Al-Huda)</option>
@@ -1109,26 +1280,31 @@ function renderSubModalContent(type) {
 
           <div class="grid grid-cols-2 gap-1.5">
             <div>
-              <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Friday Date</label>
-              <input type="text" value="30/10/2026" class="w-full bg-[#081517] text-white border border-white/10 rounded-lg p-1 text-[8px]">
+              <label class="text-[9.5px] font-bold text-slate-300 block mb-0.5">Friday Date</label>
+              <input type="text" value="30/10/2026" class="w-full bg-[#081517] text-white border border-white/10 rounded-lg p-1.5 text-[9.5px]">
             </div>
             <div>
-              <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Jama'at Time</label>
-              <input type="text" value="01:15 PM" class="w-full bg-[#081517] text-white border border-white/10 rounded-lg p-1 text-[8px]">
+              <label class="text-[9.5px] font-bold text-slate-300 block mb-0.5">Jama'at Time</label>
+              <input type="text" value="01:15 PM" class="w-full bg-[#081517] text-white border border-white/10 rounded-lg p-1.5 text-[9.5px]">
             </div>
           </div>
 
-          <button onclick="this.textContent='Friday Topic Published Successfully!'; this.className='w-full py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-[8.5px] mt-2'" class="w-full py-1.5 rounded-xl bg-deen-gold hover:bg-[#c28424] text-slate-950 font-bold text-[8.5px] mt-2 transition-colors">
-            Publish Friday Topic
+          <button onclick="this.textContent = 'Topic Submitted for Verification!'; this.className='w-full py-2 rounded-xl bg-emerald-600 text-white font-bold text-[10px] mt-2'" class="w-full py-2 rounded-xl bg-deen-gold text-slate-950 font-bold text-[10px] hover:bg-[#c28424] transition-colors mt-2 shadow-md">
+            Submit Friday Topic
           </button>
         </div>
         `
       );
 
     default:
-      return wrap("Detail View", "fa-solid fa-circle-info", "<p>Content not available.</p>");
+      return wrap(
+        "DeenHub Feature",
+        "fa-solid fa-circle-info",
+        `<p class="text-center text-slate-400 py-4 text-[10px]">Detailed feature module is ready and synchronized with DeenHub v3.2.0.</p>`
+      );
   }
 }
+
 
 window.openPhoneSubModal = function (type) {
   closeAllPhoneModals();
@@ -1387,3 +1563,158 @@ window.addEventListener("load", () => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }
 });
+
+
+// ============================================================================
+// 12. ADMIN, COMMUNITY & FASTING INTERACTIVE CONTROLLERS
+// ============================================================================
+
+window.switchAdminTab = function(tab) {
+  const tabs = ['users', 'masjids', 'stats', 'broadcasts'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('admin-tab-btn-' + t);
+    const content = document.getElementById('admin-tab-content-' + t);
+    if (btn && content) {
+      if (t === tab) {
+        btn.classList.add('bg-deen-gold', 'text-slate-950');
+        btn.classList.remove('bg-[#081517]', 'text-slate-300');
+        content.classList.remove('hidden');
+      } else {
+        btn.classList.remove('bg-deen-gold', 'text-slate-950');
+        btn.classList.add('bg-[#081517]', 'text-slate-300');
+        content.classList.add('hidden');
+      }
+    }
+  });
+};
+
+window.toggleAdminUpdateCount = function(btn) {
+  const pill = document.getElementById('admin-live-updates-pill');
+  if (pill) {
+    pill.classList.toggle('hidden');
+    if (btn) btn.textContent = pill.classList.contains('hidden') ? 'Fetch Count' : 'Hide Count';
+  }
+};
+
+window.sendAdminBroadcast = function(btn) {
+  const sent = document.getElementById('admin-broadcast-sent');
+  if (sent) {
+    sent.classList.remove('hidden');
+    if (btn) btn.textContent = 'Broadcast Dispatched Successfully!';
+    setTimeout(() => {
+      if (btn) btn.innerHTML = '<i class="fa-solid fa-paper-plane text-[9px]"></i><span>Send Push Notification</span>';
+    }, 2500);
+  }
+};
+
+window.switchCommunityTab = function(tab) {
+  const tabs = ['ranks', 'community', 'requests', 'reach'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('community-tab-btn-' + t);
+    const content = document.getElementById('community-tab-content-' + t);
+    if (btn && content) {
+      if (t === tab) {
+        btn.classList.add('bg-deen-gold', 'text-slate-950');
+        btn.classList.remove('bg-[#081517]', 'text-slate-300');
+        content.classList.remove('hidden');
+      } else {
+        btn.classList.remove('bg-deen-gold', 'text-slate-950');
+        btn.classList.add('bg-[#081517]', 'text-slate-300');
+        content.classList.add('hidden');
+      }
+    }
+  });
+};
+
+window.selectFastingMonth = function(btn, monthId) {
+  document.querySelectorAll('.fasting-month-chip').forEach(b => {
+    b.classList.remove('bg-deen-gold', 'text-slate-950');
+    b.classList.add('bg-[#081517]', 'text-slate-300');
+  });
+  if (btn) {
+    btn.classList.add('bg-deen-gold', 'text-slate-950');
+    btn.classList.remove('bg-[#081517]', 'text-slate-300');
+  }
+  const suhoor = document.getElementById('fasting-suhoor-val');
+  const iftar = document.getElementById('fasting-iftar-val');
+  const title = document.getElementById('fasting-white-days-title');
+  const days = document.getElementById('fasting-days-container');
+
+  if (monthId === 'ramadhan') {
+    if (suhoor) suhoor.textContent = '04:42 AM';
+    if (iftar) iftar.textContent = '06:28 PM';
+    if (title) title.textContent = 'Ramadhan Mubarak (30 Days Obligatory Fast)';
+    if (days) {
+      days.innerHTML = `
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5">
+          <span>Daily Obligatory Fast (Fard)</span>
+          <span class="text-emerald-400 font-bold">Active Every Day</span>
+        </div>
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1">
+          <span>Laylatul Qadr (Last 10 Odd Nights)</span>
+          <span class="text-deen-gold font-bold">21, 23, 25, 27, 29</span>
+        </div>
+      `;
+    }
+  } else if (monthId === 'dhulhijjah') {
+    if (suhoor) suhoor.textContent = '04:36 AM';
+    if (iftar) iftar.textContent = '06:48 PM';
+    if (title) title.textContent = 'First 10 Days of Dhu al-Hijjah & Day of Arafah';
+    if (days) {
+      days.innerHTML = `
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5">
+          <span>1st–8th Dhu al-Hijjah (Sunnah Fast)</span>
+          <span class="text-deen-gold font-bold">Virtuous</span>
+        </div>
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1">
+          <span>9th Dhu al-Hijjah (Day of Arafah Fast)</span>
+          <span class="text-emerald-400 font-bold">Expiation 2 Yrs</span>
+        </div>
+      `;
+    }
+  } else if (monthId === 'rajab') {
+    if (suhoor) suhoor.textContent = '05:24 AM';
+    if (iftar) iftar.textContent = '06:18 PM';
+    if (title) title.textContent = 'Sacred Month Rajab — Ayam-ul-Bidh (13, 14, 15)';
+    if (days) {
+      days.innerHTML = `
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5"><span>13th Rajab (Sunnah Fast)</span><span class="text-deen-gold font-bold">Upcoming</span></div>
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5"><span>14th Rajab (Sunnah Fast)</span><span class="text-deen-gold font-bold">Upcoming</span></div>
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1"><span>15th Rajab (Sunnah Fast)</span><span class="text-deen-gold font-bold">Upcoming</span></div>
+      `;
+    }
+  } else if (monthId === 'shaban') {
+    if (suhoor) suhoor.textContent = '05:12 AM';
+    if (iftar) iftar.textContent = '06:22 PM';
+    if (title) title.textContent = 'Sha\'ban Sunnah Fasts & 15th Sha\'ban';
+    if (days) {
+      days.innerHTML = `
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5"><span>Mondays & Thursdays (Sunnah)</span><span class="text-deen-gold font-bold">Sunnah</span></div>
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5"><span>13th, 14th, 15th Sha'ban</span><span class="text-deen-gold font-bold">Ayam-ul-Bidh</span></div>
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1"><span>Preparation for Ramadhan</span><span class="text-emerald-400 font-bold">Recommended</span></div>
+      `;
+    }
+  } else if (monthId === 'shawwal') {
+    if (suhoor) suhoor.textContent = '04:38 AM';
+    if (iftar) iftar.textContent = '06:35 PM';
+    if (title) title.textContent = 'Six Sunnah Fasts of Shawwal (6 Fasts)';
+    if (days) {
+      days.innerHTML = `
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5"><span>6 Days of Shawwal (Consecutive or Separate)</span><span class="text-emerald-400 font-bold">Reward of Year</span></div>
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1"><span>Ayam-ul-Bidh (13, 14, 15 Shawwal)</span><span class="text-deen-gold font-bold">Sunnah</span></div>
+      `;
+    }
+  } else {
+    // Muharram
+    if (suhoor) suhoor.textContent = '05:05 AM';
+    if (iftar) iftar.textContent = '06:04 PM';
+    if (title) title.textContent = 'Ayam-ul-Bidh & Ashura (9th & 10th Muharram)';
+    if (days) {
+      days.innerHTML = `
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5"><span>9th & 10th Muharram (Ashura Fast)</span><span class="text-emerald-400 font-bold">Expiation 1 Yr</span></div>
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1 border-b border-white/5"><span>13th Muharram (Ayam-ul-Bidh)</span><span class="text-deen-gold font-bold">Upcoming</span></div>
+        <div class="flex items-center justify-between text-[9.5px] text-slate-300 py-1"><span>14th & 15th Muharram (Sunnah Fast)</span><span class="text-deen-gold font-bold">Upcoming</span></div>
+      `;
+    }
+  }
+};

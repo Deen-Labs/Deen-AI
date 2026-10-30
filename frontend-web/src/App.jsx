@@ -418,10 +418,34 @@ export default function App() {
                   <span className="text-[9px] text-emerald-400 font-bold">FIRESTORE: VERIFIED</span>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-slate-400"><span className="text-brand-gold font-bold">&gt; masjid_sync:</span> Historic Makkah Masjid (Verified by Muazzin)</p>
-                  <p className="text-emerald-400">[1] next_jamaat: ASR @ 04:15 PM (Athan: 03:36 PM) • LIVE</p>
-                  <p className="text-slate-400">[2] khadim_guard: Pre-flight Firestore diff check PASSED (+10 Sadaqah pts)</p>
-                  <p className="text-cyan-400">[3] device_shield: Accessibility + AdGuard Family DNS ACTIVE (67 Days Clean)</p>
+                  <p className="text-slate-400"><span className="text-brand-gold font-bold">&gt; masjid_sync:</span> Historic Makkah Masjid (Muazzin Verified)</p>
+                  
+                  {/* Authentic Digital LED Timing Matrix */}
+                  <div className="bg-[#080808] border-2 border-[#4a3321] rounded-lg p-2 font-mono text-[9.5px] space-y-1 shadow-inner my-2">
+                    <div className="flex items-center justify-between text-slate-400 border-b border-white/10 pb-0.5 text-[8px] font-bold">
+                      <span>PRAYER</span>
+                      <span className="text-[#00ff66]">ATHAN (GREEN)</span>
+                      <span className="text-[#ff3333]">JAMA'AT (RED)</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-slate-300 font-bold">FAJR (+25m)</span>
+                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_3px_#00ff66]">04:58 AM</span>
+                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_3px_#ff3333]">05:23 AM</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5 bg-emerald-950/50 rounded px-1 text-emerald-400 font-bold border border-emerald-500/30">
+                      <span>▶ ASR (CURRENT)</span>
+                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_3px_#00ff66]">03:36 PM</span>
+                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_3px_#ff3333]">04:15 PM</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-slate-300 font-bold">MAGHRIB</span>
+                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_3px_#00ff66]">05:58 PM</span>
+                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_3px_#ff3333]">06:05 PM</span>
+                    </div>
+                  </div>
+
+                  <p className="text-slate-400">[1] khadim_guard: Pre-flight Firestore diff check PASSED (+10 Sadaqah pts)</p>
+                  <p className="text-cyan-400">[2] device_shield: Accessibility + AdGuard Family DNS ACTIVE (67 Days Clean)</p>
                   <div className="bg-slate-900/60 p-2.5 rounded border border-slate-900 text-[11px] text-slate-200 mt-2 font-sans border-l-2 border-l-emerald-500">
                     "Indeed, prayer has been decreed upon the believers a decree of specified times." 
                     <span className="block mt-1 text-[10px] font-mono font-bold text-brand-gold">— Qur'an (4:103) [Mahmood Watch Co. Board Sync]</span>

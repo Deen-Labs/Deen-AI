@@ -203,10 +203,10 @@
 
     /* Modern Phone Simulator Frame — Dynamically Scaled */
     .phone-simulator-frame {
-      width: 320px;
+      width: 336px;
       max-width: calc(100vw - 2rem);
-      height: 590px;
-      max-height: min(calc(620px * var(--phone-scale, 1)), calc(100vh - 4.5rem));
+      height: 620px;
+      max-height: min(calc(650px * var(--phone-scale, 1)), calc(100vh - 4.5rem));
       border-radius: 42px;
       background: #081517;
       border: 3.5px solid #16363a;
@@ -230,7 +230,7 @@
     @media (min-width: 1024px) {
       .desktop-sticky-phone {
         position: sticky !important;
-        top: max(4.5rem, calc(50vh - (295px * var(--phone-scale, 1)))) !important;
+        top: max(4.5rem, calc(50vh - (310px * var(--phone-scale, 1)))) !important;
         transition: top 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       }
     }
@@ -270,7 +270,29 @@
     .phone-screen-pane > * {
       flex-shrink: 0 !important;
     }
-    .phone-screen-pane::-webkit-scrollbar { width: 3px; }
+    
+    /* Universal Scrollbar Elimination inside Simulator */
+    .phone-simulator-frame,
+    .phone-screen-viewport,
+    .phone-screen-pane,
+    .phone-modal-overlay,
+    .no-scrollbar,
+    #scrolly-sections-wrapper,
+    [class*="overflow-"] {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    .phone-simulator-frame::-webkit-scrollbar,
+    .phone-screen-viewport::-webkit-scrollbar,
+    .phone-screen-pane::-webkit-scrollbar,
+    .phone-modal-overlay::-webkit-scrollbar,
+    .no-scrollbar::-webkit-scrollbar,
+    [class*="overflow-"]::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
     .phone-screen-pane::-webkit-scrollbar-track { background: transparent; }
     .phone-screen-pane::-webkit-scrollbar-thumb { background: #16363a; border-radius: 2px; }
     .phone-screen-pane.active {
@@ -712,11 +734,7 @@
       border: 3.5px solid #4a3321 !important;
       color: #ffffff !important;
     }
-    .led-board-chassis *,
-    html[data-theme="light"] .led-board-chassis *,
-    html.light .led-board-chassis * {
-      color: #f8fafc;
-    }
+    
     .led-board-chassis .text-slate-300,
     .led-board-chassis .text-slate-400,
     html[data-theme="light"] .led-board-chassis .text-slate-300,
@@ -734,18 +752,38 @@
     html.light .led-board-chassis .text-slate-600 {
       color: #94a3b8 !important;
     }
+    
     .led-board-chassis .led-green,
     html[data-theme="light"] .led-board-chassis .led-green,
     html.light .led-board-chassis .led-green {
       color: #00ff66 !important;
-      text-shadow: 0 0 3px rgba(0, 255, 102, 0.9), 0 0 8px rgba(0, 255, 102, 0.45) !important;
+      text-shadow: 0 0 3px #00ff66, 0 0 8px rgba(0, 255, 102, 0.55) !important;
+      font-family: 'Share Tech Mono', 'Courier New', monospace !important;
+      font-weight: 700 !important;
     }
     .led-board-chassis .led-red,
     html[data-theme="light"] .led-board-chassis .led-red,
     html.light .led-board-chassis .led-red {
       color: #ff3333 !important;
-      text-shadow: 0 0 3px rgba(255, 51, 51, 0.9), 0 0 8px rgba(255, 51, 51, 0.45) !important;
+      text-shadow: 0 0 3px #ff3333, 0 0 8px rgba(255, 51, 51, 0.55) !important;
+      font-family: 'Share Tech Mono', 'Courier New', monospace !important;
+      font-weight: 700 !important;
     }
+    .led-board-chassis .led-amber,
+    html[data-theme="light"] .led-board-chassis .led-amber,
+    html.light .led-board-chassis .led-amber {
+      color: #f59e0b !important;
+      text-shadow: 0 0 3px #f59e0b, 0 0 8px rgba(245, 158, 11, 0.55) !important;
+      font-family: 'Share Tech Mono', 'Courier New', monospace !important;
+      font-weight: 700 !important;
+    }
+    .led-board-chassis .led-dim,
+    html[data-theme="light"] .led-board-chassis .led-dim,
+    html.light .led-board-chassis .led-dim {
+      color: #64748b !important;
+      font-family: 'Share Tech Mono', 'Courier New', monospace !important;
+    }
+
     .led-board-chassis .text-deen-gold,
     html[data-theme="light"] .led-board-chassis .text-deen-gold,
     html.light .led-board-chassis .text-deen-gold {
@@ -782,6 +820,139 @@
     html[data-theme="light"] .phone-tab-btn.active,
     html.light .phone-tab-btn.active {
       color: #B87914 !important;
+    }
+
+    
+    /* Universal Light Mode Card & Surface Overrides for Phone Simulator & All Modals */
+    html[data-theme="light"] .phone-screen-viewport,
+    html.light .phone-screen-viewport,
+    html[data-theme="light"] .phone-modal-overlay,
+    html.light .phone-modal-overlay {
+      background-color: #F7F3E8 !important;
+      color: #0F292A !important;
+    }
+
+    /* Primary Cards in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#0c2326]"],
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#0c2124]"],
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-deen-card"],
+    html.light .phone-screen-viewport [class*="bg-[#0c2326]"],
+    html.light .phone-screen-viewport [class*="bg-[#0c2124]"],
+    html.light .phone-screen-viewport [class*="bg-deen-card"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-[#0c2326]"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-[#0c2124]"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-deen-card"],
+    html.light .phone-modal-overlay [class*="bg-[#0c2326]"],
+    html.light .phone-modal-overlay [class*="bg-[#0c2124]"],
+    html.light .phone-modal-overlay [class*="bg-deen-card"] {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+      box-shadow: 0 1px 6px rgba(15, 41, 42, 0.04) !important;
+      color: #0F292A !important;
+    }
+
+    /* Secondary Cards, Insets, List Items in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#081517]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-[#07191b]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-slate-900"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-slate-800"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-black"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-[#081517]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-[#07191b]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-slate-900"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-slate-800"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-screen-viewport [class*="bg-black"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-[#081517]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-[#07191b]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-slate-900"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-slate-800"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-black"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-[#081517]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-[#07191b]"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-slate-900"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-slate-800"]:not(.led-board-chassis):not(.led-board-chassis *),
+    html.light .phone-modal-overlay [class*="bg-black"]:not(.led-board-chassis):not(.led-board-chassis *) {
+      background-color: #F5EFE0 !important;
+      border-color: rgba(15, 41, 42, 0.09) !important;
+      color: #0F292A !important;
+    }
+
+    /* Amber Highlight Banners & Cards in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-amber-950"],
+    html.light .phone-screen-viewport [class*="bg-amber-950"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-amber-950"],
+    html.light .phone-modal-overlay [class*="bg-amber-950"] {
+      background-color: #FFFBEB !important;
+      border-color: rgba(245, 158, 11, 0.35) !important;
+      color: #92400E !important;
+    }
+
+    /* Emerald Highlight Banners & Cards in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-emerald-950"],
+    html.light .phone-screen-viewport [class*="bg-emerald-950"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-emerald-950"],
+    html.light .phone-modal-overlay [class*="bg-emerald-950"] {
+      background-color: #ECFDF5 !important;
+      border-color: rgba(5, 150, 105, 0.3) !important;
+      color: #065F46 !important;
+    }
+
+    /* Sky Rain Notices in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport [class*="bg-sky-950"],
+    html.light .phone-screen-viewport [class*="bg-sky-950"],
+    html[data-theme="light"] .phone-modal-overlay [class*="bg-sky-950"],
+    html.light .phone-modal-overlay [class*="bg-sky-950"] {
+      background-color: #F0F9FF !important;
+      border-color: rgba(14, 165, 233, 0.3) !important;
+      color: #0369A1 !important;
+    }
+
+    /* Inputs, Textareas, Selects in Light Mode */
+    html[data-theme="light"] .phone-screen-viewport input,
+    html[data-theme="light"] .phone-screen-viewport textarea,
+    html[data-theme="light"] .phone-screen-viewport select,
+    html.light .phone-screen-viewport input,
+    html.light .phone-screen-viewport textarea,
+    html.light .phone-screen-viewport select,
+    html[data-theme="light"] .phone-modal-overlay input,
+    html[data-theme="light"] .phone-modal-overlay textarea,
+    html[data-theme="light"] .phone-modal-overlay select,
+    html.light .phone-modal-overlay input,
+    html.light .phone-modal-overlay textarea,
+    html.light .phone-modal-overlay select {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.16) !important;
+      color: #0F292A !important;
+    }
+
+    /* Typography colors inside Light Mode Phone Simulator */
+    html[data-theme="light"] .phone-screen-viewport .text-white:not(.led-board-chassis *):not(.bg-emerald-600):not(.bg-red-600):not(.bg-deen-gold):not(.bg-amber-500):not(.text-slate-950),
+    html.light .phone-screen-viewport .text-white:not(.led-board-chassis *):not(.bg-emerald-600):not(.bg-red-600):not(.bg-deen-gold):not(.bg-amber-500):not(.text-slate-950),
+    html[data-theme="light"] .phone-modal-overlay .text-white:not(.bg-emerald-600):not(.bg-red-600):not(.bg-deen-gold):not(.bg-amber-500):not(.text-slate-950),
+    html.light .phone-modal-overlay .text-white:not(.bg-emerald-600):not(.bg-red-600):not(.bg-deen-gold):not(.bg-amber-500):not(.text-slate-950) {
+      color: #0F292A !important;
+    }
+
+    html[data-theme="light"] .phone-screen-viewport .text-slate-200:not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport .text-slate-300:not(.led-board-chassis *),
+    html.light .phone-screen-viewport .text-slate-200:not(.led-board-chassis *),
+    html.light .phone-screen-viewport .text-slate-300:not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay .text-slate-200,
+    html[data-theme="light"] .phone-modal-overlay .text-slate-300,
+    html.light .phone-modal-overlay .text-slate-200,
+    html.light .phone-modal-overlay .text-slate-300 {
+      color: #1E3A3B !important;
+    }
+
+    html[data-theme="light"] .phone-screen-viewport .text-slate-400:not(.led-board-chassis *),
+    html[data-theme="light"] .phone-screen-viewport .text-slate-500:not(.led-board-chassis *),
+    html.light .phone-screen-viewport .text-slate-400:not(.led-board-chassis *),
+    html.light .phone-screen-viewport .text-slate-500:not(.led-board-chassis *),
+    html[data-theme="light"] .phone-modal-overlay .text-slate-400,
+    html[data-theme="light"] .phone-modal-overlay .text-slate-500,
+    html.light .phone-modal-overlay .text-slate-400,
+    html.light .phone-modal-overlay .text-slate-500 {
+      color: #4A6364 !important;
     }
 
     /* Phone Modal Overlays */
@@ -1259,7 +1430,7 @@
             <!-- Left: Clock & Date -->
             <div class="flex items-center space-x-1.5 text-[10px] font-semibold text-slate-300">
               <span id="phone-status-time">3:16 am</span>
-              <span class="text-[8.5px] text-slate-500">21/10</span>
+              <span class="text-[11px] text-slate-500">21/10</span>
             </div>
 
             <!-- Center: Speaker Notch -->
@@ -1267,8 +1438,8 @@
 
             <!-- Right: Status Icons (WiFi + Battery) -->
             <div class="flex items-center space-x-1.5 text-[9.5px] text-slate-300">
-              <i class="fa-solid fa-wifi text-[8.5px]"></i>
-              <span class="text-[8.5px] font-mono">49%</span>
+              <i class="fa-solid fa-wifi text-[11px]"></i>
+              <span class="text-[11px] font-mono">49%</span>
               <i class="fa-solid fa-battery-half text-[10px] text-emerald-400"></i>
             </div>
           </div>
@@ -1286,7 +1457,7 @@
                 <div>
                   <div class="flex items-center space-x-2">
                     <h3 class="text-base font-extrabold text-white tracking-tight leading-tight">DeenHub</h3>
-                    <span id="phone-online-status-badge" onclick="simulatePinUnlock()" class="px-2 py-0.5 rounded-full text-[8px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition-colors cursor-pointer" title="Tap to Test PIN">
+                    <span id="phone-online-status-badge" onclick="simulatePinUnlock()" class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition-colors cursor-pointer" title="Tap to Test PIN">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                       <span>PROTECTED</span>
                     </span>
@@ -1304,7 +1475,7 @@
                   <i class="fa-solid fa-moon text-deen-gold text-xs"></i>
                   <span>17 Jumada I, 1448 AH</span>
                 </div>
-                <div class="flex items-center gap-1.5 font-mono text-[8px]">
+                <div class="flex items-center gap-1.5 font-mono text-[10.5px]">
                   <span class="bg-black/40 px-1.5 py-0.5 rounded border border-white/5 text-slate-300"><strong class="text-deen-gold">SAHAR</strong> 05:12 AM</span>
                   <span class="bg-black/40 px-1.5 py-0.5 rounded border border-white/5 text-slate-300"><strong class="text-amber-400">IFTAR</strong> 06:04 PM</span>
                 </div>
@@ -1314,19 +1485,19 @@
               <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-2 shadow-sm flex-shrink-0">
                 <!-- Top Row: Default Masjid & Distance -->
                 <div class="flex items-center justify-between">
-                  <span class="px-2 py-0.5 rounded-full text-[8px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
-                    <i class="fa-solid fa-bookmark text-[7px]"></i>
+                  <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+                    <i class="fa-solid fa-bookmark text-[9.5px]"></i>
                     <span>Default Masjid</span>
                   </span>
-                  <span class="px-2 py-0.5 rounded-full text-[8px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40 flex items-center gap-1">
-                    <i class="fa-solid fa-location-dot text-[7px]"></i>
+                  <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40 flex items-center gap-1">
+                    <i class="fa-solid fa-location-dot text-[9.5px]"></i>
                     <span>250 m</span>
                   </span>
                 </div>
 
                 <div>
                   <h4 class="text-xs font-bold text-white leading-tight">Historic Makkah Masjid</h4>
-                  <p class="text-[8.5px] text-slate-400">Near Charminar, Old City, Hyderabad</p>
+                  <p class="text-[11px] text-slate-400">Near Charminar, Old City, Hyderabad</p>
                 </div>
 
                 <!-- In-Card Mahmood Watch Co. Digital LED Board -->
@@ -1336,15 +1507,15 @@
                   </p>
                   
                   <!-- Pulsing Next Salah Strip -->
-                  <div class="bg-black/80 border border-emerald-500/30 rounded-lg px-2 py-1 mb-1.5 flex items-center justify-center gap-1.5 text-[8px] font-mono font-bold text-emerald-400">
+                  <div class="bg-black/80 border border-emerald-500/30 rounded-lg px-2 py-1 mb-1.5 flex items-center justify-center gap-1.5 text-[10.5px] font-mono font-bold text-emerald-400">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
                     <span>NEXT SALAH: ASR • IN <span id="home-led-countdown">1H 39M 02S</span></span>
                   </div>
 
                   <!-- Verified Badge & Collapse Button -->
-                  <div class="flex items-center justify-between text-[7.5px] text-slate-400 mb-1 px-0.5">
+                  <div class="flex items-center justify-between text-[10px] text-slate-400 mb-1 px-0.5">
                     <span class="flex items-center gap-1 text-emerald-400 font-semibold">
-                      <i class="fa-solid fa-shield-halved text-[8px]"></i>
+                      <i class="fa-solid fa-shield-halved text-[10.5px]"></i>
                       <span>Official Timings • Verified by Muazzin</span>
                     </span>
                     <button onclick="toggleHomeLedBoard()" id="home-led-collapse-btn" class="text-deen-gold hover:underline font-bold">
@@ -1354,63 +1525,63 @@
 
                   <!-- Collapsible Rows Container -->
                   <div id="home-led-rows" class="space-y-1">
-                    <div class="grid grid-cols-3 text-[7.5px] font-mono font-bold border-b border-white/10 pb-0.5 text-slate-400">
+                    <div class="grid grid-cols-3 text-[10px] font-mono font-bold border-b border-white/10 pb-1 text-slate-400">
                       <span>PRAYER</span>
-                      <span class="text-emerald-400">ATHAN</span>
-                      <span class="text-red-400">JAMA'AT</span>
+                      <span class="text-emerald-400 font-bold">ATHAN</span>
+                      <span class="text-red-400 font-bold">JAMA'AT</span>
                     </div>
 
-                    <div class="grid grid-cols-3 text-[8px] font-mono text-slate-300 py-0.5">
-                      <span class="flex items-center justify-center">FAJR <span class="px-1 py-0.2 rounded bg-deen-gold/20 text-deen-gold text-[7px] font-bold ml-1"><i class="fa-solid fa-clock mr-0.5 text-[6.5px]"></i>+25m</span></span>
-                      <span class="text-emerald-400 font-bold">04:58 AM</span>
-                      <span class="text-red-400 font-bold">05:23 AM</span>
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-300 py-0.5 items-center">
+                      <span class="flex items-center justify-center font-bold">FAJR <span class="px-1 py-0.2 rounded bg-deen-gold/20 text-deen-gold text-[11px] font-bold ml-1"><i class="fa-solid fa-clock mr-0.5 text-[10px]"></i>+25m</span></span>
+                      <span class="led-green font-bold">04:58 AM</span>
+                      <span class="led-red font-bold">05:23 AM</span>
                     </div>
 
-                    <div class="grid grid-cols-3 text-[8px] font-mono text-slate-400 py-0.5">
-                      <span>SUNRISE</span>
-                      <span class="text-emerald-400">06:12 AM</span>
-                      <span>--:--</span>
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-400 py-0.5 items-center">
+                      <span class="font-bold">SUNRISE</span>
+                      <span class="led-green font-bold">06:12 AM</span>
+                      <span class="led-dim font-bold">--:--</span>
                     </div>
 
-                    <div class="grid grid-cols-3 text-[8px] font-mono text-slate-300 py-0.5">
-                      <span class="flex items-center justify-center">DHUHR <button onclick="toggleRainNotice()" class="ml-1 text-sky-400 hover:text-sky-300" title="Toggle Rain Alert"><i class="fa-solid fa-cloud-rain text-[8.5px]"></i></button></span>
-                      <span class="text-emerald-400 font-bold">12:15 PM</span>
-                      <span class="text-red-400 font-bold">01:15 PM</span>
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-300 py-0.5 items-center">
+                      <span class="flex items-center justify-center font-bold">DHUHR <button onclick="toggleRainNotice()" class="ml-1 text-sky-400 hover:text-sky-300" title="Toggle Rain Alert"><i class="fa-solid fa-cloud-rain text-[9.5px]"></i></button></span>
+                      <span class="led-green font-bold">12:15 PM</span>
+                      <span class="led-red font-bold">01:15 PM</span>
                     </div>
 
-                    <div class="grid grid-cols-3 text-[8.5px] font-mono py-0.5 font-bold text-emerald-400 bg-emerald-500/10 rounded px-1">
-                      <span>▶ ASR</span>
-                      <span>03:36 PM</span>
-                      <span class="text-red-400">04:15 PM</span>
+                    <div class="grid grid-cols-3 text-[11px] font-mono py-0.5 font-bold text-emerald-400 bg-emerald-500/10 rounded px-1 items-center">
+                      <span class="font-bold">▶ ASR</span>
+                      <span class="led-green font-bold">03:36 PM</span>
+                      <span class="led-red font-bold">04:15 PM</span>
                     </div>
 
-                    <div class="grid grid-cols-3 text-[8px] font-mono text-slate-300 py-0.5">
-                      <span class="flex items-center justify-center">MAGHRIB <button onclick="toggleRainNotice()" class="ml-1 text-sky-400 hover:text-sky-300" title="Toggle Rain Alert"><i class="fa-solid fa-cloud-rain text-[8.5px]"></i></button></span>
-                      <span class="text-emerald-400 font-bold">05:58 PM</span>
-                      <span class="text-red-400 font-bold">06:05 PM</span>
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-300 py-0.5 items-center">
+                      <span class="flex items-center justify-center font-bold">MAGHRIB <button onclick="toggleRainNotice()" class="ml-1 text-sky-400 hover:text-sky-300" title="Toggle Rain Alert"><i class="fa-solid fa-cloud-rain text-[9.5px]"></i></button></span>
+                      <span class="led-green font-bold">05:58 PM</span>
+                      <span class="led-red font-bold">06:05 PM</span>
                     </div>
 
-                    <div class="grid grid-cols-3 text-[8px] font-mono text-slate-300 py-0.5">
-                      <span>ISHA</span>
-                      <span class="text-emerald-400 font-bold">07:18 PM</span>
-                      <span class="text-red-400 font-bold">08:00 PM</span>
+                    <div class="grid grid-cols-3 text-[11px] font-mono text-slate-300 py-0.5 items-center">
+                      <span class="font-bold">ISHA</span>
+                      <span class="led-green font-bold">07:18 PM</span>
+                      <span class="led-red font-bold">08:00 PM</span>
                     </div>
 
-                    <div class="border-t border-white/10 pt-1 mt-1 grid grid-cols-4 gap-1 text-[7px] font-mono text-slate-400">
-                      <div><span class="text-deen-gold block">JUMMAH</span> 01:15 PM</div>
-                      <div><span class="text-slate-300 block">TARAWEEH</span> 08:45 PM</div>
-                      <div><span class="text-deen-gold block">SAHAR</span> 05:05 AM</div>
-                      <div><span class="text-amber-400 block">IFTAR</span> 06:04 PM</div>
+                    <div class="border-t border-white/10 pt-1 mt-1 grid grid-cols-4 gap-1 text-[11px] font-mono text-slate-400">
+                      <div><span class="text-deen-gold block font-bold">JUMMAH</span> <span class="led-red font-bold">01:15 PM</span></div>
+                      <div><span class="text-slate-300 block font-bold">TARAWEEH</span> <span class="led-red font-bold">08:45 PM</span></div>
+                      <div><span class="text-deen-gold block font-bold">SAHAR</span> <span class="led-green font-bold">05:05 AM</span></div>
+                      <div><span class="text-amber-400 block font-bold">IFTAR</span> <span class="led-amber font-bold">06:04 PM</span></div>
                     </div>
 
-                    <div class="mt-1 pt-1 border-t border-white/5 flex items-center justify-between text-[7px] text-slate-400">
+                    <div class="mt-1 pt-1 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
                       <span>Taraweeh Qari: Hafiz Ibrahim</span>
-                      <span class="text-emerald-400">Ladies Section Available</span>
+                      <span class="text-emerald-400 font-semibold">Ladies Section Available</span>
                     </div>
                   </div>
 
                   <!-- Toggleable Rain Notice Strip -->
-                  <div id="home-rain-strip" class="hidden mt-1.5 p-1 rounded-lg bg-sky-950/60 border border-sky-500/40 text-[7.5px] text-sky-300 flex items-center justify-center gap-1.5">
+                  <div id="home-rain-strip" class="hidden mt-1.5 p-1 rounded-lg bg-sky-950/60 border border-sky-500/40 text-[10px] text-sky-300 flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-cloud-rain text-sky-400"></i>
                     <span>Pray at Home / Combined in Heavy Rain</span>
                   </div>
@@ -1418,49 +1589,49 @@
 
                 <!-- Status Badges Row -->
                 <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
-                  <span class="px-2 py-0.5 rounded-full text-[7.5px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                    <i class="fa-solid fa-check text-[7px]"></i>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                    <i class="fa-solid fa-check text-[9.5px]"></i>
                     <span>Ladies Section: Available</span>
                   </span>
-                  <span class="px-2 py-0.5 rounded-full text-[7.5px] font-bold bg-slate-900 border border-slate-700 text-slate-300 flex items-center gap-1">
-                    <i class="fa-solid fa-user text-[7px] text-slate-400"></i>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300 flex items-center gap-1">
+                    <i class="fa-solid fa-user text-[9.5px] text-slate-400"></i>
                     <span>President: Mohammed Qasim</span>
                   </span>
                 </div>
 
                 <!-- Updated By & JazakAllah Row -->
                 <div class="bg-[#081517] border border-white/5 rounded-xl p-2 flex items-center justify-between">
-                  <div class="text-[8px] text-slate-300">
+                  <div class="text-[10.5px] text-slate-300">
                     <span>Updated by: <strong>Hafiz Ibrahim</strong></span>
                     <span class="text-slate-500 ml-1">• Updated: Today</span>
                   </div>
                   <div class="flex items-center gap-1.5">
-                    <span class="text-[8px] font-bold text-deen-gold flex items-center gap-1">
-                      <i class="fa-solid fa-hands-praying text-[8.5px]"></i>
+                    <span class="text-[10.5px] font-bold text-deen-gold flex items-center gap-1">
+                      <i class="fa-solid fa-hands-praying text-[11px]"></i>
                       <span id="home-jazak-count">24</span> JazakAllah
                     </span>
-                    <button onclick="sendMasjidJazak('home-jazak-count', this)" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[7.5px] hover:bg-[#c28424] transition-colors flex items-center gap-1">
-                      <i class="fa-solid fa-hands-praying text-[7px]"></i>
+                    <button onclick="sendMasjidJazak('home-jazak-count', this)" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10px] hover:bg-[#c28424] transition-colors flex items-center gap-1">
+                      <i class="fa-solid fa-hands-praying text-[9.5px]"></i>
                       <span>Send JazakAllahu Khairan</span>
                     </button>
                   </div>
                 </div>
 
                 <!-- Up-to-Date & Want to Contact Banner -->
-                <div class="flex items-center justify-between text-[8px] px-0.5">
+                <div class="flex items-center justify-between text-[10.5px] px-0.5">
                   <span class="text-emerald-400 font-semibold flex items-center gap-1">
-                    <i class="fa-solid fa-circle-check text-[8.5px]"></i>
+                    <i class="fa-solid fa-circle-check text-[11px]"></i>
                     <span>Timings Up to Date</span>
                   </span>
                   <button onclick="openPhoneSubModal('community')" class="text-deen-gold hover:underline font-bold flex items-center gap-1">
-                    <i class="fa-solid fa-message text-[8px]"></i>
+                    <i class="fa-solid fa-message text-[10.5px]"></i>
                     <span>Want to Contact</span>
                   </button>
                 </div>
 
                 <!-- Announcements Box -->
-                <div class="bg-black/30 border border-white/5 rounded-xl p-2 text-[7.5px] text-slate-300 flex items-start gap-1.5">
-                  <i class="fa-solid fa-bullhorn text-deen-gold text-[8.5px] mt-0.5 shrink-0"></i>
+                <div class="bg-black/30 border border-white/5 rounded-xl p-2 text-[10px] text-slate-300 flex items-start gap-1.5">
+                  <i class="fa-solid fa-bullhorn text-deen-gold text-[11px] mt-0.5 shrink-0"></i>
                   <p><strong>Announcements:</strong> Jumu'ah Bayaan starts at 12:35 PM sharp. Ladies arrangement on 1st floor.</p>
                 </div>
 
@@ -1469,8 +1640,8 @@
                   <div class="flex items-center gap-1.5">
                     <i class="fa-solid fa-bell-slash text-deen-gold text-[9px]"></i>
                     <div>
-                      <p class="text-[8.5px] font-bold text-white">Silent / Vibrate in Masjid</p>
-                      <p class="text-[7px] text-slate-400">Auto-silence device during Jama'at</p>
+                      <p class="text-[11px] font-bold text-white">Silent / Vibrate in Masjid</p>
+                      <p class="text-[9.5px] text-slate-400">Auto-silence device during Jama'at</p>
                     </div>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
@@ -1481,16 +1652,16 @@
 
                 <!-- Bottom Action Row -->
                 <div class="grid grid-cols-3 gap-1.5 pt-0.5">
-                  <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 hover:border-deen-gold/40 text-slate-300 hover:text-white text-[8px] font-bold flex items-center justify-center gap-1 transition-colors">
-                    <i class="fa-solid fa-clock text-[7.5px] text-deen-gold"></i>
+                  <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 hover:border-deen-gold/40 text-slate-300 hover:text-white text-[10.5px] font-bold flex items-center justify-center gap-1 transition-colors">
+                    <i class="fa-solid fa-clock text-[10px] text-deen-gold"></i>
                     <span>Edit Timings</span>
                   </button>
-                  <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 hover:border-deen-gold/40 text-slate-300 hover:text-white text-[8px] font-bold flex items-center justify-center gap-1 transition-colors">
-                    <i class="fa-solid fa-pen text-[7.5px] text-deen-gold"></i>
+                  <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 hover:border-deen-gold/40 text-slate-300 hover:text-white text-[10.5px] font-bold flex items-center justify-center gap-1 transition-colors">
+                    <i class="fa-solid fa-pen text-[10px] text-deen-gold"></i>
                     <span>Edit Masjid</span>
                   </button>
-                  <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="py-1 rounded-lg bg-[#081517] border border-white/10 hover:border-deen-gold/40 text-slate-300 hover:text-white text-[8px] font-bold flex items-center justify-center gap-1 transition-colors">
-                    <i class="fa-solid fa-compass text-[7.5px] text-emerald-400"></i>
+                  <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="py-1 rounded-lg bg-[#081517] border border-white/10 hover:border-deen-gold/40 text-slate-300 hover:text-white text-[10.5px] font-bold flex items-center justify-center gap-1 transition-colors">
+                    <i class="fa-solid fa-compass text-[10px] text-emerald-400"></i>
                     <span>Directions</span>
                   </a>
                 </div>
@@ -1503,10 +1674,10 @@
                     <i class="fa-solid fa-shield-halved text-emerald-400 text-xs"></i>
                     <div>
                       <h4 class="text-[10px] font-bold text-white">Content Blocker</h4>
-                      <p class="text-[7.5px] text-slate-400">Real-time Protection & Clean Living</p>
+                      <p class="text-[10px] text-slate-400">Real-time Protection & Clean Living</p>
                     </div>
                   </div>
-                  <span class="px-2 py-0.5 rounded-full text-[7.5px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-300">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-300">
                     Protection Panel
                   </span>
                 </div>
@@ -1516,22 +1687,22 @@
                   <button onclick="openPhoneSubModal('clean-stats')" class="bg-[#081517] border border-white/5 hover:border-emerald-500/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-all group">
                     <i class="fa-solid fa-shield text-emerald-400 text-sm mb-1 group-hover:scale-110 transition-transform"></i>
                     <span class="text-base font-extrabold text-white leading-tight">67</span>
-                    <span class="text-[8px] text-slate-300 font-medium">Days Clean</span>
-                    <span class="text-[7px] text-deen-gold font-bold mt-0.5">View Stats &rarr;</span>
+                    <span class="text-[10.5px] text-slate-300 font-medium">Days Clean</span>
+                    <span class="text-[9.5px] text-deen-gold font-bold mt-0.5">View Stats &rarr;</span>
                   </button>
 
                   <button onclick="setSystemProtection(!window.isSystemProtectionActive)" class="bg-[#081517] border border-white/5 hover:border-emerald-500/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-all group">
                     <i class="fa-solid fa-circle-check text-emerald-400 text-sm mb-1 group-hover:scale-110 transition-transform"></i>
                     <span id="home-bento-shield-status" class="text-xs font-bold text-emerald-400 leading-tight">ACTIVE</span>
-                    <span class="text-[8px] text-slate-300 font-medium">Device Shield</span>
-                    <span class="text-[7px] text-slate-500 mt-0.5">Tap to change</span>
+                    <span class="text-[10.5px] text-slate-300 font-medium">Device Shield</span>
+                    <span class="text-[9.5px] text-slate-500 mt-0.5">Tap to change</span>
                   </button>
 
                   <button onclick="simulatePinUnlock()" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-all group">
                     <i class="fa-solid fa-lock text-deen-gold text-sm mb-1 group-hover:scale-110 transition-transform"></i>
                     <span class="text-xs font-bold text-white leading-tight">LOCKED</span>
-                    <span class="text-[8px] text-slate-300 font-medium">Safety PIN</span>
-                    <span class="text-[7px] text-slate-500 mt-0.5">Uninstall Lock</span>
+                    <span class="text-[10.5px] text-slate-300 font-medium">Safety PIN</span>
+                    <span class="text-[9.5px] text-slate-500 mt-0.5">Uninstall Lock</span>
                   </button>
                 </div>
 
@@ -1555,11 +1726,11 @@
                   <i class="fa-solid fa-location-dot text-deen-gold text-xs"></i>
                   <div>
                     <h3 class="text-xs font-bold font-display text-white">Nearby Masajid</h3>
-                    <p class="text-[8px] text-slate-400">Find and connect to local masajid</p>
+                    <p class="text-[10.5px] text-slate-400">Find and connect to local masajid</p>
                   </div>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-[8px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
-                  <i class="fa-solid fa-check text-[7.5px]"></i>
+                <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+                  <i class="fa-solid fa-check text-[10px]"></i>
                   <span>Qasim (Area Coordinator)</span>
                 </span>
               </div>
@@ -1567,19 +1738,19 @@
               <!-- Search Bar -->
               <div class="bg-[#0c2326] border border-white/10 rounded-xl p-1 flex items-center flex-shrink-0">
                 <input id="masjid-search-input" oninput="filterSimulatorMasjids(this.value)" placeholder="Search name, area, president..." class="flex-1 bg-transparent px-2 text-[9px] text-white placeholder-slate-500 focus:outline-none">
-                <button onclick="filterSimulatorMasjids(document.getElementById('masjid-search-input').value)" class="px-2.5 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[8px] uppercase tracking-wider">
+                <button onclick="filterSimulatorMasjids(document.getElementById('masjid-search-input').value)" class="px-2.5 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10.5px] uppercase tracking-wider">
                   SEARCH
                 </button>
               </div>
 
               <!-- 2-Chip Sort Row -->
               <div class="flex items-center gap-2 flex-shrink-0">
-                <button id="sort-chip-nearby" onclick="setMasjidSortMode('nearby')" class="flex-1 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[8px] flex items-center justify-center gap-1 shadow-sm transition-all">
-                  <i class="fa-solid fa-compass text-[8.5px]"></i>
+                <button id="sort-chip-nearby" onclick="setMasjidSortMode('nearby')" class="flex-1 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10.5px] flex items-center justify-center gap-1 shadow-sm transition-all">
+                  <i class="fa-solid fa-compass text-[11px]"></i>
                   <span>Nearby (GPS)</span>
                 </button>
-                <button id="sort-chip-az" onclick="setMasjidSortMode('az')" class="flex-1 py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 hover:text-white font-medium text-[8px] flex items-center justify-center gap-1 transition-all">
-                  <i class="fa-solid fa-arrow-down-a-z text-[8.5px]"></i>
+                <button id="sort-chip-az" onclick="setMasjidSortMode('az')" class="flex-1 py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 hover:text-white font-medium text-[10.5px] flex items-center justify-center gap-1 transition-all">
+                  <i class="fa-solid fa-arrow-down-a-z text-[11px]"></i>
                   <span>A–Z Sort</span>
                 </button>
               </div>
@@ -1590,19 +1761,19 @@
                 <!-- CARD 1: Historic Makkah Masjid (Pinned Default Masjid) -->
                 <div class="masjid-sim-card bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-2 shadow-sm" data-name="Historic Makkah Masjid" data-distance="250" data-president="Mohammed Qasim" data-area="Charminar">
                   <div class="flex items-center justify-between">
-                    <span class="px-2 py-0.5 rounded-full text-[8px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
-                      <i class="fa-solid fa-bookmark text-[7px]"></i>
+                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+                      <i class="fa-solid fa-bookmark text-[9.5px]"></i>
                       <span>Default Masjid</span>
                     </span>
-                    <span class="px-2 py-0.5 rounded-full text-[8px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40 flex items-center gap-1">
-                      <i class="fa-solid fa-location-dot text-[7px]"></i>
+                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40 flex items-center gap-1">
+                      <i class="fa-solid fa-location-dot text-[9.5px]"></i>
                       <span>250 m</span>
                     </span>
                   </div>
 
                   <div>
                     <h4 class="text-xs font-bold text-white">Historic Makkah Masjid</h4>
-                    <p class="text-[8.5px] text-slate-400">Near Charminar, Old City, Hyderabad</p>
+                    <p class="text-[11px] text-slate-400">Near Charminar, Old City, Hyderabad</p>
                   </div>
 
                   <!-- Toggle Button with Upcoming Jama'at Preview -->
@@ -1613,16 +1784,16 @@
                   <!-- Expandable Tray (Initially Collapsed for Ultra-Compact Pinned Card) -->
                   <div id="masjid-expandable-1" class="hidden space-y-2 pt-1 border-t border-white/5">
                     <div class="flex flex-wrap items-center gap-1">
-                      <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-slate-900 border border-slate-700 text-slate-300">President: Mohammed Qasim</span>
-                      <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-slate-900 border border-slate-700 text-slate-300">Charminar</span>
-                      <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Ladies Section: Available</span>
-                      <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">Verified by Muazzin</span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">President: Mohammed Qasim</span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">Charminar</span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Ladies Section: Available</span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">Verified by Muazzin</span>
                     </div>
 
-                    <div class="bg-[#081517] border border-white/5 rounded-xl p-2 flex items-center justify-between text-[8px] text-slate-300">
+                    <div class="bg-[#081517] border border-white/5 rounded-xl p-2 flex items-center justify-between text-[10.5px] text-slate-300">
                       <span>Updated by: <strong>Hafiz Ibrahim</strong> • Today</span>
-                      <button onclick="sendMasjidJazak('m1-jazak', this)" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[7.5px] flex items-center gap-1">
-                        <i class="fa-solid fa-hands-praying text-[7px]"></i>
+                      <button onclick="sendMasjidJazak('m1-jazak', this)" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10px] flex items-center gap-1">
+                        <i class="fa-solid fa-hands-praying text-[9.5px]"></i>
                         <span><span id="m1-jazak">24</span> Send JazakAllah</span>
                       </button>
                     </div>
@@ -1630,24 +1801,24 @@
                     <!-- In-Card LED Board -->
                     <div class="led-board-chassis p-2 text-center">
                       <p class="font-arabic text-deen-gold text-[10px] mb-1">لَا إِلٰهَ إِلَّا ٱللَّٰهُ مُحَمَّدٌ رَسُولُ ٱللَّٰهِ</p>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>FAJR</span><span class="text-emerald-400">04:58 AM</span><span class="text-red-400">05:23 AM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>DHUHR</span><span class="text-emerald-400">12:15 PM</span><span class="text-red-400">01:15 PM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-emerald-400 font-bold py-0.5 bg-emerald-500/10 rounded"><span>ASR</span><span>03:36 PM</span><span class="text-red-400">04:15 PM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>MAGHRIB</span><span class="text-emerald-400">05:58 PM</span><span class="text-red-400">06:05 PM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>ISHA</span><span class="text-emerald-400">07:18 PM</span><span class="text-red-400">08:00 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>FAJR</span><span class="led-green">04:58 AM</span><span class="led-red">05:23 AM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>DHUHR</span><span class="led-green">12:15 PM</span><span class="led-red">01:15 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-emerald-400 font-bold py-0.5 bg-emerald-500/10 rounded"><span>▶ ASR</span><span class="led-green">03:36 PM</span><span class="led-red">04:15 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>MAGHRIB</span><span class="led-green">05:58 PM</span><span class="led-red">06:05 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>ISHA</span><span class="led-green">07:18 PM</span><span class="led-red">08:00 PM</span></div>
                     </div>
 
                     <!-- This Week's Khutbah Box -->
-                    <div class="bg-black/30 border border-white/5 rounded-xl p-2 text-[7.5px] text-slate-300">
+                    <div class="bg-black/30 border border-white/5 rounded-xl p-2 text-[10px] text-slate-300">
                       <strong class="text-deen-gold block mb-0.5">This Week's Friday Khutbah (01:00 PM):</strong>
                       Importance of Sincerity (Ikhlas) & Safeguarding the Tongue — Maulana Hafiz Ibrahim
                     </div>
 
                     <!-- Actions -->
                     <div class="grid grid-cols-3 gap-1 pt-0.5">
-                      <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 text-slate-300 text-[7.5px] font-bold">Edit Timings</button>
-                      <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 text-slate-300 text-[7.5px] font-bold">Edit Masjid</button>
-                      <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="py-1 rounded-lg bg-[#081517] border border-white/10 text-emerald-400 text-[7.5px] font-bold text-center">Directions</a>
+                      <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 text-slate-300 text-[10px] font-bold">Edit Timings</button>
+                      <button onclick="openPhoneSubModal('admin')" class="py-1 rounded-lg bg-[#081517] border border-white/10 text-slate-300 text-[10px] font-bold">Edit Masjid</button>
+                      <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="py-1 rounded-lg bg-[#081517] border border-white/10 text-emerald-400 text-[10px] font-bold text-center">Directions</a>
                     </div>
                   </div>
                 </div>
@@ -1657,21 +1828,21 @@
                   <div class="flex items-center justify-between">
                     <div>
                       <h4 class="text-xs font-bold text-white">Jamia Masjid Bilal</h4>
-                      <p class="text-[8.5px] text-slate-400">420 m • Mehdipatnam Main Road</p>
+                      <p class="text-[11px] text-slate-400">420 m • Mehdipatnam Main Road</p>
                     </div>
-                    <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-slate-900 border border-slate-700 text-slate-300">AHLE SUNNAH</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">AHLE SUNNAH</span>
                   </div>
 
                   <div class="flex flex-wrap items-center gap-1">
-                    <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-slate-900 border border-slate-700 text-slate-300">President: Syed Ahmed Quadri</span>
-                    <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-slate-900 border border-slate-700 text-slate-300">Mehdipatnam</span>
-                    <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Ladies Section: Available</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">President: Syed Ahmed Quadri</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">Mehdipatnam</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Ladies Section: Available</span>
                   </div>
 
-                  <div class="bg-[#081517] border border-white/5 rounded-xl p-2 flex items-center justify-between text-[8px] text-slate-300">
+                  <div class="bg-[#081517] border border-white/5 rounded-xl p-2 flex items-center justify-between text-[10.5px] text-slate-300">
                     <span>Updated by: <strong>Syed Ahmed</strong> • Yesterday</span>
-                    <button onclick="sendMasjidJazak('m2-jazak', this)" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[7.5px] flex items-center gap-1">
-                      <i class="fa-solid fa-hands-praying text-[7px]"></i>
+                    <button onclick="sendMasjidJazak('m2-jazak', this)" class="px-2 py-0.5 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10px] flex items-center gap-1">
+                      <i class="fa-solid fa-hands-praying text-[9.5px]"></i>
                       <span><span id="m2-jazak">19</span> Send JazakAllah</span>
                     </button>
                   </div>
@@ -1682,11 +1853,11 @@
 
                   <div id="masjid-expandable-2" class="hidden space-y-1 pt-1 border-t border-white/5">
                     <div class="led-board-chassis p-2 text-center">
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>FAJR</span><span class="text-emerald-400">05:00 AM</span><span class="text-red-400">05:30 AM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>DHUHR</span><span class="text-emerald-400">12:30 PM</span><span class="text-red-400">01:30 PM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-emerald-400 font-bold py-0.5 bg-emerald-500/10 rounded"><span>ASR</span><span>03:45 PM</span><span class="text-red-400">04:30 PM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>MAGHRIB</span><span class="text-emerald-400">05:58 PM</span><span class="text-red-400">06:08 PM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>ISHA</span><span class="text-emerald-400">07:25 PM</span><span class="text-red-400">08:15 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>FAJR</span><span class="led-green">05:00 AM</span><span class="led-red">05:30 AM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>DHUHR</span><span class="led-green">12:30 PM</span><span class="led-red">01:30 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-emerald-400 font-bold py-0.5 bg-emerald-500/10 rounded"><span>▶ ASR</span><span class="led-green">03:45 PM</span><span class="led-red">04:30 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10px] font-mono text-slate-300 py-0.5"><span>MAGHRIB</span><span class="text-emerald-400">05:58 PM</span><span class="text-red-400">06:08 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>ISHA</span><span class="led-green">07:25 PM</span><span class="led-red">08:15 PM</span></div>
                     </div>
                   </div>
                 </div>
@@ -1696,21 +1867,21 @@
                   <div class="flex items-center justify-between">
                     <div>
                       <h4 class="text-xs font-bold text-white">Masjid Al-Noor</h4>
-                      <p class="text-[8.5px] text-slate-400">680 m • Tolichowki</p>
+                      <p class="text-[11px] text-slate-400">680 m • Tolichowki</p>
                     </div>
-                    <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-slate-900 border border-slate-700 text-slate-300">HANAFI</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">HANAFI</span>
                   </div>
 
                   <div class="flex flex-wrap items-center gap-1">
-                    <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-slate-900 border border-slate-700 text-slate-300">President: Abdul Rehman</span>
-                    <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-slate-900 border border-slate-700 text-slate-300">Tolichowki</span>
-                    <span class="px-1.5 py-0.5 rounded text-[7.5px] font-bold bg-red-500/15 text-red-400 border border-red-500/30">Ladies Section: Not Available</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">President: Abdul Rehman</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-300">Tolichowki</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/30">Ladies Section: Not Available</span>
                   </div>
 
                   <!-- Stale Timings Warning Bar -->
-                  <div class="bg-amber-950/40 border border-amber-500/30 rounded-xl p-1.5 flex items-center justify-between text-[7.5px] text-amber-200">
+                  <div class="bg-amber-950/40 border border-amber-500/30 rounded-xl p-1.5 flex items-center justify-between text-[10px] text-amber-200">
                     <span class="flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation text-amber-400"></i><span>Timings not updated recently (10d+ old)</span></span>
-                    <button onclick="this.textContent='Requested'; this.className='px-2 py-0.5 rounded bg-emerald-600 text-white text-[7.5px] font-bold'" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition-colors">
+                    <button onclick="this.textContent='Requested'; this.className='px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold'" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition-colors">
                       Request Update
                     </button>
                   </div>
@@ -1721,11 +1892,11 @@
 
                   <div id="masjid-expandable-3" class="hidden space-y-1 pt-1 border-t border-white/5">
                     <div class="led-board-chassis p-2 text-center">
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>FAJR</span><span class="text-emerald-400">05:05 AM</span><span class="text-red-400">05:35 AM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>DHUHR</span><span class="text-emerald-400">12:30 PM</span><span class="text-red-400">01:30 PM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-emerald-400 font-bold py-0.5 bg-emerald-500/10 rounded"><span>ASR</span><span>03:50 PM</span><span class="text-red-400">04:45 PM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>MAGHRIB</span><span class="text-emerald-400">05:58 PM</span><span class="text-red-400">06:05 PM</span></div>
-                      <div class="grid grid-cols-3 text-[7.5px] font-mono text-slate-300 py-0.5"><span>ISHA</span><span class="text-emerald-400">07:30 PM</span><span class="text-red-400">08:30 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>FAJR</span><span class="led-green">05:05 AM</span><span class="led-red">05:35 AM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>DHUHR</span><span class="led-green">12:30 PM</span><span class="led-red">01:30 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-emerald-400 font-bold py-0.5 bg-emerald-500/10 rounded"><span>▶ ASR</span><span class="led-green">03:50 PM</span><span class="led-red">04:45 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>MAGHRIB</span><span class="led-green">05:58 PM</span><span class="led-red">06:05 PM</span></div>
+                      <div class="grid grid-cols-3 text-[10.5px] font-mono text-slate-300 py-0.5 font-bold"><span>ISHA</span><span class="led-green">07:30 PM</span><span class="led-red">08:30 PM</span></div>
                     </div>
                   </div>
                 </div>
@@ -1746,7 +1917,7 @@
                 </button>
                 <div class="text-right">
                   <h3 class="text-xs font-bold font-display text-white">Content Calm</h3>
-                  <p class="text-[8.5px] text-slate-400">Spiritual Focus & Distraction Detox</p>
+                  <p class="text-[11px] text-slate-400">Spiritual Focus & Distraction Detox</p>
                 </div>
               </div>
 
@@ -1786,8 +1957,8 @@
                   </div>
                   <div>
                     <p class="text-[10px] font-bold text-white">System-Wide Protection</p>
-                    <p class="text-[8px] text-emerald-400 font-medium">Active • 24/7 web & app detox active</p>
-                    <p class="text-[7.5px] text-deen-gold mt-0.5">Clean Streak: 67 Days • Tap to Manage Protection & Stats &rarr;</p>
+                    <p class="text-[10.5px] text-emerald-400 font-medium">Active • 24/7 web & app detox active</p>
+                    <p class="text-[10px] text-deen-gold mt-0.5">Clean Streak: 67 Days • Tap to Manage Protection & Stats &rarr;</p>
                   </div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-slate-500 text-[9px]"></i>
@@ -1800,23 +1971,23 @@
                     <i class="fa-solid fa-ban text-[10px]"></i>
                     <span>Block Distracting Apps</span>
                   </span>
-                  <i id="app-blocker-arrow" class="fa-solid fa-chevron-down text-[8px] transition-transform"></i>
+                  <i id="app-blocker-arrow" class="fa-solid fa-chevron-down text-[10.5px] transition-transform"></i>
                 </button>
 
                 <div id="app-blocker-list" class="hidden space-y-1.5 pt-1 border-t border-white/5">
-                  <div class="flex items-center justify-between text-[8px] text-slate-300 px-1">
+                  <div class="flex items-center justify-between text-[10.5px] text-slate-300 px-1">
                     <span class="flex items-center gap-1.5"><i class="fa-brands fa-instagram text-pink-400"></i><span>Instagram Reels</span></span>
                     <span class="text-red-400 font-bold">BLOCKED</span>
                   </div>
-                  <div class="flex items-center justify-between text-[8px] text-slate-300 px-1">
+                  <div class="flex items-center justify-between text-[10.5px] text-slate-300 px-1">
                     <span class="flex items-center gap-1.5"><i class="fa-brands fa-tiktok text-slate-200"></i><span>TikTok</span></span>
                     <span class="text-red-400 font-bold">BLOCKED</span>
                   </div>
-                  <div class="flex items-center justify-between text-[8px] text-slate-300 px-1">
+                  <div class="flex items-center justify-between text-[10.5px] text-slate-300 px-1">
                     <span class="flex items-center gap-1.5"><i class="fa-brands fa-youtube text-red-500"></i><span>YouTube Shorts</span></span>
                     <span class="text-red-400 font-bold">BLOCKED</span>
                   </div>
-                  <div class="flex items-center justify-between text-[8px] text-slate-300 px-1">
+                  <div class="flex items-center justify-between text-[10.5px] text-slate-300 px-1">
                     <span class="flex items-center gap-1.5"><i class="fa-brands fa-x-twitter text-slate-300"></i><span>X (Twitter)</span></span>
                     <span class="text-red-400 font-bold">BLOCKED</span>
                   </div>
@@ -1827,21 +1998,21 @@
               <div class="bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-1.5 flex-shrink-0">
                 <div class="flex items-center justify-between">
                   <h4 class="text-[9.5px] font-bold text-white">Focus Mode Schedules</h4>
-                  <span class="px-1.5 py-0.2 rounded-full text-[7.5px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">ACTIVE</span>
+                  <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">ACTIVE</span>
                 </div>
                 <div class="bg-[#081517] rounded-xl p-2 border border-white/5 flex items-center justify-between">
                   <div>
-                    <p class="text-[8.5px] font-bold text-slate-200">Work & Prayer Focus</p>
-                    <p class="text-[7.5px] text-slate-400">09:00 – 17:00</p>
+                    <p class="text-[11px] font-bold text-slate-200">Work & Prayer Focus</p>
+                    <p class="text-[10px] text-slate-400">09:00 – 17:00</p>
                   </div>
                   <div class="flex items-center gap-0.5">
-                    <span class="w-4 h-4 rounded text-[6.5px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Su</span>
-                    <span class="w-4 h-4 rounded text-[6.5px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">M</span>
-                    <span class="w-4 h-4 rounded text-[6.5px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Tu</span>
-                    <span class="w-4 h-4 rounded text-[6.5px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">W</span>
-                    <span class="w-4 h-4 rounded text-[6.5px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Th</span>
-                    <span class="w-4 h-4 rounded text-[6.5px] font-bold flex items-center justify-center bg-emerald-500 text-slate-950">F</span>
-                    <span class="w-4 h-4 rounded text-[6.5px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Sa</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Su</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">M</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Tu</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">W</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Th</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-emerald-500 text-slate-950">F</span>
+                    <span class="w-4 h-4 rounded text-[11px] font-bold flex items-center justify-center bg-deen-gold text-slate-950">Sa</span>
                   </div>
                 </div>
               </div>
@@ -1859,27 +2030,27 @@
                   <i class="fa-solid fa-microphone text-deen-gold text-xs"></i>
                   <div>
                     <h3 class="text-xs font-bold font-display text-white">Jumu'ah Topics</h3>
-                    <p class="text-[8px] text-slate-400">Upcoming Friday Khutbahs & Scholars</p>
+                    <p class="text-[10.5px] text-slate-400">Upcoming Friday Khutbahs & Scholars</p>
                   </div>
                 </div>
                 <button onclick="openPhoneSubModal('add-juma')" class="px-2.5 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[9px] hover:bg-[#c28424] transition-colors flex items-center gap-1">
-                  <i class="fa-solid fa-plus text-[7.5px]"></i>
+                  <i class="fa-solid fa-plus text-[10px]"></i>
                   <span>Add Friday Topic</span>
                 </button>
               </div>
 
               <!-- 4 Symmetrical Filter Chips -->
               <div class="grid grid-cols-4 gap-1 flex-shrink-0">
-                <button onclick="filterJumuahTopics('all', this)" class="jumuah-filter-chip active py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[7.5px] text-center transition-all">
+                <button onclick="filterJumuahTopics('all', this)" class="jumuah-filter-chip active py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[10px] text-center transition-all">
                   All Upcoming
                 </button>
-                <button onclick="filterJumuahTopics('nearby', this)" class="jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[7.5px] text-center transition-all">
+                <button onclick="filterJumuahTopics('nearby', this)" class="jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[10px] text-center transition-all">
                   Nearby Masjids
                 </button>
-                <button onclick="filterJumuahTopics('khateeb', this)" class="jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[7.5px] text-center transition-all">
+                <button onclick="filterJumuahTopics('khateeb', this)" class="jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[10px] text-center transition-all">
                   By Khateeb
                 </button>
-                <button onclick="filterJumuahTopics('masjid', this)" class="jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[7.5px] text-center transition-all">
+                <button onclick="filterJumuahTopics('masjid', this)" class="jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[10px] text-center transition-all">
                   By Masjid
                 </button>
               </div>
@@ -1890,41 +2061,41 @@
                 <!-- Khutbah Card 1 -->
                 <div class="jumuah-topic-card bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-1.5 shadow-sm" data-category="makkah" data-khateeb="ibrahim" data-distance="250">
                   <div class="flex items-center justify-between">
-                    <span class="px-2 py-0.5 rounded-full text-[7.5px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40">
                       Upcoming Friday Khutbah
                     </span>
-                    <span class="text-[8px] font-mono text-emerald-400 font-bold">01:00 PM - 01:30 PM</span>
+                    <span class="text-[10.5px] font-mono text-emerald-400 font-bold">01:00 PM - 01:30 PM</span>
                   </div>
 
                   <div>
                     <h4 class="text-xs font-bold text-white leading-tight">Importance of Sincerity (Ikhlas) & Safeguarding the Tongue</h4>
-                    <p class="text-[8.5px] text-slate-400 mt-0.5">Historic Makkah Masjid • 250 m</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Historic Makkah Masjid • 250 m</p>
                   </div>
 
                   <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-0.5">
                     <div class="flex items-center gap-1.5">
-                      <div class="w-5 h-5 rounded-full bg-deen-gold/20 flex items-center justify-center text-deen-gold text-[8px] font-bold">
+                      <div class="w-5 h-5 rounded-full bg-deen-gold/20 flex items-center justify-center text-deen-gold text-[10.5px] font-bold">
                         <i class="fa-solid fa-user-tie"></i>
                       </div>
                       <div>
-                        <p class="text-[8.5px] font-bold text-white">Maulana Hafiz Mohammed Ibrahim</p>
-                        <p class="text-[7.5px] text-emerald-400">Senior Islamic Scholar & Resident Aalim</p>
+                        <p class="text-[11px] font-bold text-white">Maulana Hafiz Mohammed Ibrahim</p>
+                        <p class="text-[10px] text-emerald-400">Senior Islamic Scholar & Resident Aalim</p>
                       </div>
                     </div>
                   </div>
 
-                  <div class="text-[7.5px] text-slate-400 flex items-center justify-between px-0.5">
+                  <div class="text-[10px] text-slate-400 flex items-center justify-between px-0.5">
                     <span>Created By: <strong>Hafiz Ibrahim</strong></span>
                     <span>Created On: 28/10/2026</span>
                   </div>
 
                   <!-- Past Weeks Accordion -->
                   <div class="border-t border-white/5 pt-1">
-                    <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full text-left text-[8px] font-bold text-deen-gold hover:underline flex items-center justify-between">
-                      <span class="flex items-center gap-1"><i class="fa-solid fa-calendar text-[7.5px]"></i><span>Past Weeks' Khutbahs (2) ⌵</span></span>
-                      <span class="text-[7px] text-slate-400">View Archive</span>
+                    <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full text-left text-[10.5px] font-bold text-deen-gold hover:underline flex items-center justify-between">
+                      <span class="flex items-center gap-1"><i class="fa-solid fa-calendar text-[10px]"></i><span>Past Weeks' Khutbahs (2) ⌵</span></span>
+                      <span class="text-[9.5px] text-slate-400">View Archive</span>
                     </button>
-                    <div class="hidden mt-1 p-1.5 bg-[#081517] rounded-lg border border-white/5 space-y-1 text-[7.5px] text-slate-300">
+                    <div class="hidden mt-1 p-1.5 bg-[#081517] rounded-lg border border-white/5 space-y-1 text-[10px] text-slate-300">
                       <div><strong class="text-slate-200 block">• Last Week:</strong> Rights of Neighbors in Islam (Maulana Ibrahim)</div>
                       <div><strong class="text-slate-200 block">• 2 Weeks Ago:</strong> Steadfastness in Tahajjud (Maulana Ibrahim)</div>
                     </div>
@@ -1932,11 +2103,11 @@
 
                   <!-- Footer Actions -->
                   <div class="flex items-center justify-between pt-1 border-t border-white/5">
-                    <button onclick="likeJumuahTopic(this)" class="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-[8px] font-semibold flex items-center gap-1 transition-colors">
-                      <i class="fa-solid fa-heart text-red-400 text-[8px]"></i>
+                    <button onclick="likeJumuahTopic(this)" class="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-[10.5px] font-semibold flex items-center gap-1 transition-colors">
+                      <i class="fa-solid fa-heart text-red-400 text-[10.5px]"></i>
                       <span><span class="like-num">18</span> Helpful</span>
                     </button>
-                    <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white text-[8px] flex items-center gap-1 transition-colors">
+                    <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white text-[10.5px] flex items-center gap-1 transition-colors">
                       <i class="fa-solid fa-compass text-emerald-400"></i>
                       <span>Directions</span>
                     </a>
@@ -1946,41 +2117,41 @@
                 <!-- Khutbah Card 2 -->
                 <div class="jumuah-topic-card bg-[#0c2326] border border-white/5 rounded-2xl p-2.5 space-y-1.5 shadow-sm" data-category="bilal" data-khateeb="saleh" data-distance="420">
                   <div class="flex items-center justify-between">
-                    <span class="px-2 py-0.5 rounded-full text-[7.5px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40">
                       Upcoming Friday Khutbah
                     </span>
-                    <span class="text-[8px] font-mono text-emerald-400 font-bold">12:45 PM - 01:20 PM</span>
+                    <span class="text-[10.5px] font-mono text-emerald-400 font-bold">12:45 PM - 01:20 PM</span>
                   </div>
 
                   <div>
                     <h4 class="text-xs font-bold text-white leading-tight">Purification of the Heart & Digital Mindfulness</h4>
-                    <p class="text-[8.5px] text-slate-400 mt-0.5">Jamia Masjid Bilal • 420 m</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Jamia Masjid Bilal • 420 m</p>
                   </div>
 
                   <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-0.5">
                     <div class="flex items-center gap-1.5">
-                      <div class="w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-[8px] font-bold">
+                      <div class="w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-[10.5px] font-bold">
                         <i class="fa-solid fa-user-check"></i>
                       </div>
                       <div>
-                        <p class="text-[8.5px] font-bold text-white">Shaikh Saleh Saed Ba Yazid</p>
-                        <p class="text-[7.5px] text-cyan-300">Verified Scholar (isAalim)</p>
+                        <p class="text-[11px] font-bold text-white">Shaikh Saleh Saed Ba Yazid</p>
+                        <p class="text-[10px] text-cyan-300">Verified Scholar (isAalim)</p>
                       </div>
                     </div>
                   </div>
 
-                  <div class="text-[7.5px] text-slate-400 flex items-center justify-between px-0.5">
+                  <div class="text-[10px] text-slate-400 flex items-center justify-between px-0.5">
                     <span>Created By: <strong>Syed Ahmed</strong></span>
                     <span>Created On: 29/10/2026</span>
                   </div>
 
                   <!-- Footer Actions -->
                   <div class="flex items-center justify-between pt-1 border-t border-white/5">
-                    <button onclick="likeJumuahTopic(this)" class="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-[8px] font-semibold flex items-center gap-1 transition-colors">
-                      <i class="fa-solid fa-heart text-red-400 text-[8px]"></i>
+                    <button onclick="likeJumuahTopic(this)" class="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-[10.5px] font-semibold flex items-center gap-1 transition-colors">
+                      <i class="fa-solid fa-heart text-red-400 text-[10.5px]"></i>
                       <span><span class="like-num">12</span> Helpful</span>
                     </button>
-                    <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white text-[8px] flex items-center gap-1 transition-colors">
+                    <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white text-[10.5px] flex items-center gap-1 transition-colors">
                       <i class="fa-solid fa-compass text-emerald-400"></i>
                       <span>Directions</span>
                     </a>
@@ -2001,7 +2172,7 @@
                   <i class="fa-solid fa-table-cells-large text-deen-gold text-xs"></i>
                   <div>
                     <h3 class="text-xs font-bold font-display text-white">Deen Hub & More</h3>
-                    <p class="text-[8px] text-slate-400">Spiritual companion, community tools & settings</p>
+                    <p class="text-[10.5px] text-slate-400">Spiritual companion, community tools & settings</p>
                   </div>
                 </div>
               </div>
@@ -2015,14 +2186,14 @@
                   <div>
                     <div class="flex items-center gap-1.5">
                       <h4 class="text-[10px] font-bold text-white">Qasim Bhai</h4>
-                      <span class="px-1.5 py-0.2 rounded-full text-[7px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Area Coordinator</span>
+                      <span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Area Coordinator</span>
                     </div>
-                    <p class="text-[7.5px] text-slate-400">qasim@salahtime.org</p>
+                    <p class="text-[10px] text-slate-400">qasim@salahtime.org</p>
                   </div>
                 </div>
                 <div class="flex flex-col gap-1 text-right">
-                  <span class="text-[7px] text-deen-gold font-bold">Account Profile</span>
-                  <span class="text-[7px] text-slate-400">Guide: Add Masjid</span>
+                  <span class="text-[9.5px] text-deen-gold font-bold">Account Profile</span>
+                  <span class="text-[9.5px] text-slate-400">Guide: Add Masjid</span>
                 </div>
               </div>
 
@@ -2033,16 +2204,16 @@
                     <i class="fa-solid fa-globe text-deen-gold text-xs"></i>
                     <span>SalahTime Community Network</span>
                   </span>
-                  <span class="px-1.5 py-0.2 rounded-full text-[7.5px] font-bold bg-emerald-500/20 text-emerald-400">Live Network</span>
+                  <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Live Network</span>
                 </div>
-                <div class="grid grid-cols-3 gap-1 bg-[#081517] rounded-xl p-1.5 text-center text-[7.5px] font-mono border border-white/5">
+                <div class="grid grid-cols-3 gap-1 bg-[#081517] rounded-xl p-1.5 text-center text-[10px] font-mono border border-white/5">
                   <div><strong class="text-deen-gold block text-[9px]">140+</strong>Connected Masjids</div>
                   <div><strong class="text-white block text-[9px]">2,840</strong>Active Musallis</div>
                   <div><strong class="text-emerald-400 block text-[9px]">482</strong>JazakAllah Sent</div>
                 </div>
-                <div class="text-[7.5px] text-deen-gold font-bold text-right flex items-center justify-end gap-1">
+                <div class="text-[10px] text-deen-gold font-bold text-right flex items-center justify-end gap-1">
                   <span>View Full Network Directory & Stats</span>
-                  <i class="fa-solid fa-arrow-right text-[7px]"></i>
+                  <i class="fa-solid fa-arrow-right text-[9.5px]"></i>
                 </div>
               </div>
 
@@ -2057,52 +2228,52 @@
                   <!-- Row 1 -->
                   <button onclick="openPhoneQiblaCompass()" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
                     <i class="fa-solid fa-compass text-deen-gold text-sm mb-1"></i>
-                    <span class="text-[8.5px] font-bold text-white">Find Qibla</span>
-                    <span class="text-[7px] text-slate-400">Compass</span>
+                    <span class="text-[11px] font-bold text-white">Find Qibla</span>
+                    <span class="text-[9.5px] text-slate-400">Compass</span>
                   </button>
                   <button onclick="openPhoneSubModal('azkar')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
                     <i class="fa-solid fa-book-open text-emerald-400 text-sm mb-1"></i>
-                    <span class="text-[8.5px] font-bold text-white">Daily Azkar</span>
-                    <span class="text-[7px] text-slate-400">Hisnul Muslim</span>
+                    <span class="text-[11px] font-bold text-white">Daily Azkar</span>
+                    <span class="text-[9.5px] text-slate-400">Hisnul Muslim</span>
                   </button>
                   <button onclick="openPhoneSubModal('names99')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
                     <i class="fa-solid fa-hands-praying text-amber-400 text-sm mb-1"></i>
-                    <span class="text-[8.5px] font-bold text-white">99 Names</span>
-                    <span class="text-[7px] text-slate-400">Attributes</span>
+                    <span class="text-[11px] font-bold text-white">99 Names</span>
+                    <span class="text-[9.5px] text-slate-400">Attributes</span>
                   </button>
 
                   <!-- Row 2 -->
                   <button onclick="openPhoneSubModal('azkar')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
                     <i class="fa-solid fa-book-quran text-cyan-400 text-sm mb-1"></i>
-                    <span class="text-[8.5px] font-bold text-white">Holy Quran</span>
-                    <span class="text-[7px] text-slate-400">114 Surahs</span>
+                    <span class="text-[11px] font-bold text-white">Holy Quran</span>
+                    <span class="text-[9.5px] text-slate-400">114 Surahs</span>
                   </button>
                   <button onclick="handleTriggerPhoneTab(3)" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
                     <i class="fa-solid fa-microphone text-deen-gold text-sm mb-1"></i>
-                    <span class="text-[8.5px] font-bold text-white">Jumu'ah Topics</span>
-                    <span class="text-[7px] text-slate-400">Khutbah Roster</span>
+                    <span class="text-[11px] font-bold text-white">Jumu'ah Topics</span>
+                    <span class="text-[9.5px] text-slate-400">Khutbah Roster</span>
                   </button>
                   <button onclick="openPhoneSubModal('fasting')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
                     <i class="fa-solid fa-moon text-amber-300 text-sm mb-1"></i>
-                    <span class="text-[8.5px] font-bold text-white">Hijri Fasting</span>
-                    <span class="text-[7px] text-slate-400">Sahar & Iftar</span>
+                    <span class="text-[11px] font-bold text-white">Hijri Fasting</span>
+                    <span class="text-[9.5px] text-slate-400">Sahar & Iftar</span>
                   </button>
 
                   <!-- Row 3 -->
                   <button onclick="openPhoneSubModal('prayer-api')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
                     <i class="fa-solid fa-sun text-emerald-400 text-sm mb-1"></i>
-                    <span class="text-[8.5px] font-bold text-white">Prayer Times (API)</span>
-                    <span class="text-[7px] text-slate-400">Solar & Global</span>
+                    <span class="text-[11px] font-bold text-white">Prayer Times (API)</span>
+                    <span class="text-[9.5px] text-slate-400">Solar & Global</span>
                   </button>
                   <button onclick="openPhoneSubModal('clean-stats')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
                     <i class="fa-solid fa-shield text-emerald-400 text-sm mb-1"></i>
-                    <span class="text-[8.5px] font-bold text-white">Days Clean</span>
-                    <span class="text-[7px] text-slate-400">Streak & Stats</span>
+                    <span class="text-[11px] font-bold text-white">Days Clean</span>
+                    <span class="text-[9.5px] text-slate-400">Streak & Stats</span>
                   </button>
                   <button onclick="openPhoneSubModal('community')" class="bg-[#081517] border border-white/5 hover:border-deen-gold/40 rounded-xl p-2 flex flex-col items-center justify-center text-center transition-colors">
                     <i class="fa-solid fa-trophy text-deen-gold text-sm mb-1"></i>
-                    <span class="text-[8.5px] font-bold text-white">Community</span>
-                    <span class="text-[7px] text-slate-400">Leaderboard</span>
+                    <span class="text-[11px] font-bold text-white">Community</span>
+                    <span class="text-[9.5px] text-slate-400">Leaderboard</span>
                   </button>
                 </div>
               </div>
@@ -2113,7 +2284,7 @@
                   <i class="fa-solid fa-shield-halved text-deen-gold text-sm"></i>
                   <div>
                     <h4 class="text-[9.5px] font-bold text-white">Admin Console</h4>
-                    <p class="text-[7.5px] text-slate-400">Users, Masjid Approvals & FCM Broadcasts</p>
+                    <p class="text-[10px] text-slate-400">Users, Masjid Approvals & FCM Broadcasts</p>
                   </div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-deen-gold text-[9px]"></i>
@@ -2124,19 +2295,19 @@
                 <h4 class="text-[9.5px] font-bold text-white">Preferences & System Settings</h4>
                 
                 <!-- Appearance Switcher -->
-                <div class="flex items-center justify-between text-[8px] text-slate-300">
+                <div class="flex items-center justify-between text-[10.5px] text-slate-300">
                   <span>Appearance</span>
                   <div class="flex items-center gap-1 bg-[#081517] p-0.5 rounded-lg border border-white/5">
-                    <button data-theme-btn="dark" class="px-2 py-0.5 rounded text-[7.5px] font-bold transition-colors">Dark</button>
-                    <button data-theme-btn="light" class="px-2 py-0.5 rounded text-[7.5px] font-bold transition-colors">Light</button>
-                    <button data-theme-btn="system" class="px-2 py-0.5 rounded text-[7.5px] font-bold transition-colors">Auto</button>
+                    <button data-theme-btn="dark" class="px-2 py-0.5 rounded text-[10px] font-bold transition-colors">Dark</button>
+                    <button data-theme-btn="light" class="px-2 py-0.5 rounded text-[10px] font-bold transition-colors">Light</button>
+                    <button data-theme-btn="system" class="px-2 py-0.5 rounded text-[10px] font-bold transition-colors">Auto</button>
                   </div>
                 </div>
 
                 <!-- Language -->
-                <div class="flex items-center justify-between text-[8px] text-slate-300">
+                <div class="flex items-center justify-between text-[10.5px] text-slate-300">
                   <span>App Language</span>
-                  <div class="flex items-center gap-1 font-mono text-[7px]">
+                  <div class="flex items-center gap-1 font-mono text-[9.5px]">
                     <span class="px-1.5 py-0.5 rounded bg-deen-gold text-slate-950 font-bold">English</span>
                     <span class="px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">اردو</span>
                     <span class="px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">العربية</span>
@@ -2145,15 +2316,15 @@
                 </div>
 
                 <!-- Solar Calculation Method -->
-                <div class="flex items-center justify-between text-[8px] text-slate-300">
+                <div class="flex items-center justify-between text-[10.5px] text-slate-300">
                   <span>Calculation Method</span>
-                  <span class="px-1.5 py-0.5 rounded bg-slate-900 text-deen-gold font-mono text-[7.5px] border border-white/5">Karachi (Hanafi)</span>
+                  <span class="px-1.5 py-0.5 rounded bg-slate-900 text-deen-gold font-mono text-[10px] border border-white/5">Karachi (Hanafi)</span>
                 </div>
 
                 <!-- Private DNS Shield -->
-                <div class="flex items-center justify-between text-[8px] text-slate-300">
+                <div class="flex items-center justify-between text-[10.5px] text-slate-300">
                   <span>Private DNS Shield</span>
-                  <button onclick="navigator.clipboard && navigator.clipboard.writeText('dns.adguard-family.com'); this.textContent='Copied!';" class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[7px] font-mono">
+                  <button onclick="navigator.clipboard && navigator.clipboard.writeText('dns.adguard-family.com'); this.textContent='Copied!';" class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[9.5px] font-mono">
                     dns.adguard-family.com
                   </button>
                 </div>
@@ -2214,7 +2385,7 @@
                   </div>
                   <div>
                     <h4 class="text-xs font-bold font-display text-white">Qibla Direction</h4>
-                    <p class="text-[8.5px] text-slate-400">Al-Masjid al-Haram, Makkah</p>
+                    <p class="text-[11px] text-slate-400">Al-Masjid al-Haram, Makkah</p>
                   </div>
                 </div>
                 <button onclick="closeQiblaCompass()" class="w-6 h-6 rounded-full bg-white/5 text-slate-400 hover:text-white flex items-center justify-center text-xs" title="Close Compass">
@@ -2229,23 +2400,23 @@
                   <!-- Top Qibla Gate Target Notch -->
                   <div class="absolute -top-1.5 flex flex-col items-center">
                     <div class="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-emerald-400"></div>
-                    <span class="text-[7px] font-bold text-emerald-400 tracking-wider">QIBLA</span>
+                    <span class="text-[9.5px] font-bold text-emerald-400 tracking-wider">QIBLA</span>
                   </div>
 
                   <!-- Angle Markers -->
-                  <span class="absolute left-1.5 text-[8px] font-mono text-slate-500">-90°</span>
-                  <span class="absolute right-1.5 text-[8px] font-mono text-slate-500">+90°</span>
-                  <span class="absolute bottom-1 text-[8px] font-mono text-slate-500">180°</span>
+                  <span class="absolute left-1.5 text-[10.5px] font-mono text-slate-500">-90°</span>
+                  <span class="absolute right-1.5 text-[10.5px] font-mono text-slate-500">+90°</span>
+                  <span class="absolute bottom-1 text-[10.5px] font-mono text-slate-500">180°</span>
 
                   <!-- Gold North Badge -->
-                  <div class="absolute top-2 right-6 w-3.5 h-3.5 rounded-full bg-deen-gold/20 border border-deen-gold/50 flex items-center justify-center text-[7.5px] font-bold text-deen-gold">
+                  <div class="absolute top-2 right-6 w-3.5 h-3.5 rounded-full bg-deen-gold/20 border border-deen-gold/50 flex items-center justify-center text-[10px] font-bold text-deen-gold">
                     N
                   </div>
 
                   <!-- Center Readout Hub -->
                   <div class="w-14 h-14 rounded-full bg-[#0c2326] border-2 border-emerald-400/80 flex flex-col items-center justify-center z-20 shadow-md">
                     <span class="text-xs font-extrabold text-emerald-400 leading-none">283°</span>
-                    <span class="text-[7.5px] font-bold text-deen-gold mt-0.5">WNW</span>
+                    <span class="text-[10px] font-bold text-deen-gold mt-0.5">WNW</span>
                   </div>
 
                   <!-- Needle Line pointing into Qibla gate -->
@@ -2270,7 +2441,7 @@
                 </div>
 
                 <!-- Stats 3-Col Card -->
-                <div class="bg-[#081517] border border-white/5 rounded-xl p-2 text-[8.5px] flex items-center justify-around text-center">
+                <div class="bg-[#081517] border border-white/5 rounded-xl p-2 text-[11px] flex items-center justify-around text-center">
                   <div>
                     <span class="text-slate-500 block uppercase">Bearing</span>
                     <strong class="text-deen-gold">283° WNW</strong>
@@ -2288,7 +2459,7 @@
                 </div>
 
                 <!-- Instruction -->
-                <p class="text-[8px] text-slate-400 text-center leading-relaxed">
+                <p class="text-[10.5px] text-slate-400 text-center leading-relaxed">
                   Turn your device until the green needle points straight up into the Qibla target. The dial will highlight emerald when facing the Kaaba.
                 </p>
 
@@ -2309,27 +2480,27 @@
             
             <button data-tab="0" onclick="handleTriggerPhoneTab(0)" class="phone-tab-btn active flex flex-col items-center justify-center flex-1 py-1 text-deen-gold">
               <i class="fa-solid fa-house text-xs"></i>
-              <span class="text-[8px] font-semibold mt-0.5">Home</span>
+              <span class="text-[10.5px] font-semibold mt-0.5">Home</span>
             </button>
 
             <button data-tab="1" onclick="handleTriggerPhoneTab(1)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
               <i class="fa-solid fa-location-dot text-xs"></i>
-              <span class="text-[8px] font-semibold mt-0.5">Masjid</span>
+              <span class="text-[10.5px] font-semibold mt-0.5">Masjid</span>
             </button>
 
             <button data-tab="2" onclick="handleTriggerPhoneTab(2)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
               <i class="fa-solid fa-bullseye text-xs"></i>
-              <span class="text-[8px] font-semibold mt-0.5">Focus</span>
+              <span class="text-[10.5px] font-semibold mt-0.5">Focus</span>
             </button>
 
             <button data-tab="3" onclick="handleTriggerPhoneTab(3)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
               <i class="fa-solid fa-microphone text-xs"></i>
-              <span class="text-[8px] font-semibold mt-0.5">Jumu'ah</span>
+              <span class="text-[10.5px] font-semibold mt-0.5">Jumu'ah</span>
             </button>
 
             <button data-tab="4" onclick="handleTriggerPhoneTab(4)" class="phone-tab-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-slate-300 transition-colors">
               <i class="fa-solid fa-table-cells-large text-xs"></i>
-              <span class="text-[8px] font-semibold mt-0.5">More</span>
+              <span class="text-[10.5px] font-semibold mt-0.5">More</span>
             </button>
 
           </nav>
@@ -2340,7 +2511,7 @@
         <div id="mobile-active-module-card" class="block lg:hidden w-full max-w-[340px] mt-6 bg-deen-card/70 border border-slate-800 rounded-2xl p-4 shadow-xl backdrop-blur-sm transition-all duration-300">
           <div class="flex items-center justify-between mb-2">
             <span id="mobile-card-tag" class="text-[10px] font-mono font-bold tracking-widest text-deen-gold uppercase">Module 01 / Core Shield</span>
-            <span id="mobile-card-badge" class="px-2 py-0.5 rounded-full text-[8.5px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">67 DAYS CLEAN</span>
+            <span id="mobile-card-badge" class="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">67 DAYS CLEAN</span>
           </div>
           <h3 id="mobile-card-title" class="text-base font-display font-bold text-white tracking-tight mb-1">
             Digital Guardian & Streak Habit Shield
