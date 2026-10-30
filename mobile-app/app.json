@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "DeenHub",
+    "name": "Deen AI",
     "slug": "deen-ai",
     "version": "3.2.0",
-    "orientation": "default",
+    "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "scheme": "deenai",
     "splash": {
@@ -16,18 +16,18 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "DeenHub needs your location to calculate accurate prayer times based on your current position."
+        "NSLocationWhenInUseUsageDescription": "Deen AI needs your location to calculate accurate prayer times based on your current position."
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "resize",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "org.mohdqasim.salahtime.testing",
+      "package": "com.deenai",
       "versionCode": 12,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
@@ -42,16 +42,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font",
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "DeenHub needs your location to calculate accurate prayer times based on your current position."
+          "locationAlwaysAndWhenInUsePermission": "Deen AI needs your location to calculate accurate prayer times based on your current position."
         }
       ],
-      "expo-status-bar",
-      "expo-audio",
-      "expo-notifications"
+      "expo-status-bar"
     ]
   }
 }

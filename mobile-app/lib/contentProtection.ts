@@ -67,7 +67,7 @@ export async function safeOpenURL(url: string): Promise<boolean> {
 export function showContentBlockedNotification(contentType: 'nsfw' | 'app' = 'nsfw'): void {
   if (contentType === 'nsfw') {
     Alert.alert(
-      'Content Blocked by DEEN AI',
+      '🛡️ Content Blocked by DEEN AI',
       'This content has been automatically blocked to protect your spiritual well-being and maintain a halal digital environment.',
       [
         {
@@ -85,7 +85,7 @@ export function showContentBlockedNotification(contentType: 'nsfw' | 'app' = 'ns
     );
   } else {
     Alert.alert(
-      'App Blocked - Focus Mode',
+      '⏰ App Blocked - Focus Mode',
       'This app is currently blocked because Focus Mode is active. Stay focused on what truly matters.',
       [
         {
@@ -166,7 +166,7 @@ export async function initializeContentProtection(): Promise<void> {
   const settings = await getBlockingSettings();
 
   if (settings.enableNSFWBlocking) {
-    console.log('Content Protection Active - DEEN AI is protecting your digital space');
+    console.log('✅ Content Protection Active - DEEN AI is protecting your digital space');
 
     // Here you would initialize native modules for deep packet inspection
     // This requires platform-specific implementations:
@@ -206,7 +206,7 @@ export async function getContentProtectionStatus(): Promise<{
  */
 export async function requestContentProtectionPermissions(): Promise<boolean> {
   Alert.alert(
-    'Content Protection Setup',
+    '🛡️ Content Protection Setup',
     'To enable full content protection without slowing down your internet speed, DEEN AI needs permission to monitor browser URLs.\n\nThis is used solely to block inappropriate content and protect your spiritual well-being.\n\nPermissions required:\n• Accessibility Services (Android)\n• Network Extension (iOS)',
     [
       {

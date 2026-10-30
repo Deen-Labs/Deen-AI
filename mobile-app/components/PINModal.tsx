@@ -8,11 +8,9 @@ import {
   Animated,
   Dimensions,
   Vibration,
-  Alert,
 } from 'react-native';
 
-import { getLockoutRemainingSeconds, removePIN } from '../lib/lock';
-import { useTheme } from '../lib/theme';
+import { getLockoutRemainingSeconds } from '../lib/lock';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -20,7 +18,6 @@ interface PINModalProps {
   visible: boolean;
   onClose: () => void;
   onSubmit: (pin: string) => void;
-  onForgotPin?: () => void;
   title?: string;
   subtitle?: string;
   mode?: 'verify' | 'set' | 'confirm';
@@ -31,13 +28,11 @@ export default function PINModal({
   visible,
   onClose,
   onSubmit,
-  onForgotPin,
   title = 'Enter PIN',
   subtitle = 'Enter your 4-digit PIN to continue',
   mode = 'verify',
   error = null,
 }: PINModalProps) {
-  const { colors, isDark } = useTheme();
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [phase, setPhase] = useState<'enter' | 'confirm'>('enter');
@@ -110,29 +105,6 @@ export default function PINModal({
       Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
       Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
     ]).start();
-  };
-
-  const handleForgotPinPress = () => {
-    if (onForgotPin) {
-      onForgotPin();
-    } else {
-      Alert.alert(
-        'Forgot Protection PIN?',
-        'To prevent permanent lockout, you can reset your PIN security settings. Once reset, your PIN will be cleared and you can set a new one.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Reset PIN',
-            style: 'destructive',
-            onPress: async () => {
-              await removePIN();
-              onClose();
-              Alert.alert('PIN Reset', 'Your protection PIN has been cleared.');
-            },
-          },
-        ]
-      );
-    }
   };
 
   const handleKeyPress = async (key: string) => {
@@ -227,7 +199,6 @@ export default function PINModal({
         <Animated.View
           style={[
             styles.container,
-            { backgroundColor: colors.card, borderColor: colors.border },
             {
               transform: [
                 { translateX: shakeAnim },
@@ -243,29 +214,9 @@ export default function PINModal({
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.text }]}>{currentTitle}</Text>
-            <Text style={[styles.subtitle, { color: colors.textMuted }]}>{currentSubtitle}</Text>
+            <Text style={styles.title}>{currentTitle}</Text>
+            <Text style={styles.subtitle}>{currentSubtitle}</Text>
           </View>
-
-          {/* Family / Friend Accountability Recommendation */}
-          {mode === 'set' && (
-            <View
-              style={[
-                styles.accountabilityCallout,
-                {
-                  backgroundColor: isDark ? 'rgba(226, 162, 59, 0.12)' : 'rgba(184, 121, 20, 0.10)',
-                  borderColor: isDark ? 'rgba(226, 162, 59, 0.35)' : 'rgba(184, 121, 20, 0.25)',
-                },
-              ]}
-            >
-              <Text style={[styles.accountabilityCalloutTitle, { color: colors.accentGold }]}>
-                💡 Family / Friend Accountability Tip
-              </Text>
-              <Text style={[styles.accountabilityCalloutText, { color: colors.textSecondary }]}>
-                For true accountability, have a trusted family member, spouse, or close friend choose and enter this 4-digit PIN for you so you cannot impulsively bypass protection.
-              </Text>
-            </View>
-          )}
 
           {/* PIN Dots */}
           <View style={styles.dotsContainer}>
@@ -274,8 +225,7 @@ export default function PINModal({
                 key={i}
                 style={[
                   styles.dot,
-                  { borderColor: colors.accentGold },
-                  i < currentPin.length && { backgroundColor: colors.accentGold },
+                  i < currentPin.length && styles.dotFilled,
                 ]}
               />
             ))}
@@ -298,7 +248,6 @@ export default function PINModal({
                     key={index}
                     style={[
                       styles.key,
-                      { backgroundColor: colors.surface, borderColor: colors.borderSubtle },
                       key === 'delete' && styles.keyDelete,
                     ]}
                     onPress={() => handleKeyPress(key)}
@@ -307,7 +256,6 @@ export default function PINModal({
                     <Text
                       style={[
                         styles.keyText,
-                        { color: colors.text },
                         key === 'delete' && styles.keyDeleteText,
                       ]}
                     >
@@ -319,35 +267,24 @@ export default function PINModal({
             )}
           </View>
 
-          {/* Forgot PIN Link in Verify Mode */}
-          {mode === 'verify' && (
-            <TouchableOpacity
-              style={styles.forgotPinBtn}
-              onPress={handleForgotPinPress}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.forgotPinText, { color: colors.accentGold }]}>Forgot PIN?</Text>
-            </TouchableOpacity>
-          )}
-
           {/* Action Buttons */}
           <View style={styles.actions}>
             <TouchableOpacity
-              style={[styles.submitButton, { backgroundColor: colors.accentGold }]}
+              style={styles.submitButton}
               onPress={() => handleKeyPress('submit')}
               activeOpacity={0.8}
             >
-              <Text style={[styles.submitButtonText, { color: '#0f1718' }]}>
+              <Text style={styles.submitButtonText}>
                 {mode === 'set' && phase === 'enter' ? 'Next' : 'Confirm'}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.cancelButton, { backgroundColor: colors.pill, borderColor: colors.borderSubtle }]}
+              style={styles.cancelButton}
               onPress={onClose}
               activeOpacity={0.8}
             >
-              <Text style={[styles.cancelButtonText, { color: colors.textSecondary }]}>Cancel</Text>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -357,18 +294,6 @@ export default function PINModal({
 }
 
 const styles = StyleSheet.create({
-  forgotPinBtn: {
-    alignSelf: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  forgotPinText: {
-    fontSize: 12.5,
-    fontWeight: '700',
-    textDecorationLine: 'underline',
-  },
-
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
@@ -401,22 +326,6 @@ const styles = StyleSheet.create({
     color: '#94a4a2',
     textAlign: 'center',
     lineHeight: 18,
-  },
-  accountabilityCallout: {
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 16,
-    width: '100%',
-  },
-  accountabilityCalloutTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  accountabilityCalloutText: {
-    fontSize: 11.5,
-    lineHeight: 16,
   },
   dotsContainer: {
     flexDirection: 'row',

@@ -16,19 +16,10 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Masjid } from '../lib/masjid';
-import { parsePrayerTimeToMinutes } from '../lib/prayerTimes';
-import { Switch } from 'react-native';
-import { getImamSession, ImamSession } from '../lib/masjidTimingSync';
-import { useTheme } from '../lib/theme';
 
 export interface TimingFormData {
   name?: string;
   address?: string;
-  famousArea?: string;
-  presidentName?: string;
-  ladiesSection?: boolean;
-  qariName?: string;
-  taravihTime?: string;
   school?: 'Ahle Sunnah (Hanafi)' | 'Ahle Hadees';
   athanTimes: {
     Fajr: string;
@@ -51,113 +42,15 @@ export interface TimingFormData {
   iftar?: string;
   notes?: string;
   muazzinPasscode?: string;
-  imamName?: string;
-}
-
-/**
- * Strict validation for Salah timings.
- * - Every time must either be 'Sunset' or match ^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$
- * - Enforces period constraints (Fajr/Sunrise/Sahar = AM, Asr/Maghrib/Isha/Iftar = PM)
- * - Enforces that for Fajr, Dhuhr, Asr, Isha (and Jummah), Jama'at time >= Athan time.
- */
-export function validateSalahTimings(formData: TimingFormData): { valid: boolean; error?: string } {
-  const TIME_REGEX = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i;
-
-  const checks: { label: string; time?: string; requiredPeriod?: 'AM' | 'PM'; allowSunset?: boolean }[] = [
-    { label: 'Fajr Athan', time: formData.athanTimes?.Fajr, requiredPeriod: 'AM' },
-    { label: 'Fajr Jamaat', time: formData.iqamahTimes?.Fajr, requiredPeriod: 'AM' },
-    { label: 'Dhuhr Athan', time: formData.athanTimes?.Dhuhr, requiredPeriod: 'PM' },
-    { label: 'Dhuhr Jamaat', time: formData.iqamahTimes?.Dhuhr, requiredPeriod: 'PM' },
-    { label: 'Asr Athan', time: formData.athanTimes?.Asr, requiredPeriod: 'PM' },
-    { label: 'Asr Jamaat', time: formData.iqamahTimes?.Asr, requiredPeriod: 'PM' },
-    { label: 'Maghrib Athan', time: formData.athanTimes?.Maghrib, requiredPeriod: 'PM', allowSunset: true },
-    { label: 'Maghrib Jamaat', time: formData.iqamahTimes?.Maghrib, requiredPeriod: 'PM', allowSunset: true },
-    { label: 'Isha Athan', time: formData.athanTimes?.Isha, requiredPeriod: 'PM' },
-    { label: 'Isha Jamaat', time: formData.iqamahTimes?.Isha, requiredPeriod: 'PM' },
-    { label: 'Jumu\'ah Jamaat', time: formData.jummah, requiredPeriod: 'PM' },
-  ];
-
-  if (formData.jummahAthan) {
-    checks.push({ label: 'Jumu\'ah Athan', time: formData.jummahAthan, requiredPeriod: 'PM' });
-  }
-  if (formData.sunrise) {
-    checks.push({ label: 'Sunrise', time: formData.sunrise, requiredPeriod: 'AM' });
-  }
-  if (formData.sahar) {
-    checks.push({ label: 'Sahar / Suhoor', time: formData.sahar, requiredPeriod: 'AM' });
-  }
-  if (formData.iftar) {
-    checks.push({ label: 'Iftar', time: formData.iftar, requiredPeriod: 'PM', allowSunset: true });
-  }
-  if (formData.taravihTime) {
-    checks.push({ label: 'Taraweeh Time', time: formData.taravihTime, requiredPeriod: 'PM' });
-  }
-
-  for (const c of checks) {
-    if (!c.time || c.time === '--:--' || c.time.trim() === '') {
-      return { valid: false, error: `${c.label} cannot be empty or "--:--".` };
-    }
-
-    const cleanTime = c.time.trim();
-    if (c.allowSunset && cleanTime.toLowerCase() === 'sunset') {
-      continue;
-    }
-
-    if (!TIME_REGEX.test(cleanTime)) {
-      return {
-        valid: false,
-        error: `${c.label} ("${cleanTime}") has an invalid format. Must be in standard 12-hour format like "05:30 AM" or "01:15 PM".`,
-      };
-    }
-
-    if (c.requiredPeriod) {
-      const isAM = /AM$/i.test(cleanTime);
-      const isPM = /PM$/i.test(cleanTime);
-      if (c.requiredPeriod === 'AM' && !isAM) {
-        return { valid: false, error: `${c.label} ("${cleanTime}") must be in the AM period.` };
-      }
-      if (c.requiredPeriod === 'PM' && !isPM) {
-        return { valid: false, error: `${c.label} ("${cleanTime}") must be in the PM period.` };
-      }
-    }
-  }
-
-  // Jama'at >= Athan check
-  const pairs: { prayer: string; athan?: string; jamaat?: string }[] = [
-    { prayer: 'Fajr', athan: formData.athanTimes?.Fajr, jamaat: formData.iqamahTimes?.Fajr },
-    { prayer: 'Dhuhr', athan: formData.athanTimes?.Dhuhr, jamaat: formData.iqamahTimes?.Dhuhr },
-    { prayer: 'Asr', athan: formData.athanTimes?.Asr, jamaat: formData.iqamahTimes?.Asr },
-    { prayer: 'Isha', athan: formData.athanTimes?.Isha, jamaat: formData.iqamahTimes?.Isha },
-  ];
-
-  if (formData.jummahAthan && formData.jummah) {
-    pairs.push({ prayer: 'Jumu\'ah', athan: formData.jummahAthan, jamaat: formData.jummah });
-  }
-
-  for (const p of pairs) {
-    if (p.athan && p.jamaat) {
-      const athanMins = parsePrayerTimeToMinutes(p.athan, p.prayer);
-      const jamaatMins = parsePrayerTimeToMinutes(p.jamaat, p.prayer);
-      if (athanMins >= 0 && jamaatMins >= 0 && jamaatMins < athanMins) {
-        return {
-          valid: false,
-          error: `${p.prayer} Jama'at time (${p.jamaat}) cannot be earlier than its Athan time (${p.athan}).`,
-        };
-      }
-    }
-  }
-
-  return { valid: true };
 }
 
 interface UpdateMasjidTimingModalProps {
   visible: boolean;
   masjid: Masjid | null;
   mode?: 'update' | 'add';
-  editScope?: 'all' | 'details' | 'timings';
   currentLocation?: { latitude: number; longitude: number } | null;
   onClose: () => void;
-  onSubmit: (data: TimingFormData & { editScope?: 'all' | 'details' | 'timings' }) => Promise<void>;
+  onSubmit: (data: TimingFormData) => Promise<void>;
 }
 
 // ─── Digital LED Time Cell Component ──────────────────────────────────────────
@@ -180,8 +73,8 @@ function DigitalTimeInput({
   allowSunset = false,
   disabled = false,
 }: DigitalTimeInputProps) {
-  const hourRef = useRef<any>(null);
-  const minuteRef = useRef<any>(null);
+  const hourRef = useRef<TextInput>(null);
+  const minuteRef = useRef<TextInput>(null);
   const [isFocused, setIsFocused] = useState(false);
 
   // Parse initial value safely without defaulting to 12
@@ -385,25 +278,18 @@ export default function UpdateMasjidTimingModal({
   visible,
   masjid,
   mode = 'update',
-  editScope = 'all',
   currentLocation,
   onClose,
   onSubmit,
 }: UpdateMasjidTimingModalProps) {
-  const { colors, isDark } = useTheme();
   const isAddMode = mode === 'add';
 
   // Masjid Meta
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
-  const [famousArea, setFamousArea] = useState('');
-  const [presidentName, setPresidentName] = useState('');
-  const [ladiesSection, setLadiesSection] = useState(false);
-  const [qariName, setQariName] = useState('');
-  const [taravihTime, setTaravihTime] = useState('08:45 PM');
   const [school, setSchool] = useState<'Ahle Sunnah (Hanafi)' | 'Ahle Hadees'>('Ahle Sunnah (Hanafi)');
   const [notes, setNotes] = useState('');
-  const [imamSession, setImamSession] = useState<ImamSession | null>(null);
+  const [muazzinPasscode, setMuazzinPasscode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Athan Times (Green)
@@ -427,21 +313,12 @@ export default function UpdateMasjidTimingModal({
 
   useEffect(() => {
     if (visible) {
-      getImamSession().then((session) => {
-        if (session) {
-          setImamSession(session);
-        }
-      });
       if (isAddMode) {
         setName('');
         setAddress('');
-        setFamousArea('');
-        setPresidentName('');
-        setLadiesSection(false);
-        setQariName('');
-        setTaravihTime('08:45 PM');
         setSchool('Ahle Sunnah (Hanafi)');
         setNotes('');
+        setMuazzinPasscode('');
         setFajrAthan('5:00 AM');
         setSunriseAthan('6:15 AM');
         setDhuhrAthan('12:45 PM');
@@ -461,13 +338,9 @@ export default function UpdateMasjidTimingModal({
       } else if (masjid) {
         setName(masjid.name);
         setAddress(masjid.address || masjid.vicinity || '');
-        setFamousArea(masjid.famousArea || '');
-        setPresidentName(masjid.presidentName || '');
-        setLadiesSection(Boolean(masjid.ladiesSection));
-        setQariName(masjid.qariName || '');
-        setTaravihTime(masjid.taravihTime || '08:45 PM');
         setSchool(masjid.school || 'Ahle Sunnah (Hanafi)');
-        setNotes(masjid.announcements || masjid.notes || masjid.about || '');
+        setNotes('');
+        setMuazzinPasscode('');
 
         setFajrAthan(masjid.athanTimes?.Fajr || '5:00 AM');
         setSunriseAthan(masjid.sunrise || '6:15 AM');
@@ -492,58 +365,45 @@ export default function UpdateMasjidTimingModal({
   if (!visible) return null;
 
   const handleSave = async () => {
-    if (!name.trim()) {
-      Alert.alert('Required Field', 'Please enter the Masjid name.');
-      return;
-    }
-    if (!address.trim()) {
-      Alert.alert('Required Field', 'Please enter the locality or neighborhood.');
-      return;
-    }
-
-    const payload: TimingFormData = {
-      name: name.trim(),
-      address: address.trim(),
-      famousArea: famousArea.trim() || undefined,
-      presidentName: presidentName.trim() || undefined,
-      ladiesSection,
-      qariName: qariName.trim() || undefined,
-      taravihTime: taravihTime.trim() || undefined,
-      school,
-      athanTimes: {
-        Fajr: cleanFinalTime(fajrAthan, '5:00 AM'),
-        Dhuhr: cleanFinalTime(dhuhrAthan, '12:45 PM'),
-        Asr: cleanFinalTime(asrAthan, '3:45 PM'),
-        Maghrib: cleanFinalTime(maghribAthan, '6:35 PM'),
-        Isha: cleanFinalTime(ishaAthan, '8:15 PM'),
-      },
-      iqamahTimes: {
-        Fajr: cleanFinalTime(fajrJamaat, '5:20 AM'),
-        Dhuhr: cleanFinalTime(dhuhrJamaat, '1:00 PM'),
-        Asr: cleanFinalTime(asrJamaat, '4:00 PM'),
-        Maghrib: cleanFinalTime(maghribJamaat, 'Sunset'),
-        Isha: cleanFinalTime(ishaJamaat, '8:30 PM'),
-      },
-      jummah: cleanFinalTime(jummahJamaat, '1:30 PM'),
-      jummahAthan: cleanFinalTime(jummahAthan, '12:45 PM'),
-      sunrise: cleanFinalTime(sunriseAthan, '6:15 AM'),
-      sahar: cleanFinalTime(saharAthan, '5:05 AM'),
-      iftar: cleanFinalTime(iftarJamaat, '6:38 PM'),
-      notes: notes.trim(),
-      muazzinPasscode: imamSession?.token || '',
-      imamName: imamSession?.imamName || '',
-    };
-
-    // Strict validation
-    const validation = validateSalahTimings(payload);
-    if (!validation.valid) {
-      Alert.alert('Invalid Timing', validation.error || 'Please correct timing errors before saving.');
-      return;
+    if (isAddMode) {
+      if (!name.trim()) {
+        Alert.alert('Required Field', 'Please enter the Masjid name.');
+        return;
+      }
+      if (!address.trim()) {
+        Alert.alert('Required Field', 'Please enter the locality or neighborhood.');
+        return;
+      }
     }
 
     setIsSubmitting(true);
     try {
-      await onSubmit(payload);
+      await onSubmit({
+        name: name.trim(),
+        address: address.trim(),
+        school,
+        athanTimes: {
+          Fajr: cleanFinalTime(fajrAthan, '5:00 AM'),
+          Dhuhr: cleanFinalTime(dhuhrAthan, '12:45 PM'),
+          Asr: cleanFinalTime(asrAthan, '3:45 PM'),
+          Maghrib: cleanFinalTime(maghribAthan, '6:35 PM'),
+          Isha: cleanFinalTime(ishaAthan, '8:15 PM'),
+        },
+        iqamahTimes: {
+          Fajr: cleanFinalTime(fajrJamaat, '5:20 AM'),
+          Dhuhr: cleanFinalTime(dhuhrJamaat, '1:00 PM'),
+          Asr: cleanFinalTime(asrJamaat, '4:00 PM'),
+          Maghrib: cleanFinalTime(maghribJamaat, 'Sunset'),
+          Isha: cleanFinalTime(ishaJamaat, '8:30 PM'),
+        },
+        jummah: cleanFinalTime(jummahJamaat, '1:30 PM'),
+        jummahAthan: cleanFinalTime(jummahAthan, '12:45 PM'),
+        sunrise: cleanFinalTime(sunriseAthan, '6:15 AM'),
+        sahar: cleanFinalTime(saharAthan, '5:05 AM'),
+        iftar: cleanFinalTime(iftarJamaat, '6:38 PM'),
+        notes: notes.trim(),
+        muazzinPasscode: muazzinPasscode.trim(),
+      });
       onClose();
     } catch (err) {
       console.error('[UpdateMasjidTimingModal] Error saving masjid timings:', err);
@@ -569,21 +429,21 @@ export default function UpdateMasjidTimingModal({
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.keyboardAvoid}
         >
-          <View style={[styles.modalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={styles.modalCard}>
             {/* Top Handle */}
-            <View style={[styles.handleBar, { backgroundColor: colors.borderSubtle }]} />
+            <View style={styles.handleBar} />
 
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerTitleRow}>
-                <View style={[styles.iconBadge, { backgroundColor: colors.pill, borderColor: colors.border }]}>
-                  <Feather name={isAddMode ? 'plus-circle' : 'clock'} size={18} color={colors.accentGold} />
+                <View style={styles.iconBadge}>
+                  <Feather name={isAddMode ? 'plus-circle' : 'clock'} size={18} color="#e2a23b" />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+                  <Text style={styles.title} numberOfLines={1}>
                     {isAddMode ? 'Add Missing Masjid' : 'Edit Masjid Timing Board'}
                   </Text>
-                  <Text style={[styles.masjidName, { color: colors.accentGold }]} numberOfLines={1}>
+                  <Text style={styles.masjidName} numberOfLines={1}>
                     {isAddMode ? "Add masjid & set Jama'at board" : masjid?.name}
                   </Text>
                 </View>
@@ -592,12 +452,12 @@ export default function UpdateMasjidTimingModal({
                   hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
                   style={styles.closeBtn}
                 >
-                  <Feather name="x" size={20} color={colors.textMuted} />
+                  <Feather name="x" size={20} color="#94a3b8" />
                 </TouchableOpacity>
               </View>
 
               {!isAddMode && (
-                <Text style={[styles.addressText, { color: colors.textMuted }]} numberOfLines={1}>
+                <Text style={styles.addressText} numberOfLines={1}>
                   {masjid?.address || masjid?.vicinity || 'Hyderabad'}
                 </Text>
               )}
@@ -611,124 +471,85 @@ export default function UpdateMasjidTimingModal({
               keyboardShouldPersistTaps="handled"
               nestedScrollEnabled={true}
             >
-              {/* Masjid Metadata Section (Editable in both add and update modes) */}
-              {editScope !== 'timings' && (
-              <View style={styles.addDetailsSection}>
-                <Text style={[styles.sectionLabel, { color: colors.accentGold }]}>MASJID METADATA & COMMITTEE</Text>
+              {/* Add Mode Meta Inputs */}
+              {isAddMode && (
+                <View style={styles.addDetailsSection}>
+                  <Text style={styles.sectionLabel}>MASJID INFORMATION</Text>
 
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Masjid Name *</Text>
-                  <TextInput
-                    style={[styles.metaTextInput, { backgroundColor: colors.inputBg, borderColor: colors.borderSubtle, color: colors.text }]}
-                    value={name}
-                    onChangeText={setName}
-                    placeholder="e.g. Historic Makkah Masjid"
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
-                    returnKeyType="next"
-                  />
-                </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Address / Neighborhood *</Text>
-                  <TextInput
-                    style={[styles.metaTextInput, { backgroundColor: colors.inputBg, borderColor: colors.borderSubtle, color: colors.text }]}
-                    value={address}
-                    onChangeText={setAddress}
-                    placeholder="e.g. Near Charminar, Old City, Hyderabad"
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
-                    returnKeyType="next"
-                  />
-                </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Famous Area / Landmark</Text>
-                  <TextInput
-                    style={[styles.metaTextInput, { backgroundColor: colors.inputBg, borderColor: colors.borderSubtle, color: colors.text }]}
-                    value={famousArea}
-                    onChangeText={setFamousArea}
-                    placeholder="e.g. Charminar Chowk"
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
-                    returnKeyType="next"
-                  />
-                </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>President / Trustee Name</Text>
-                  <TextInput
-                    style={[styles.metaTextInput, { backgroundColor: colors.inputBg, borderColor: colors.borderSubtle, color: colors.text }]}
-                    value={presidentName}
-                    onChangeText={setPresidentName}
-                    placeholder="e.g. Janab Abdul Quddus Sahab"
-                    placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
-                    returnKeyType="next"
-                  />
-                </View>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 6, marginVertical: 4 }}>
-                  <Text style={[styles.inputLabel, { color: colors.textSecondary, marginTop: 0 }]}>Ladies Section Available</Text>
-                  <Switch
-                    value={ladiesSection}
-                    onValueChange={setLadiesSection}
-                    trackColor={{ false: isDark ? '#334155' : '#cbd5e1', true: colors.accentGreen }}
-                    thumbColor="#f3f7f6"
-                  />
-                </View>
-
-                <Text style={[styles.inputLabel, { color: colors.textSecondary, marginTop: 4 }]}>School of Thought</Text>
-                <View style={styles.schoolPillRow}>
-                  <TouchableOpacity
-                    style={[
-                      styles.schoolPill,
-                      { backgroundColor: colors.card, borderColor: colors.borderSubtle },
-                      school === 'Ahle Sunnah (Hanafi)' && [styles.schoolPillActive, { backgroundColor: colors.pill, borderColor: colors.accentGold }],
-                    ]}
-                    onPress={() => setSchool('Ahle Sunnah (Hanafi)')}
-                  >
-                    <Text
-                      style={[
-                        styles.schoolPillText,
-                        { color: colors.textMuted },
-                        school === 'Ahle Sunnah (Hanafi)' && [styles.schoolPillTextActive, { color: colors.accentGold }],
-                      ]}
-                    >
-                      Ahle Sunnah (Hanafi)
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.schoolPill,
-                      { backgroundColor: colors.card, borderColor: colors.borderSubtle },
-                      school === 'Ahle Hadees' && [styles.schoolPillActive, { backgroundColor: colors.pill, borderColor: colors.accentGold }],
-                    ]}
-                    onPress={() => setSchool('Ahle Hadees')}
-                  >
-                    <Text
-                      style={[
-                        styles.schoolPillText,
-                        { color: colors.textMuted },
-                        school === 'Ahle Hadees' && [styles.schoolPillTextActive, { color: colors.accentGold }],
-                      ]}
-                    >
-                      Ahle Hadees
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                {currentLocation && isAddMode && (
-                  <View style={styles.gpsBadge}>
-                    <Feather name="navigation" size={11} color="#e2a23b" style={{ marginRight: 5 }} />
-                    <Text style={styles.gpsBadgeText}>
-                      GPS Location Auto-Tagged: {currentLocation.latitude.toFixed(4)},{' '}
-                      {currentLocation.longitude.toFixed(4)}
-                    </Text>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Masjid Name *</Text>
+                    <TextInput
+                      style={styles.metaTextInput}
+                      value={name}
+                      onChangeText={setName}
+                      placeholder="e.g. Masjid-e-Bilal"
+                      placeholderTextColor="#64748b"
+                      returnKeyType="next"
+                    />
                   </View>
-                )}
-              </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Area / Locality *</Text>
+                    <TextInput
+                      style={styles.metaTextInput}
+                      value={address}
+                      onChangeText={setAddress}
+                      placeholder="e.g. Paramount Colony, Tolichowki, Hyderabad"
+                      placeholderTextColor="#64748b"
+                      returnKeyType="next"
+                    />
+                  </View>
+
+                  <Text style={[styles.inputLabel, { marginTop: 4 }]}>School of Thought</Text>
+                  <View style={styles.schoolPillRow}>
+                    <TouchableOpacity
+                      style={[
+                        styles.schoolPill,
+                        school === 'Ahle Sunnah (Hanafi)' && styles.schoolPillActive,
+                      ]}
+                      onPress={() => setSchool('Ahle Sunnah (Hanafi)')}
+                    >
+                      <Text
+                        style={[
+                          styles.schoolPillText,
+                          school === 'Ahle Sunnah (Hanafi)' && styles.schoolPillTextActive,
+                        ]}
+                      >
+                        Ahle Sunnah (Hanafi)
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.schoolPill,
+                        school === 'Ahle Hadees' && styles.schoolPillActive,
+                      ]}
+                      onPress={() => setSchool('Ahle Hadees')}
+                    >
+                      <Text
+                        style={[
+                          styles.schoolPillText,
+                          school === 'Ahle Hadees' && styles.schoolPillTextActive,
+                        ]}
+                      >
+                        Ahle Hadees
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {currentLocation && (
+                    <View style={styles.gpsBadge}>
+                      <Feather name="navigation" size={11} color="#e2a23b" style={{ marginRight: 5 }} />
+                      <Text style={styles.gpsBadgeText}>
+                        GPS Location Auto-Tagged: {currentLocation.latitude.toFixed(4)},{' '}
+                        {currentLocation.longitude.toFixed(4)}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               )}
 
               {/* ─── EXACT DIGITAL LED TIMING BOARD UI ─── */}
-              {editScope !== 'details' && (
               <View style={styles.ledBoardWrapper}>
                 <View style={styles.ledBoard}>
                   {/* Calligraphy Header Banner */}
@@ -738,7 +559,7 @@ export default function UpdateMasjidTimingModal({
 
                   {/* Column Headers */}
                   <View style={styles.ledRowHeader}>
-                    <Text style={[styles.ledHeaderCell, { flex: 1.1, textAlign: 'center' }]}>PRAYER</Text>
+                    <Text style={[styles.ledHeaderCell, { flex: 1.1, textAlign: 'left' }]}>PRAYER</Text>
                     <Text
                       style={[
                         styles.ledHeaderCell,
@@ -996,43 +817,76 @@ export default function UpdateMasjidTimingModal({
                   </View>
                 </View>
               </View>
-              )}
 
-              {/* Verified Session Badge (No redundant PIN input) */}
-              {imamSession && (
-                <View style={[styles.imamVerifiedBadgeContainer, { marginHorizontal: 0, marginTop: 14, marginBottom: 4 }]}>
-                  <Feather name="shield" size={14} color="#10b981" style={{ marginRight: 6 }} />
-                  <Text style={styles.imamVerifiedBadgeText}>
-                    Verified Publishing: {imamSession.imamName}
-                  </Text>
+              {/* Official Muazzin / Committee Access Section */}
+              <View style={styles.muazzinSection}>
+                <View style={styles.muazzinHeaderRow}>
+                  <View style={styles.muazzinShieldIcon}>
+                    <Feather name="shield" size={14} color="#f59e0b" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.muazzinTitle}>MUAZZIN / COMMITTEE ACCESS (OPTIONAL)</Text>
+                    <Text style={styles.muazzinSubtitle}>
+                      Official Muazzins: enter your 4-digit passcode to grant official verified status.
+                    </Text>
+                  </View>
                 </View>
-              )}
+
+                <View style={styles.muazzinInputRow}>
+                  <Feather name="lock" size={14} color="#f59e0b" style={{ marginRight: 8 }} />
+                  <TextInput
+                    style={styles.muazzinTextInput}
+                    value={muazzinPasscode}
+                    onChangeText={setMuazzinPasscode}
+                    placeholder="Enter 4-digit code (e.g. 7860)"
+                    placeholderTextColor="#64748b"
+                    keyboardType="number-pad"
+                    maxLength={8}
+                    secureTextEntry={true}
+                  />
+                  {muazzinPasscode.trim().length >= 4 && (
+                    <View style={styles.muazzinStatusPill}>
+                      <Feather name="check" size={12} color="#10b981" />
+                      <Text style={styles.muazzinStatusPillText}>Code Entered</Text>
+                    </View>
+                  )}
+                </View>
+
+                {muazzinPasscode.trim().length >= 4 && (
+                  <View style={styles.muazzinVerifiedPreview}>
+                    <Feather name="award" size={12} color="#f59e0b" style={{ marginRight: 5 }} />
+                    <Text style={styles.muazzinVerifiedPreviewText}>
+                      Will publish as "Verified by Muazzin 🕌"
+                    </Text>
+                  </View>
+                )}
+              </View>
 
               {/* Optional Notes */}
-              <Text style={[styles.sectionLabel, { color: colors.accentGold, marginTop: 14 }]}>OPTIONAL NOTES / NOTICE</Text>
+              <Text style={[styles.sectionLabel, { marginTop: 14 }]}>OPTIONAL NOTES / NOTICE</Text>
               <TextInput
-                style={[styles.metaTextInput, styles.notesInput, { backgroundColor: colors.inputBg, borderColor: colors.borderSubtle, color: colors.text }]}
+                style={[styles.metaTextInput, styles.notesInput]}
                 value={notes}
                 onChangeText={setNotes}
                 placeholder="e.g. 2nd Jummah at 2:00 PM, Taraweeh timings"
-                placeholderTextColor={isDark ? "#64748b" : "#94a3b8"}
+                placeholderTextColor="#64748b"
                 multiline
                 numberOfLines={2}
               />
             </ScrollView>
 
             {/* Action Buttons */}
-            <View style={[styles.actionRow, { borderTopColor: colors.borderSubtle }]}>
+            <View style={styles.actionRow}>
               <TouchableOpacity
-                style={[styles.cancelBtn, { backgroundColor: colors.pill, borderColor: colors.borderSubtle }]}
+                style={styles.cancelBtn}
                 onPress={onClose}
                 disabled={isSubmitting}
               >
-                <Text style={[styles.cancelBtnText, { color: colors.textMuted }]}>Cancel</Text>
+                <Text style={styles.cancelBtnText}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.submitBtn, { backgroundColor: colors.accentGoldBg }, isSubmitting && styles.submitBtnDisabled]}
+                style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]}
                 onPress={handleSave}
                 disabled={isSubmitting}
                 activeOpacity={0.85}
@@ -1270,8 +1124,6 @@ const styles = StyleSheet.create({
     flex: 1.1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
   },
   ledArabicLabel: {
     fontSize: 12,
@@ -1359,6 +1211,84 @@ const styles = StyleSheet.create({
     color: '#242829',
   },
 
+  // Muazzin Section
+  muazzinSection: {
+    marginTop: 14,
+    backgroundColor: 'rgba(245, 158, 11, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.25)',
+    borderRadius: 12,
+    padding: 12,
+  },
+  muazzinHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  muazzinShieldIcon: {
+    width: 26,
+    height: 26,
+    borderRadius: 7,
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  muazzinTitle: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#fbbf24',
+    letterSpacing: 0.8,
+  },
+  muazzinSubtitle: {
+    fontSize: 11,
+    color: '#94a3b8',
+    marginTop: 1,
+  },
+  muazzinInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderWidth: 1,
+    borderColor: '#334155',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginTop: 4,
+  },
+  muazzinTextInput: {
+    flex: 1,
+    fontSize: 13,
+    color: '#ffffff',
+    fontWeight: '600',
+    padding: 0,
+  },
+  muazzinStatusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginLeft: 6,
+  },
+  muazzinStatusPillText: {
+    color: '#10b981',
+    fontSize: 10,
+    fontWeight: '700',
+    marginLeft: 3,
+  },
+  muazzinVerifiedPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    paddingLeft: 2,
+  },
+  muazzinVerifiedPreviewText: {
+    fontSize: 11,
+    color: '#f59e0b',
+    fontWeight: '600',
+  },
 
   // Action Buttons
   actionRow: {
@@ -1404,22 +1334,6 @@ const styles = StyleSheet.create({
   submitBtnText: {
     color: '#0f172a',
     fontSize: 13,
-    fontWeight: '700',
-  },
-  imamVerifiedBadgeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    marginBottom: 8,
-  },
-  imamVerifiedBadgeText: {
-    color: '#10b981',
-    fontSize: 12,
     fontWeight: '700',
   },
 });

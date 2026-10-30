@@ -17,14 +17,6 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
-*.apk
-.gradle/
-.cxx/
-build/
-android/.gradle/
-android/app/build/
-android/app/.cxx/
-android/build/
 
 # Metro
 .metro-health-check*
@@ -48,16 +40,3 @@ yarn-error.*
 
 # generated native folders
 /ios
-
-# audit and scratch files
-scratch/
-deen-audit*.txt
-salat-audit*.txt
-
-audits-and-apks/
-archives/
-*audit*.txt
-*audit*.xml
-*repomix*
-Repomix.txt
-repomix-output.xml

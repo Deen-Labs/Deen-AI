@@ -51,17 +51,17 @@ async function run() {
         for (const name of ['ic_launcher.webp', 'ic_launcher_round.webp']) {
             await (await compositeIcon(SOURCE, size, LAUNCHER_FILL, { r: 13, g: 35, b: 24, alpha: 255 }))
                 .toFile(path.join(outDir, name));
-            console.log(`  [OK] ${dir}/${name} (${size}x${size})`);
+            console.log(`  ✅ ${dir}/${name} (${size}x${size})`);
         }
 
         // Adaptive foreground — transparent bg, safe zone padding
         const fgSize = Math.round(size * 1.5);
         await (await compositeIcon(SOURCE, fgSize, FOREGROUND_FILL, { r: 0, g: 0, b: 0, alpha: 0 }))
             .toFile(path.join(outDir, 'ic_launcher_foreground.webp'));
-        console.log(`  [OK] ${dir}/ic_launcher_foreground.webp (${fgSize}x${fgSize})`);
+        console.log(`  ✅ ${dir}/ic_launcher_foreground.webp (${fgSize}x${fgSize})`);
     }
 
-    console.log('\n All icon sizes generated successfully!');
+    console.log('\n🎉 All icon sizes generated successfully!');
 }
 
 run().catch(err => {

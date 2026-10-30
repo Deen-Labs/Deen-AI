@@ -43,17 +43,14 @@ export interface ChatMessage {
 const AI_PROXY_URL = process.env.EXPO_PUBLIC_AI_PROXY_URL || 'https://deenlabs.tech/api/imam-chat';
 const CLIENT_VERSION_HEADER = 'deen-ai-v3.2.0';
 
-// Direct Gemini API key support (from .env EXPO_PUBLIC_GEMINI_API_KEY)
-const DEV_GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
+// Local development fallback only if __DEV__ is true
+const DEV_GEMINI_API_KEY = typeof __DEV__ !== 'undefined' && __DEV__ ? (process.env.EXPO_PUBLIC_GEMINI_API_KEY || '') : '';
 
-// Top 3 usable models based on user quota & token velocity:
-// 1. gemini-3.5-flash-lite: 500 RPD, 15 RPM, 250K TPM (Primary)
-// 2. gemini-3.1-flash-lite: 500 RPD, 15 RPM, 250K TPM (Tier 1 Fallback)
-// 3. gemini-2.5-flash:      20 RPD, 5 RPM, 250K TPM  (Tier 2 Fallback)
 export const CANDIDATE_MODELS = [
-    'gemini-3.5-flash-lite', // Primary: 500 RPD, 15 RPM, fastest inference
-    'gemini-3.1-flash-lite', // Tier 1: 500 RPD, 15 RPM
-    'gemini-2.5-flash',      // Tier 2: 20 RPD, 5 RPM
+    'gemini-3.5-flash-lite', // Primary Default: 500 RPD, 15 RPM, high speed
+    'gemini-3.1-flash-lite', // Tier 1 Fallback: 500 RPD, 15 RPM
+    'gemini-3-flash',        // Tier 2 Fallback: 20 RPD, 5 RPM
+    'gemini-2.5-flash',      // Tier 3 Fallback: 20 RPD, 5 RPM
 ];
 
 // ─── Greeting fast-path ──────────────────────────────────────────────
@@ -182,16 +179,10 @@ async function callDirectGeminiDev(
                 generationConfig: { maxOutputTokens: 4096, temperature: 0.25 },
             }),
         });
-        if (!directRes.ok) {
-            const errJson = await directRes.json().catch(() => ({}));
-            const errDetail = errJson?.error?.message || directRes.statusText;
-            console.warn(`[IMAM AI] Direct call on ${modelName} returned HTTP ${directRes.status}: ${errDetail}. Triggering fallback policy...`);
-            return null;
-        }
+        if (!directRes.ok) return null;
         const data = await directRes.json();
         return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-    } catch (err: any) {
-        console.warn(`[IMAM AI] Network error calling direct Gemini API (${modelName}):`, err?.message || err);
+    } catch {
         return null;
     }
 }
@@ -209,16 +200,6 @@ async function callGeminiWithHistory(
 
     // Try candidate models in order: 3.5-flash-lite (500 RPD) -> 3.1-flash-lite (500 RPD) -> 3-flash -> 2.5-flash
     for (const modelName of CANDIDATE_MODELS) {
-        // If user configured a direct Gemini API key, prioritize direct call
-        if (DEV_GEMINI_API_KEY) {
-            try {
-                const directText = await callDirectGeminiDev(modelName, contents, systemInstruction);
-                if (directText) return directText;
-            } catch (devErr) {
-                console.warn(`[IMAM AI] Direct Gemini call error on ${modelName}:`, devErr);
-            }
-        }
-
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 25000);
 
@@ -523,59 +504,7 @@ export async function matchAgenticIntent(text: string): Promise<ChatMessage | nu
         };
     }
 
-    // 7. DEEN HUB FAST-PATH INTENTS
-    // e.g., "open azkar", "99 names of allah", "open tasbih", "friday topics", "ramadhan timetable"
-    if (/(?:open|show|read|daily)\s+(?:azkar|adhkar|duas|morning\s+azkar|evening\s+azkar|rabbana)/i.test(clean) || clean === 'azkar' || clean === 'duas') {
-        return {
-            id: (Date.now() + 1).toString(),
-            text: `Bismillah! You can access the complete authentic Azkar collection (Morning, Evening, Rabbana Duas, and your custom prayers with tap counters) in the Deen Hub.\n\n---COMMAND---\n{"action": "navigate_hub", "route": "/hub/azkar", "buttonText": "Open Azkar & Duas"}`,
-            sender: 'ai',
-            timestamp: new Date(),
-            actionCommand: { action: 'navigate_hub', route: '/hub/azkar', buttonText: 'Open Azkar & Duas' } as any,
-        };
-    }
-
-    if (/(?:99\s+names|names\s+of\s+allah|asma(?:\s+ul|\s+al)?\s+husna)/i.test(clean)) {
-        return {
-            id: (Date.now() + 1).toString(),
-            text: `All 99 Divine Names of Allah (Asma-ul-Husna) with Arabic calligraphy, transliteration, English meanings, and audio pronunciation are available in Deen Hub.\n\n---COMMAND---\n{"action": "navigate_hub", "route": "/hub/asma-ul-husna", "buttonText": "View 99 Names of Allah"}`,
-            sender: 'ai',
-            timestamp: new Date(),
-            actionCommand: { action: 'navigate_hub', route: '/hub/asma-ul-husna', buttonText: 'View 99 Names of Allah' } as any,
-        };
-    }
-
-    if (/(?:open|start|show)?\s*(?:tasbih|tasbeeh|dhikr\s+counter|tap\s+count)/i.test(clean)) {
-        return {
-            id: (Date.now() + 1).toString(),
-            text: `SubhanAllah! Opening the Digital Tasbih Counter with target selector (33, 99, 100, 1000), stopwatch timer, and session history.\n\n---COMMAND---\n{"action": "navigate_hub", "route": "/hub/tasbih", "buttonText": "Open Digital Tasbih"}`,
-            sender: 'ai',
-            timestamp: new Date(),
-            actionCommand: { action: 'navigate_hub', route: '/hub/tasbih', buttonText: 'Open Digital Tasbih' } as any,
-        };
-    }
-
-    if (/(?:friday|juma|jumu'ah)\s+(?:topics|khutbah|feeds|announcements)/i.test(clean) || clean === 'friday topics') {
-        return {
-            id: (Date.now() + 1).toString(),
-            text: `Here is the portal for approved Friday Khutbah topics, Quran/Hadith references, and community feeds from Masajid.\n\n---COMMAND---\n{"action": "navigate_hub", "route": "/hub/friday-topics", "buttonText": "View Friday Topics"}`,
-            sender: 'ai',
-            timestamp: new Date(),
-            actionCommand: { action: 'navigate_hub', route: '/hub/friday-topics', buttonText: 'View Friday Topics' } as any,
-        };
-    }
-
-    if (/(?:ramadhan|ramadan)\s+(?:timetable|calendar|schedule|saher|iftar)/i.test(clean) || /(?:saher|iftar)\s+time/i.test(clean)) {
-        return {
-            id: (Date.now() + 1).toString(),
-            text: `Ramadhan Mubarak! Opening the full 30-Day Saher & Iftar timetable, dual countdowns, and customizable prayer reminders.\n\n---COMMAND---\n{"action": "navigate_hub", "route": "/hub/ramadhan", "buttonText": "Open Ramadhan Timetable"}`,
-            sender: 'ai',
-            timestamp: new Date(),
-            actionCommand: { action: 'navigate_hub', route: '/hub/ramadhan', buttonText: 'Open Ramadhan Timetable' } as any,
-        };
-    }
-
-    // 8. STRICT GUARDRAIL FAST-PATH (Non-Islamic refusal)
+    // 7. STRICT GUARDRAIL FAST-PATH (Non-Islamic refusal)
     // Refuse programming, homework, secular queries directly without wasting API tokens
     const prohibitedKeywords = [
         /\b(?:write|code|debug|script|function|program)\s+(?:in\s+)?(?:python|javascript|typescript|c\+\+|java|html|css|sql|rust|php|react)\b/i,

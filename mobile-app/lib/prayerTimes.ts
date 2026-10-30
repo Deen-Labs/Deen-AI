@@ -7,11 +7,6 @@ export interface PrayerTimings {
   Asr: string;
   Maghrib: string;
   Isha: string;
-  Sunset?: string;
-  Imsak?: string;
-  Midnight?: string;
-  Firstthird?: string;
-  Lastthird?: string;
 }
 
 export interface PrayerTimesData {
@@ -39,14 +34,6 @@ export interface PrayerTimesData {
 export interface PrayerSource {
   type: 'api' | 'masjid';
   masjidName?: string;
-  masjidDistance?: number;
-  iqamahTimes?: {
-    Fajr: string;
-    Dhuhr: string;
-    Asr: string;
-    Maghrib: string;
-    Isha: string;
-  };
   lastUpdated?: Date;
 }
 
@@ -190,25 +177,6 @@ let memoryPrayerCache: {
  * If cached data exists for today, returns it immediately.
  * If not, instantly calculates precise astronomical prayer times locally (<0.1ms).
  */
-export function setMemoryPrayerCache(
-  timings: PrayerTimings,
-  lat: number,
-  lng: number,
-  method: number
-): void {
-  const todayStr = new Date().toISOString().split('T')[0];
-  memoryPrayerCache = {
-    date: todayStr,
-    lat,
-    lng,
-    method,
-    data: {
-      timings,
-      source: { type: 'api' },
-    },
-  };
-}
-
 export function getCachedPrayerTimesSync(
   fallbackLat: number = 17.385044,
   fallbackLng: number = 78.486671
@@ -293,16 +261,12 @@ export async function getPrayerTimes(
 /**
  * Format time from 24h to 12h format
  */
-export function formatTime(time: string, prayerName?: string): string {
-  if (!time || time === '--:--') return '--:--';
-  if (time.toLowerCase().includes('sunset')) return 'Sunset';
-  const totalMins = parsePrayerTimeToMinutes(time, prayerName);
-  if (totalMins < 0) return time;
-  const h24 = Math.floor(totalMins / 60) % 24;
-  const m = totalMins % 60;
-  const ampm = h24 >= 12 ? 'PM' : 'AM';
-  const hour12 = h24 % 12 || 12;
-  return `${hour12}:${m.toString().padStart(2, '0')} ${ampm}`;
+export function formatTime(time: string): string {
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 || 12;
+  return `${hour12}:${minutes} ${ampm}`;
 }
 
 /**
@@ -335,66 +299,7 @@ export function getCurrentPrayer(timings: PrayerTimings, currentTime: Date = new
 }
 
 /**
- * Safely parse any prayer time string (e.g. "05:30 AM", "01:00 PM", "17:55", "1:15")
- * into total minutes from midnight (0..1439).
- */
-export function parsePrayerTimeToMinutes(timeStr?: string, prayerName?: string): number {
-  if (!timeStr || typeof timeStr !== 'string') return -1;
-  const clean = timeStr.trim().toUpperCase();
-  if (clean === '' || clean === '--:--' || clean === 'SUNSET') return -1;
-
-  // Match 12h or 24h format with optional AM/PM
-  const match = clean.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
-  if (!match) return -1;
-
-  let hours = parseInt(match[1], 10);
-  const minutes = parseInt(match[2], 10);
-  const modifier = match[3]?.toUpperCase();
-
-  if (modifier) {
-    if (modifier === 'PM' && hours < 12) hours += 12;
-    if (modifier === 'AM' && hours === 12) hours = 0;
-  } else {
-    // If no AM/PM specified, check if 12h representation for afternoon prayers
-    if (prayerName) {
-      const p = prayerName.toLowerCase();
-      if ((p === 'dhuhr' || p === 'asr' || p === 'maghrib' || p === 'isha') && hours < 12) {
-        hours += 12;
-      }
-    }
-  }
-
-  if (isNaN(hours) || isNaN(minutes)) return -1;
-  return hours * 60 + minutes;
-}
-
-/**
- * Robust countdown calculator handling 12h AM/PM, 24h, and midnight rollover
- */
-export function calculatePrayerCountdown(timeStr?: string, prayerName?: string, now: Date = new Date()): string {
-  if (!timeStr) return '';
-  const targetMinutes = parsePrayerTimeToMinutes(timeStr, prayerName);
-  if (targetMinutes < 0) return '';
-
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  let diffMinutes = targetMinutes - nowMinutes;
-  if (diffMinutes <= 0) {
-    diffMinutes += 24 * 60; // Next day
-  }
-
-  const hours = Math.floor(diffMinutes / 60);
-  const minutes = diffMinutes % 60;
-  const seconds = 59 - now.getSeconds();
-
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  if (hours > 0) {
-    return `${hours}h ${pad(minutes)}m`;
-  }
-  return `${pad(minutes)}m ${pad(seconds)}s`;
-}
-
-/**
- * Get next prayer based on time with AM/PM support and midnight rollover
+ * Get next prayer based on time
  */
 export function getNextPrayer(timings: PrayerTimings, currentTime: Date = new Date()): { name: string; time: string } | null {
   const now = currentTime.getHours() * 60 + currentTime.getMinutes();
@@ -408,61 +313,14 @@ export function getNextPrayer(timings: PrayerTimings, currentTime: Date = new Da
   ];
   
   for (const prayer of prayers) {
-    const prayerMinutes = parsePrayerTimeToMinutes(prayer.time, prayer.name);
-    if (prayerMinutes >= 0 && now < prayerMinutes) {
+    const [hours, minutes] = prayer.time.split(':').map(Number);
+    const prayerMinutes = hours * 60 + minutes;
+    
+    if (now < prayerMinutes) {
       return prayer;
     }
   }
   
-  // If all prayers today passed (e.g. after Isha), next prayer is Fajr tomorrow
+  // If all prayers passed, next is Fajr tomorrow
   return prayers[0];
 }
-
-/**
- * Calculate the Islamic end time for a given prayer:
- * - Fajr ends at Sunrise
- * - Dhuhr ends at Asr
- * - Asr ends at Maghrib (Sunset)
- * - Maghrib ends at Isha
- * - Isha ends at Midnight (Islamic Midnight)
- */
-export function getPrayerEndTime(timings: PrayerTimings, prayerName: string): string {
-  if (!timings) return '';
-  const p = (prayerName || '').trim().toLowerCase();
-
-  if (p === 'fajr') {
-    return timings.Sunrise || '';
-  }
-
-  if (p === 'dhuhr' || p === 'zohar') {
-    return timings.Asr || '';
-  }
-
-  if (p === 'asr') {
-    return timings.Maghrib || timings.Sunset || '';
-  }
-
-  if (p === 'maghrib' || p === 'sunset' || p === 'magrib') {
-    return timings.Isha || '';
-  }
-
-  if (p === 'isha' || p === 'esha') {
-    if (timings.Midnight && timings.Midnight !== '--:--') {
-      return timings.Midnight;
-    }
-    // Calculate Islamic Solar Midnight (halfway between Sunset/Maghrib and Fajr)
-    const sunsetM = parsePrayerTimeToMinutes(timings.Sunset || timings.Maghrib, 'Maghrib');
-    const fajrM = parsePrayerTimeToMinutes(timings.Fajr, 'Fajr');
-    if (sunsetM >= 0 && fajrM >= 0) {
-      const nightDuration = (fajrM + 24 * 60 - sunsetM) % (24 * 60);
-      const midnightM = (sunsetM + Math.floor(nightDuration / 2)) % (24 * 60);
-      const h24 = Math.floor(midnightM / 60) % 24;
-      const m = midnightM % 60;
-      return `${h24.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-    }
-    return '';
-  }
-
-  return '';
-}
-

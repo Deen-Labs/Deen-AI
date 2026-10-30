@@ -3,12 +3,7 @@
  * Interface to the native VPN service for system-wide content blocking
  */
 
-import { NativeModules, Platform, Alert } from 'react-native';
-
-export interface InstalledAppInfo {
-  packageName: string;
-  appName: string;
-}
+import { NativeModules, NativeEventEmitter, Platform, Alert } from 'react-native';
 
 interface ContentProtectionNative {
   startVPNService(): Promise<boolean>;
@@ -19,20 +14,7 @@ interface ContentProtectionNative {
   getTotalBlockCount(): Promise<number>;
   setLockEnabled(enabled: boolean): Promise<boolean>;
   temporarilyUnlockUninstall(durationMs: number): Promise<boolean>;
-  syncFocusBlocking(
-    isFocusActive: boolean,
-    blockedPackagesCsv: string,
-    endTimestamp?: number,
-    schedulesJson?: string
-  ): Promise<boolean>;
-  setRingerModeVibrate?(): Promise<boolean>;
-  setRingerModeNormal?(): Promise<boolean>;
-  hasNotificationPolicyAccess?(): Promise<boolean>;
-  requestNotificationPolicyAccess?(): Promise<boolean>;
-  isAccessibilityServiceActive?(): Promise<boolean>;
-  openAccessibilitySettings?(): Promise<boolean>;
-  getInstalledApps?(): Promise<InstalledAppInfo[]>;
-  goToHomeScreen?(): Promise<boolean>;
+  syncFocusBlocking(isFocusActive: boolean, blockedPackagesCsv: string): Promise<boolean>;
 }
 
 const LINKING_ERROR =
@@ -55,21 +37,19 @@ const ContentProtectionNative: ContentProtectionNative = NativeModules.ContentPr
       setLockEnabled: () => Promise.resolve(false),
       temporarilyUnlockUninstall: () => Promise.resolve(false),
       syncFocusBlocking: () => Promise.resolve(false),
-      setRingerModeVibrate: () => Promise.resolve(false),
-      setRingerModeNormal: () => Promise.resolve(false),
-      hasNotificationPolicyAccess: () => Promise.resolve(true),
-      requestNotificationPolicyAccess: () => Promise.resolve(false),
-      isAccessibilityServiceActive: () => Promise.resolve(false),
-      openAccessibilitySettings: () => Promise.resolve(false),
-      getInstalledApps: () => Promise.resolve([]),
-      goToHomeScreen: () => Promise.resolve(false),
     };
 
 /**
  * System-wide content protection using native VPN service
  */
 class NativeContentProtection {
+  private eventEmitter: NativeEventEmitter | null = null;
 
+  constructor() {
+    if (NativeModules.ContentProtection && Platform.OS === 'android') {
+      this.eventEmitter = new NativeEventEmitter(NativeModules.ContentProtection);
+    }
+  }
 
   /**
    * Check if the native module is available
@@ -84,13 +64,7 @@ class NativeContentProtection {
    */
   async start(): Promise<boolean> {
     if (!this.isAvailable()) {
-      if (Platform.OS === 'android' && !NativeModules.ContentProtection) {
-        console.warn(
-          '[NativeContentProtection] Running inside Expo Go: Custom native modules (AccessibilityService, ContentProtectionModule) are not compiled into the Expo Go client. To test System-Wide Protection and Focus app blocking on your Android device, run an Expo Development Build (npx expo run:android or install the debug APK).'
-        );
-      } else {
-        console.warn('[NativeContentProtection] Native content protection is only available on Android.');
-      }
+      console.warn('Native content protection is only available on Android');
       return false;
     }
 
@@ -107,18 +81,6 @@ class NativeContentProtection {
       
       if (started) {
         console.log('[NativeContentProtection] System-wide content protection activated');
-      } else {
-        Alert.alert(
-          'Enable Accessibility Service',
-          'Please turn on "DeenHub System-Wide Protection" in Accessibility settings to enable content blocking across all browsers.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Open Settings',
-              onPress: () => this.openAccessibilitySettings(),
-            },
-          ]
-        );
       }
       
       return started;
@@ -128,7 +90,7 @@ class NativeContentProtection {
       if (error.code === 'PERMISSION_DENIED') {
         Alert.alert(
           'Permission Required',
-          'DeenHub needs VPN permission to block inappropriate content system-wide. This permission is only used for content filtering and does not track or monitor your activity.',
+          'DEEN AI needs VPN permission to block inappropriate content system-wide. This permission is only used for content filtering and does not track or monitor your activity.',
           [{ text: 'OK' }]
         );
       } else {
@@ -282,130 +244,13 @@ class NativeContentProtection {
   }
 
   /**
-   * Set device notifications & ringtone to Vibrate mode for Focus Mode
+   * Sync focus mode active state and list of blocked app package names to native SharedPreferences.
    */
-  async hasNotificationPolicyAccess(): Promise<boolean> {
-    if (!this.isAvailable()) return true;
-    try {
-      if (ContentProtectionNative.hasNotificationPolicyAccess) {
-        return await ContentProtectionNative.hasNotificationPolicyAccess();
-      }
-      return true;
-    } catch {
-      return true;
-    }
-  }
-
-  async requestNotificationPolicyAccess(): Promise<boolean> {
-    if (!this.isAvailable()) return false;
-    try {
-      if (ContentProtectionNative.requestNotificationPolicyAccess) {
-        return await ContentProtectionNative.requestNotificationPolicyAccess();
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }
-
-  async setRingerModeVibrate(): Promise<boolean> {
-    if (!this.isAvailable()) return false;
-    try {
-      if (ContentProtectionNative.setRingerModeVibrate) {
-        return await ContentProtectionNative.setRingerModeVibrate();
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Restore device ringtone & notifications to normal mode
-   */
-  async setRingerModeNormal(): Promise<boolean> {
-    if (!this.isAvailable()) return false;
-    try {
-      if (ContentProtectionNative.setRingerModeNormal) {
-        return await ContentProtectionNative.setRingerModeNormal();
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }
-
-  async isAccessibilityEnabled(): Promise<boolean> {
-    if (!this.isAvailable()) return false;
-    try {
-      if (ContentProtectionNative.isAccessibilityServiceActive) {
-        return await ContentProtectionNative.isAccessibilityServiceActive();
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }
-
-  async openAccessibilitySettings(): Promise<boolean> {
-    if (!this.isAvailable()) return false;
-    try {
-      if (ContentProtectionNative.openAccessibilitySettings) {
-        return await ContentProtectionNative.openAccessibilitySettings();
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Navigate directly to the device home screen
-   */
-  async goToHomeScreen(): Promise<boolean> {
-    if (!this.isAvailable()) return false;
-    try {
-      if (ContentProtectionNative.goToHomeScreen) {
-        return await ContentProtectionNative.goToHomeScreen();
-      }
-      return false;
-    } catch (error) {
-      console.error('Failed to navigate to home screen:', error);
-      return false;
-    }
-  }
-
-  async getInstalledApps(): Promise<InstalledAppInfo[]> {
-    if (!this.isAvailable()) return [];
-    try {
-      if (ContentProtectionNative.getInstalledApps) {
-        return await ContentProtectionNative.getInstalledApps();
-      }
-      return [];
-    } catch (error) {
-      console.error('Failed to get installed apps:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Sync focus mode active state, end timestamp, blocked apps, and schedules to native SharedPreferences.
-   */
-  async syncFocusBlocking(
-    isFocusActive: boolean,
-    blockedPackages: string[],
-    endTimestamp: number = 0,
-    schedulesJson: string = ''
-  ): Promise<boolean> {
+  async syncFocusBlocking(isFocusActive: boolean, blockedPackages: string[]): Promise<boolean> {
     if (!this.isAvailable()) return false;
     try {
       const csv = blockedPackages.join(',');
-      return await ContentProtectionNative.syncFocusBlocking(
-        isFocusActive,
-        csv,
-        endTimestamp,
-        schedulesJson
-      );
+      return await ContentProtectionNative.syncFocusBlocking(isFocusActive, csv);
     } catch (error) {
       console.error('Failed to sync focus blocking state:', error);
       return false;

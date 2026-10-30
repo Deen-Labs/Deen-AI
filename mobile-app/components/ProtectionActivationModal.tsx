@@ -8,7 +8,6 @@ import {
   Dimensions,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useTheme } from '../lib/theme';
 
 interface ProtectionActivationModalProps {
   visible: boolean;
@@ -25,13 +24,10 @@ export default function ProtectionActivationModal({
   hasPin,
   onRequirePin,
 }: ProtectionActivationModalProps) {
-  const { colors, isDark } = useTheme();
   const handleProceed = () => {
     if (!hasPin) {
       onClose();
-      setTimeout(() => {
-        onRequirePin();
-      }, 250);
+      onRequirePin();
     } else {
       onConfirm();
     }
@@ -45,15 +41,15 @@ export default function ProtectionActivationModal({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={[styles.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={styles.container}>
           {/* Header Icon */}
           <View style={styles.iconContainer}>
-            <Feather name="shield" size={32} color={colors.accentGreen} />
+            <Feather name="shield" size={32} color="#10b981" />
           </View>
 
           {/* Title & Subtitle */}
-          <Text style={[styles.title, { color: colors.text }]}>System-Wide Protection</Text>
-          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
+          <Text style={styles.title}>System-Wide Protection</Text>
+          <Text style={styles.subtitle}>
             Filters explicit and harmful content across all browsers and applications on this device.
           </Text>
 
@@ -61,64 +57,59 @@ export default function ProtectionActivationModal({
           <View style={styles.featuresList}>
             <View style={styles.featureItem}>
               <View style={styles.featureIcon}>
-                <Feather name="check" size={16} color={colors.accentGreen} />
+                <Feather name="check" size={16} color="#10b981" />
               </View>
-              <Text style={[styles.featureText, { color: colors.textSecondary }]}>
+              <Text style={styles.featureText}>
                 Active blocking across Chrome, browsers, and social feeds
               </Text>
             </View>
 
             <View style={styles.featureItem}>
               <View style={styles.featureIcon}>
-                <Feather name="cpu" size={16} color={colors.accentGreen} />
+                <Feather name="cpu" size={16} color="#10b981" />
               </View>
-              <Text style={[styles.featureText, { color: colors.textSecondary }]}>
+              <Text style={styles.featureText}>
                 Local on-device inspection with zero data collection or tracking
               </Text>
             </View>
 
             <View style={styles.featureItem}>
               <View style={styles.featureIcon}>
-                <Feather name="lock" size={16} color={colors.accentGold} />
+                <Feather name="lock" size={16} color="#e2a23b" />
               </View>
-              <Text style={[styles.featureText, { color: colors.textSecondary }]}>
+              <Text style={styles.featureText}>
                 Requires 4-digit PIN to disable, preventing impulsive bypass
               </Text>
             </View>
           </View>
 
           {!hasPin && (
-            <View style={[styles.pinNotice, { backgroundColor: colors.surface, borderColor: colors.borderSubtle }]}>
-              <Feather name="alert-circle" size={16} color={colors.accentGold} style={{ marginTop: 2 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.pinNoticeText, { color: colors.accentGold }]}>
-                  Security rule: You must create a 4-digit PIN before enabling protection.
-                </Text>
-                <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 4, lineHeight: 15 }}>
-                  💡 Tip: Have a trusted family member or close friend set and hold this PIN for you so you cannot impulsively disable it.
-                </Text>
-              </View>
+            <View style={styles.pinNotice}>
+              <Feather name="alert-circle" size={16} color="#e2a23b" />
+              <Text style={styles.pinNoticeText}>
+                Security rule: You must create a 4-digit PIN before enabling protection.
+              </Text>
             </View>
           )}
 
           {/* Action Buttons */}
           <View style={styles.actions}>
             <TouchableOpacity
-              style={[styles.confirmButton, { backgroundColor: colors.accentGold }]}
+              style={styles.confirmButton}
               onPress={handleProceed}
               activeOpacity={0.8}
             >
-              <Text style={[styles.confirmButtonText, { color: '#0f1718' }]}>
+              <Text style={styles.confirmButtonText}>
                 {hasPin ? "Enable Protection" : "Set PIN and Enable"}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.cancelButton, { backgroundColor: colors.pill, borderColor: colors.borderSubtle }]}
+              style={styles.cancelButton}
               onPress={onClose}
               activeOpacity={0.8}
             >
-              <Text style={[styles.cancelButtonText, { color: colors.textSecondary }]}>Cancel</Text>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>

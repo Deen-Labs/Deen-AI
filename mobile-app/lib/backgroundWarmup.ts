@@ -1,11 +1,8 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getImamSession } from './masjidTimingSync';
-import { syncMuazzinKhutbahReminders, checkAndScheduleUpdaterReminders } from './muazzinNotifications';
-import { getCurrentUser } from './auth';
 import { getQuickLocation, getCurrentLocation } from './location';
-import { getPrayerTimes, fetchPrayerTimes, setMemoryPrayerCache } from './prayerTimes';
+import { getPrayerTimes } from './prayerTimes';
 import { getNearbyMasjids } from './masjid';
 import { loadSettings } from './settings';
+
 let isWarmupRunning = false;
 let isWarmedUp = false;
 
@@ -50,24 +47,8 @@ export async function warmUpAppData(): Promise<void> {
     const lat = quickLocation?.latitude ?? 17.385044;
     const lng = quickLocation?.longitude ?? 78.486671;
 
-    // 2. Concurrently fetch and warm both Al-Adhaan API and Nearby Masajid (3500m radius)
-    const methodVal = settings.calculationMethodValue || 1;
-    const prayerPromise = fetchPrayerTimes(lat, lng, methodVal)
-      .then((data) => {
-        if (data && data.timings) {
-          setMemoryPrayerCache(data.timings, lat, lng, methodVal);
-          AsyncStorage.setItem('@deen_warm_aladhan_cache', JSON.stringify({
-            timings: data.timings,
-            date: data.date,
-            lat,
-            lng,
-            method: methodVal,
-            timestamp: Date.now(),
-          })).catch(() => {});
-        }
-        return data;
-      })
-      .catch(() => getPrayerTimes(lat, lng, String(methodVal)));
+    // 2. Concurrently fetch and warm both Prayer Times and Nearby Masajid (3500m radius)
+    const prayerPromise = getPrayerTimes(lat, lng, String(settings.calculationMethodValue));
     const masjidPromise = getNearbyMasjids({ latitude: lat, longitude: lng }, 3500);
 
     const results = await Promise.allSettled([prayerPromise, masjidPromise]);
@@ -79,13 +60,6 @@ export async function warmUpAppData(): Promise<void> {
     console.log(
       `[BackgroundWarmup] Background warm-up completed. (Prayer: ${prayerSuccess ? 'OK' : 'ERR'}, Masjid: ${masjidSuccess ? 'OK' : 'ERR'})`
     );
-
-    // Check and sync Muazzin Jumu'ah and Daily Zohar & Maghrib reminders
-    getImamSession().then(async (session) => {
-      syncMuazzinKhutbahReminders(session).catch(() => {});
-      const user = await getCurrentUser().catch(() => null);
-      checkAndScheduleUpdaterReminders(user, session).catch(() => {});
-    }).catch(() => {});
 
     // Notify any active screens that warm data is ready
     notifyListeners();
