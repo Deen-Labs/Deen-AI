@@ -80,7 +80,7 @@ export default function App() {
 
         {/* Desktop Navigation Items */}
         <nav className="hidden md:flex items-center space-x-1" aria-label="Main Navigation">
-          <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">Deen-AI</a>
+          <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">DeenHub</a>
           <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
           <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
           
@@ -125,7 +125,7 @@ export default function App() {
         <div className="py-2 px-1 mb-1">
           <ThemeToggle className="w-full justify-around py-1.5" />
         </div>
-        <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">Deen-AI</a>
+        <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">DeenHub</a>
         <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadowPlane</a>
         <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>
         
@@ -312,24 +312,24 @@ export default function App() {
                   className="h-20 w-20 sm:h-24 sm:w-24 object-contain shrink-0 group-hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_16px_rgba(20,184,166,0.3)]" 
                 />
                 <div>
-                  <h4 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">Deen-AI Mobile App</h4>
-                  <p className="text-xs text-slate-400">All-in-One Islamic Lifestyle, Focus & AI Assistant App</p>
+                  <h4 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">DeenHub: Masjid & SalahTime</h4>
+                  <p className="text-xs text-slate-400">140+ Masjid Network, Authentic Digital LED Boards & System-Wide Content Shield</p>
                 </div>
               </div>
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                Deen-AI is an all-in-one Islamic mobile companion engineered for daily spiritual practice, mindfulness, and digital purity. Beyond its hallucination-resistant <strong>Imam AI</strong>, the app provides real-time prayer calculations, nearby masjid discovery, and automatic device-level content shielding.
+                DeenHub is an all-in-one Islamic mobile ecosystem engineered for daily spiritual practice, community masjid connectivity, and digital purity. Featuring live crowd-verified Masjid Jama'at timings across 140+ masajid, authentic Mahmood Watch Co. digital LED timing boards, weekly Jumu'ah Khutbah topics, Custom Azkar, 12-Month Hijri Fasting Calendar, and 24/7 native Accessibility + Private DNS content shielding.
               </p>
 
               {/* Core Feature Highlights (2x2 Grid) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                 <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
                   <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
-                    <i className="fa-solid fa-clock text-xs"></i>
+                    <i className="fa-solid fa-tv text-xs"></i>
                   </div>
                   <div>
-                    <p className="font-semibold text-white text-xs">Accurate Salah & Azan</p>
-                    <p className="text-[10.5px] text-slate-400 leading-snug">Astronomical timings, dual Hijri calendar, live countdown ticker & Azan audio.</p>
+                    <p className="font-semibold text-white text-xs">Live Masjid LED Boards</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Mahmood Watch Co. digital matrix with Fajr intervals, rain alerts & live Jama'at sync.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
@@ -337,8 +337,8 @@ export default function App() {
                     <i className="fa-solid fa-mosque text-xs"></i>
                   </div>
                   <div>
-                    <p className="font-semibold text-white text-xs">Nearby Masjid Finder</p>
-                    <p className="text-[10.5px] text-slate-400 leading-snug">Live GPS discovery, compass bearing, walking/driving distance & directions.</p>
+                    <p className="font-semibold text-white text-xs">140+ Masajid & Jumu'ah</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">GPS & A–Z masjid discovery, weekly Khutbah topics & Khadim-e-Masjid leaderboard.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
@@ -346,17 +346,17 @@ export default function App() {
                     <i className="fa-solid fa-shield-halved text-xs"></i>
                   </div>
                   <div>
-                    <p className="font-semibold text-white text-xs">18+ [NSFW] Content Blocker</p>
-                    <p className="text-[10.5px] text-slate-400 leading-snug">Encrypted DNS shield (DoH) blocking adult domains & digital distractions.</p>
+                    <p className="font-semibold text-white text-xs">System-Wide Content Shield</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Android Accessibility & Private DNS blocker with 4-digit SHA-256 PIN lock & clean streak stats.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-2.5 bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5">
                   <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
-                    <i className="fa-solid fa-brain text-xs"></i>
+                    <i className="fa-solid fa-table-cells-large text-xs"></i>
                   </div>
                   <div>
-                    <p className="font-semibold text-white text-xs">Imam AI (Strict RAG)</p>
-                    <p className="text-[10.5px] text-slate-400 leading-snug">Gemini API + Internet Archive validation with zero hallucinations.</p>
+                    <p className="font-semibold text-white text-xs">Deen Hub & Offline Solar</p>
+                    <p className="text-[10.5px] text-slate-400 leading-snug">Custom Azkar sync, 99 Names audio, 12-month Hijri fasting & solar start/end times.</p>
                   </div>
                 </div>
               </div>
@@ -413,18 +413,18 @@ export default function App() {
                 <div className="flex items-center justify-between pb-3 border-b border-slate-900 mb-4">
                   <span className="text-teal-400 font-bold text-[10px] flex items-center space-x-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-teal-400 inline-block animate-pulse"></span>
-                    <span>IMAM-AI QUERY CONSOLE v1.0.0</span>
+                    <span>SALAHTIME NETWORK & LED TELEMETRY v3.2.0</span>
                   </span>
-                  <span className="text-[9px] text-slate-500">RAG-STATUS: STRICT</span>
+                  <span className="text-[9px] text-emerald-400 font-bold">FIRESTORE: VERIFIED</span>
                 </div>
                 <div className="space-y-2">
-                  <p><span className="text-slate-500">&gt; Input prompt:</span> What is the verse on prayers being at specified times?</p>
-                  <p className="text-slate-500">[1] Querying Internet Archive API indexes for reference texts...</p>
-                  <p className="text-emerald-400">[2] TEXT SEARCH RESULT: Surah An-Nisa (4:103) identified.</p>
-                  <p className="text-slate-500">[3] Gemini API context compilation & validation: SUCCESS.</p>
-                  <div className="bg-slate-900/60 p-2.5 rounded border border-slate-900 text-[11px] text-slate-200 mt-2 font-sans border-l-2 border-l-teal-500">
+                  <p className="text-slate-400"><span className="text-brand-gold font-bold">&gt; masjid_sync:</span> Historic Makkah Masjid (Verified by Muazzin)</p>
+                  <p className="text-emerald-400">[1] next_jamaat: ASR @ 04:15 PM (Athan: 03:36 PM) • LIVE</p>
+                  <p className="text-slate-400">[2] khadim_guard: Pre-flight Firestore diff check PASSED (+10 Sadaqah pts)</p>
+                  <p className="text-cyan-400">[3] device_shield: Accessibility + AdGuard Family DNS ACTIVE (67 Days Clean)</p>
+                  <div className="bg-slate-900/60 p-2.5 rounded border border-slate-900 text-[11px] text-slate-200 mt-2 font-sans border-l-2 border-l-emerald-500">
                     "Indeed, prayer has been decreed upon the believers a decree of specified times." 
-                    <span className="block mt-1 text-[10px] font-mono font-bold text-teal-400">— Qur'an (4:103) [Source-Verified]</span>
+                    <span className="block mt-1 text-[10px] font-mono font-bold text-brand-gold">— Qur'an (4:103) [Mahmood Watch Co. Board Sync]</span>
                   </div>
                 </div>
 
@@ -432,15 +432,15 @@ export default function App() {
                 <div className="mt-4 pt-3 border-t border-slate-900/80 grid grid-cols-3 gap-1.5 text-[9px] text-slate-400 font-sans">
                   <div className="flex items-center space-x-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    <span className="truncate">DNS Shield: OK</span>
+                    <span className="truncate">DNS Shield: ACTIVE</span>
                   </div>
                   <div className="flex items-center space-x-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
-                    <span className="truncate">GPS Masajid: OK</span>
+                    <span className="truncate">140+ Masajid: OK</span>
                   </div>
                   <div className="flex items-center space-x-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    <span className="truncate">Azan Ticker: LIVE</span>
+                    <span className="truncate">LED Ticker: LIVE</span>
                   </div>
                 </div>
               </div>

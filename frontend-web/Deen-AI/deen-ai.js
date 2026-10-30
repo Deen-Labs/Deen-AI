@@ -3,10 +3,11 @@ import { createRoot } from "react-dom/client";
 import DeenAiMotionController from "./DeenAiMotionController.jsx";
 
 /**
- * Deen-AI Interactive Simulator & Scrollytelling Controller
+ * DeenHub: Masjid & SalahTime — Interactive Simulator & Scrollytelling Controller
  * Production-ready vanilla JavaScript module for Vite multi-page build.
- * Features 100% local scripted scholarly responses (Zero Cloud API Relay),
- * zero-void scroll bounds, and 1:1 pixel-accurate mobile app replicas.
+ * Synchronized 1:1 with the DeenHub Android application architecture.
+ * Features 5 core tabs, live LED boards, GPS/A-Z masjid directory, Jumu'ah topics,
+ * 3x3 spiritual hub, and dynamic sub-screen modals.
  */
 
 // Global State
@@ -21,117 +22,16 @@ if (typeof window !== "undefined" && !window.location.hash) {
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 }
 
-// Authenticated Daily Hadith / Inspiration FIFO Queue (Matching Real App)
-const INSPIRATION_ITEMS = [
-  {
-    arabic: "الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ",
-    english: '"A Muslim is the one from whose tongue and hands the Muslims are safe."',
-    source: "— Sahih al-Bukhari 10",
-  },
-  {
-    arabic: "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
-    english: '"The best among you are those who learn the Quran and teach it."',
-    source: "— Sahih al-Bukhari 5027",
-  },
-  {
-    arabic: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
-    english: '"Actions are judged by intentions, and every person will get what they intended."',
-    source: "— Sahih al-Bukhari 1",
-  },
-  {
-    arabic: "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ",
-    english: '"Whoever takes a path in search of knowledge, Allah makes easy for him a path to Paradise."',
-    source: "— Sahih Muslim 2699",
-  },
-  {
-    arabic: "لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ، إِنَّمَا الشَّدِيدُ الَّذِي يَمْلِكُ نَفْسَهُ عِنْدَ الْغَضَبِ",
-    english: '"The strong is not the one who overcomes the people by his strength, but the one who controls himself while in anger."',
-    source: "— Sahih al-Bukhari 6114",
-  },
-];
-let inspirationIndex = 0;
-
 // PIN Keypad State
 let enteredPin = "";
 const CORRECT_PIN = "1234";
 
-// Focus Dial State (Proportionate, clean sans-serif geometry)
+// Focus Dial State
 let focusDurationMinutes = 25;
 let focusRemainingSeconds = 25 * 60;
 let focusTotalSeconds = 25 * 60;
 let focusTimerInterval = null;
 let isFocusRunning = false;
-
-// 100% Local Scripted Scholarly Knowledge Base (Zero Cloud API Relay, 100% Immediate)
-const SCHOLARLY_REPLIES = {
-  "how to maintain consistency in fajr prayer?": {
-    question: "How to maintain consistency in Fajr prayer?",
-    answer: "Maintaining consistency in Fajr prayer begins with intentional evening habits: sleeping in a state of Wudu after reciting Surah Al-Mulk, placing your alarm out of arm's reach, and making sincere du'a for waking. The Prophet (ﷺ) stated: 'Whoever prays the Fajr prayer is under the protection of Allah.'",
-    sources: [
-      {
-        title: "Sahih Muslim - Book of Mosques",
-        ref: "Hadith 657",
-        archive: "archive.org/details/sahih-muslim-english-vol-1",
-      },
-      {
-        title: "Sunan Abi Dawud",
-        ref: "Hadith 5063",
-        archive: "archive.org/details/sunan-abi-dawud",
-      },
-    ],
-  },
-  "what is the ruling on fasting while traveling?": {
-    question: "What is the ruling on fasting while traveling?",
-    answer: "A traveler is granted the concession (rukhsah) to break their fast if the journey exceeds the standard Safar distance (approx. 77 km / 48 miles) and entails genuine difficulty. If traveling with modern convenience without hardship, fasting remains superior according to the majority of jurists (Jumhur).",
-    sources: [
-      {
-        title: "Surah Al-Baqarah",
-        ref: "Ayah 185",
-        archive: "Quran 2:185",
-      },
-      {
-        title: "Sahih al-Bukhari - Kitab al-Sawm",
-        ref: "Hadith 1946",
-        archive: "archive.org/details/bukhari-sawm",
-      },
-    ],
-  },
-  "dua for overcoming anxiety and intrusive doubts": {
-    question: "Dua for overcoming anxiety and intrusive doubts",
-    answer: "For intrusive whisperings (Waswas) and anxiety, the Sunnah provides comprehensive remedies: seek refuge in Allah from Shaytan ('A'udhu billahi minash-shaytanir-rajim') and recite: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ' (O Allah, I seek refuge in You from anxiety and grief).",
-    sources: [
-      {
-        title: "Sahih al-Bukhari - Book of Invocations",
-        ref: "Hadith 6363",
-        archive: "archive.org/details/sahih-bukhari-adkhar",
-      },
-      {
-        title: "Hisn al-Muslim (Fortress of the Muslim)",
-        ref: "Chapter 36",
-        archive: "archive.org/details/hisn-al-muslim-complete",
-      },
-    ],
-  },
-  "explain the virtues and timings of tahajjud": {
-    question: "Explain the virtues and timings of Tahajjud",
-    answer: "Tahajjud (Qiyam al-Layl) is prayed after waking up from sleep in the last third of the night. Allah descends in a manner befitting His Majesty to the lowest heaven, asking: 'Who is calling upon Me that I may answer him? Who is asking of Me that I may give him?'",
-    sources: [
-      {
-        title: "Sahih al-Bukhari",
-        ref: "Hadith 1145",
-        archive: "archive.org/details/sahih-bukhari-tahajjud",
-      },
-      {
-        title: "Sahih Muslim",
-        ref: "Hadith 758",
-        archive: "archive.org/details/sahih-muslim-night-prayer",
-      },
-    ],
-  },
-};
-
-const INQUIRY_KEYS = Object.keys(SCHOLARLY_REPLIES);
-let randomInquiryIndex = 0;
 
 // ============================================================================
 // 1. STRICT MODAL ISOLATION & SYSTEM RESET
@@ -140,6 +40,7 @@ let randomInquiryIndex = 0;
 export function closeAllPhoneModals() {
   const pinModal = document.getElementById("phone-pin-modal");
   const qiblaModal = document.getElementById("phone-qibla-modal");
+  const subModal = document.getElementById("phone-subscreen-modal");
 
   if (pinModal) {
     pinModal.classList.add("hidden");
@@ -149,59 +50,64 @@ export function closeAllPhoneModals() {
     qiblaModal.classList.add("hidden");
     qiblaModal.style.setProperty("display", "none", "important");
   }
+  if (subModal) {
+    subModal.classList.add("hidden");
+    subModal.style.setProperty("display", "none", "important");
+    subModal.innerHTML = "";
+  }
 }
 
 window.closeAllPhoneModals = closeAllPhoneModals;
 
 // ============================================================================
-// 2. MOBILE CONTEXT CARD METADATA & SYNCHRONIZATION
+// 2. MOBILE CONTEXT CARD METADATA & SYNCHRONIZATION (5 PRODUCTION MODULES)
 // ============================================================================
 
 const MODULE_METADATA = [
   {
     moduleNumber: "Module 01",
-    tag: "Core Shield",
-    statusBadge: "67 DAYS CLEAN",
+    tag: "Home & LED Board",
+    statusBadge: "HIJRI + LIVE LED BOARD",
     badgeClasses: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
-    title: "Digital Guardian & Streak Habit Shield",
-    desc: "Engineered to safeguard spiritual mindfulness through device-level defense. Combines a native Android Accessibility Service with compiled word-boundary regular expressions to eliminate Scunthorpe false positives, alongside a local DNS sinkhole for adult content isolation.",
-    prompt: "👉 Tap the Shield toggle or Lock icon inside the simulator above to interact.",
+    title: "Unified Home Dashboard & Digital LED Clock",
+    desc: "Combines today's Hijri date, 12-hour Sahar & Iftar timings, and your pinned Default Masjid's Mahmood Watch Co. digital LED board right at the top of the home screen—complete with Fajr interval badges (+25m), toggleable Dhuhr/Maghrib heavy rain alerts, and 3-tile purity bento.",
+    prompt: "Tap the LED Board, Gratitude button, or Clean Streak tile inside the simulator above.",
   },
   {
     moduleNumber: "Module 02",
-    tag: "Astronomical Salah",
-    statusBadge: "NEXT: ASR IN 02H 14M",
-    badgeClasses: "bg-teal-500/20 text-teal-400 border-teal-500/40",
-    title: "Astronomical Calculation Engine & Live Ticker",
-    desc: "Offline-first astronomical equations calculating Fajr, Dhuhr, Asr, Maghrib, and Isha with sub-second accuracy across MWL, ISNA, and Umm Al-Qura conventions with dynamic solar angle tracking.",
-    prompt: "👉 Next prayer countdown is actively ticking in real time above.",
+    tag: "Nearby Masajid",
+    statusBadge: "140+ MASAJID NETWORK",
+    badgeClasses: "bg-deen-gold/20 text-deen-gold border-deen-gold/40",
+    title: "Nearby Masajid Directory & Live Jama'at Timings",
+    desc: "Real-time Haversine GPS proximity and A–Z alphabetical sorting across 140+ connected masajid. Collapsed cards preview upcoming Jama'at times, while pinned cards stay ultra-compact until expanded.",
+    prompt: "Tap 'A–Z Sort' or 'View Timings' inside the simulator above to explore masajid.",
   },
   {
     moduleNumber: "Module 03",
-    tag: "Mindful Focus",
-    statusBadge: "STRICT ISOLATION",
-    badgeClasses: "bg-amber-500/20 text-amber-400 border-amber-500/40",
-    title: "Halal Focus Dial & PIN Unlock Simulator",
-    desc: "Clean geometric focus dial isolating device notifications during worship or deep work. Protected by an early-unlock PIN gate to maintain discipline.",
-    prompt: "👉 Tap +5m / -5m or Start Focus inside the simulator above (Test PIN: 1234).",
+    tag: "Focus & Shield",
+    statusBadge: "24/7 DEVICE SHIELD",
+    badgeClasses: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+    title: "Content Calm & Distraction Lockdown",
+    desc: "Pure Muraqabah focus timer with circular SVG progress dials, app blocking, and native Android Accessibility + Private DNS shielding that automatically resets clean streak if adult content is intercepted.",
+    prompt: "Tap +5m/-5m or Start Focus inside the simulator above.",
   },
   {
     moduleNumber: "Module 04",
-    tag: "Strict RAG",
-    statusBadge: "ZERO HALLUCINATIONS",
-    badgeClasses: "bg-teal-500/20 text-teal-400 border-teal-500/40",
-    title: "100% Local Scripted Scholarly Knowledge Base",
-    desc: "Instantaneous, citation-verified theological answers with zero external cloud API relay. Every response links directly to authenticated primary texts.",
-    prompt: "👉 Tap any suggested question chip inside the chat screen above for an instant verified response.",
+    tag: "Jumu'ah Topics",
+    statusBadge: "KHUTBAH ROSTER",
+    badgeClasses: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+    title: "Jumu'ah Khutbah Topics & Verified Scholars",
+    desc: "Dedicated community broadcast for upcoming Friday Khutbah topics, verified isAalim scholars, past weeks archive, and helpful community likes.",
+    prompt: "Tap the filter chips or '+ Add Friday Topic' to preview the roster.",
   },
   {
     moduleNumber: "Module 05",
-    tag: "Digital Hardware",
-    statusBadge: "MAHMOOD WATCH CO.",
-    badgeClasses: "bg-amber-500/20 text-amber-400 border-amber-500/40",
-    title: "Authentic LED Masjid Clocks & Qibla Compass",
-    desc: "1:1 authentic replica of classic Mahmood Watch Co. red digital LED timetable boards, alongside a smooth responsive Qibla compass.",
-    prompt: "👉 Tap 'View Timings' or the Compass button inside the simulator above.",
+    tag: "Deen Hub & More",
+    statusBadge: "9 HUB TOOLS + ADMIN",
+    badgeClasses: "bg-deen-gold/20 text-deen-gold border-deen-gold/40",
+    title: "Deen Hub, Custom Azkar & Khadim Leaderboard",
+    desc: "Unified 3x3 spiritual and community hub housing Qibla Compass, Daily & Custom Azkar, 99 Names audio, 12-Month Hijri Fasting, Solar Start/End windows, and Admin controls.",
+    prompt: "Tap any of the 3x3 Hub tiles or 'Open Khadim Leaderboard' to test.",
   },
 ];
 
@@ -228,7 +134,7 @@ function updateMobileModuleCard(index) {
 }
 
 // ============================================================================
-// 2. SCREEN SWITCHER & SYNC LOGIC
+// 3. SCREEN SWITCHER & SYNC LOGIC
 // ============================================================================
 
 export function setActiveScreen(index, fromScroll = false) {
@@ -325,7 +231,7 @@ window.handleTriggerPhoneTab = function (index) {
 };
 
 // ============================================================================
-// 3. PRECISION CENTER-LOCKING SCROLL SPY
+// 4. PRECISION CENTER-LOCKING SCROLL SPY
 // ============================================================================
 
 let isProgrammaticScroll = false;
@@ -337,13 +243,11 @@ export function updateActiveCardByCenter() {
   const cards = document.querySelectorAll(".feature-deepdive-card");
   if (!cards || cards.length === 0) return;
 
-  // Viewport focal center (50vh) - perfectly aligned with the sticky phone simulator
   const focalCenter = window.innerHeight * 0.5;
 
   let bestIndex = -1;
   let minDistance = Infinity;
 
-  // 1. Direct containment check: Which card spans the viewport center line?
   for (let i = 0; i < cards.length; i++) {
     const card = cards[i];
     const rect = card.getBoundingClientRect();
@@ -363,12 +267,10 @@ export function updateActiveCardByCenter() {
     }
   }
 
-  // 2. Page bottom boundary check
   if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 60)) {
     bestIndex = 4;
   }
 
-  // 3. Page top boundary check (Hero area)
   if (window.scrollY < 120) {
     bestIndex = 0;
   }
@@ -394,7 +296,6 @@ export function setupScrollSpy() {
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("resize", handleScroll, { passive: true });
 
-  // Clear programmatic scroll lock on user direct interaction
   window.addEventListener("wheel", () => {
     isProgrammaticScroll = false;
     clearTimeout(programmaticScrollTimer);
@@ -405,12 +306,11 @@ export function setupScrollSpy() {
     clearTimeout(programmaticScrollTimer);
   }, { passive: true });
 
-  // Initial evaluation after layout stabilizes
   requestAnimationFrame(updateActiveCardByCenter);
 }
 
 // ============================================================================
-// 4. QUICK-JUMP PILLS IN HERO
+// 5. QUICK-JUMP PILLS IN HERO
 // ============================================================================
 
 function setupQuickJumpPills() {
@@ -437,80 +337,64 @@ function setupQuickJumpPills() {
 }
 
 // ============================================================================
-// 5. SCREEN 0: HOME / GUARDIAN LOGIC
+// 6. SCREEN 0 (HOME) INTERACTIVE CONTROLLERS
 // ============================================================================
-
-window.cycleDailyInspiration = function () {
-  inspirationIndex = (inspirationIndex + 1) % INSPIRATION_ITEMS.length;
-  const item = INSPIRATION_ITEMS[inspirationIndex];
-
-  const arabicEl = document.getElementById("home-hadith-arabic");
-  const textEl = document.getElementById("daily-inspiration-text");
-  const sourceEl = document.getElementById("daily-inspiration-source");
-
-  if (arabicEl && textEl && sourceEl) {
-    textEl.style.opacity = "0";
-    setTimeout(() => {
-      arabicEl.textContent = item.arabic;
-      textEl.textContent = item.english;
-      sourceEl.textContent = item.source;
-      textEl.style.opacity = "1";
-    }, 120);
-  }
-};
 
 window.isSystemProtectionActive = true;
 
 window.setSystemProtection = function (isActive) {
   window.isSystemProtectionActive = isActive;
 
-  // 1. Update Top Online/Offline Badge in Screen 0
   const badgeEl = document.getElementById("phone-online-status-badge");
   if (badgeEl) {
     if (isActive) {
-      badgeEl.className = "px-2 py-0.5 rounded-full text-[8px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition-colors";
-      badgeEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>ONLINE</span>';
+      badgeEl.className = "px-2 py-0.5 rounded-full text-[8px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition-colors cursor-pointer";
+      badgeEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>PROTECTED</span>';
     } else {
-      badgeEl.className = "px-2 py-0.5 rounded-full text-[8px] font-bold bg-red-500/15 text-red-400 border border-red-500/30 flex items-center gap-1.5 transition-colors";
+      badgeEl.className = "px-2 py-0.5 rounded-full text-[8px] font-bold bg-red-500/15 text-red-400 border border-red-500/30 flex items-center gap-1.5 transition-colors cursor-pointer";
       badgeEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span><span>OFFLINE</span>';
     }
   }
 
-  // 2. Synchronize Screen 0 (Home) Toggle & Status Text
-  const homeToggle = document.getElementById("toggle-home-shield");
-  const homeStatus = document.getElementById("home-protection-status");
-  if (homeToggle) homeToggle.checked = isActive;
-  if (homeStatus) {
-    if (isActive) {
-      homeStatus.textContent = "Active — Shield Protected";
-      homeStatus.className = "text-[8.5px] text-emerald-400 font-medium";
-    } else {
-      homeStatus.textContent = "Inactive — Device Exposed";
-      homeStatus.className = "text-[8.5px] text-red-400 font-medium";
-    }
+  const bentoShieldStatus = document.getElementById("home-bento-shield-status");
+  if (bentoShieldStatus) {
+    bentoShieldStatus.textContent = isActive ? "ACTIVE" : "OFFLINE";
+    bentoShieldStatus.className = isActive ? "text-xs font-bold text-emerald-400 leading-tight" : "text-xs font-bold text-red-400 leading-tight";
   }
+};
 
-  // 3. Synchronize Screen 2 (Focus) Toggle & Status Text
-  const focusToggle = document.getElementById("toggle-focus-shield");
-  const focusStatus = document.getElementById("focus-protection-status");
-  if (focusToggle) focusToggle.checked = isActive;
-  if (focusStatus) {
-    if (isActive) {
-      focusStatus.textContent = "Active — Accessibility & DNS Guard";
-      focusStatus.className = "text-[8.5px] text-emerald-400 font-medium";
+window.toggleHomeLedBoard = function () {
+  const rows = document.getElementById("home-led-rows");
+  const btn = document.getElementById("home-led-collapse-btn");
+  if (rows && btn) {
+    if (rows.classList.contains("hidden")) {
+      rows.classList.remove("hidden");
+      btn.textContent = "▲ Hide LED Board";
     } else {
-      focusStatus.textContent = "Inactive — Device Exposed";
-      focusStatus.className = "text-[8.5px] text-red-400 font-medium";
+      rows.classList.add("hidden");
+      btn.textContent = "▼ View LED Board";
     }
   }
 };
 
-window.toggleHomeShieldProtection = function (input) {
-  window.setSystemProtection(input.checked);
+window.toggleRainNotice = function () {
+  const strip = document.getElementById("home-rain-strip");
+  if (strip) {
+    strip.classList.toggle("hidden");
+  }
 };
 
-window.toggleFocusShieldProtection = function (input) {
-  window.setSystemProtection(input.checked);
+window.sendMasjidJazak = function (counterId, btnEl) {
+  const counter = document.getElementById(counterId);
+  if (counter) {
+    const current = parseInt(counter.textContent, 10) || 0;
+    counter.textContent = current + 1;
+  }
+  if (btnEl) {
+    btnEl.innerHTML = '<i class="fa-solid fa-check mr-1 text-emerald-400"></i><span>JazakAllahu Khairan Sent!</span>';
+    btnEl.classList.add("opacity-90");
+    btnEl.disabled = true;
+  }
 };
 
 function scrollToPhoneOnMobile() {
@@ -526,7 +410,7 @@ function scrollToPhoneOnMobile() {
   }
 }
 
-// PIN Modal Functions (Strict Isolation)
+// PIN Keypad Handlers
 window.simulatePinUnlock = function () {
   closeAllPhoneModals();
   scrollToPhoneOnMobile();
@@ -588,7 +472,7 @@ function verifyPin() {
   setTimeout(() => {
     if (enteredPin === CORRECT_PIN) {
       if (feedback) {
-        feedback.textContent = "✓ Passcode Verified! Settings Unlocked";
+        feedback.textContent = "Passcode Verified! Protection Unlocked";
         feedback.className = "text-[9.5px] text-emerald-400 font-bold";
       }
       setTimeout(() => {
@@ -596,7 +480,7 @@ function verifyPin() {
       }, 600);
     } else {
       if (feedback) {
-        feedback.textContent = "✗ Incorrect PIN. Try 1234";
+        feedback.textContent = "Incorrect PIN. Try 1234";
         feedback.className = "text-[9.5px] text-red-400 font-bold";
       }
       enteredPin = "";
@@ -606,33 +490,81 @@ function verifyPin() {
 }
 
 // ============================================================================
-// 6. SCREEN 1: ASTRONOMICAL SALAH & COUNTDOWN
+// 7. SCREEN 1 (MASJID DIRECTORY) CONTROLLERS
 // ============================================================================
 
-function startPrayerCountdown() {
-  const timerEl = document.getElementById("prayer-countdown-timer");
-  if (!timerEl) return;
-
-  let secondsRemaining = 1 * 3600 + 39 * 60 + 2;
-
-  setInterval(() => {
-    if (secondsRemaining > 0) {
-      secondsRemaining -= 1;
+window.toggleMasjidBoardExpand = function (id) {
+  const tray = document.getElementById(`masjid-expandable-${id}`);
+  const btn = document.getElementById(`btn-text-masjid-${id}`);
+  if (tray && btn) {
+    if (tray.classList.contains("hidden")) {
+      tray.classList.remove("hidden");
+      btn.textContent = "Hide Timings ⌃";
     } else {
-      secondsRemaining = 2 * 3600;
+      tray.classList.add("hidden");
+      btn.textContent = "View Timings • Next: Asr ⌵";
     }
+  }
+};
 
-    const hrs = Math.floor(secondsRemaining / 3600);
-    const mins = Math.floor((secondsRemaining % 3600) / 60);
-    const secs = secondsRemaining % 60;
+window.setMasjidSortMode = function (mode) {
+  const chipNearby = document.getElementById("sort-chip-nearby");
+  const chipAz = document.getElementById("sort-chip-az");
+  const list = document.getElementById("simulator-masjid-list");
+  if (!list) return;
 
-    const pad = (n) => (n < 10 ? "0" + n : n);
-    timerEl.textContent = `in ${hrs}h ${pad(mins)}m ${pad(secs)}s`;
-  }, 1000);
-}
+  const cards = Array.from(list.querySelectorAll(".masjid-sim-card"));
+
+  if (mode === "az") {
+    if (chipAz) {
+      chipAz.className = "flex-1 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[8px] flex items-center justify-center gap-1 shadow-sm transition-all";
+    }
+    if (chipNearby) {
+      chipNearby.className = "flex-1 py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 hover:text-white font-medium text-[8px] flex items-center justify-center gap-1 transition-all";
+    }
+    cards.sort((a, b) => {
+      const nameA = a.getAttribute("data-name") || "";
+      const nameB = b.getAttribute("data-name") || "";
+      return nameA.localeCompare(nameB);
+    });
+  } else {
+    if (chipNearby) {
+      chipNearby.className = "flex-1 py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[8px] flex items-center justify-center gap-1 shadow-sm transition-all";
+    }
+    if (chipAz) {
+      chipAz.className = "flex-1 py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 hover:text-white font-medium text-[8px] flex items-center justify-center gap-1 transition-all";
+    }
+    cards.sort((a, b) => {
+      const distA = parseInt(a.getAttribute("data-distance"), 10) || 0;
+      const distB = parseInt(b.getAttribute("data-distance"), 10) || 0;
+      return distA - distB;
+    });
+  }
+
+  cards.forEach((card) => list.appendChild(card));
+};
+
+window.filterSimulatorMasjids = function (query) {
+  const list = document.getElementById("simulator-masjid-list");
+  if (!list) return;
+  const q = (query || "").toLowerCase().trim();
+  const cards = list.querySelectorAll(".masjid-sim-card");
+
+  cards.forEach((card) => {
+    const name = (card.getAttribute("data-name") || "").toLowerCase();
+    const area = (card.getAttribute("data-area") || "").toLowerCase();
+    const pres = (card.getAttribute("data-president") || "").toLowerCase();
+
+    if (!q || name.includes(q) || area.includes(q) || pres.includes(q)) {
+      card.style.display = "";
+    } else {
+      card.style.display = "none";
+    }
+  });
+};
 
 // ============================================================================
-// 7. SCREEN 2: FOCUS DIAL & CLEAN GEOMETRIC SANS-SERIF
+// 8. SCREEN 2 (FOCUS) CONTROLLERS
 // ============================================================================
 
 window.setFocusDuration = function (mins) {
@@ -716,168 +648,52 @@ function updateFocusTimerDisplay() {
 window.toggleAppBlockerDrawer = function () {
   const list = document.getElementById("app-blocker-list");
   const arrow = document.getElementById("app-blocker-arrow");
-  if (list) {
-    list.classList.toggle("hidden");
-  }
-  if (arrow) {
-    arrow.classList.toggle("rotate-180");
-  }
+  if (list) list.classList.toggle("hidden");
+  if (arrow) arrow.classList.toggle("rotate-180");
 };
 
 // ============================================================================
-// 8. SCREEN 3: 100% LOCAL & CONTROLLED SCHOLARLY INQUIRIES (ZERO CLOUD API)
+// 9. SCREEN 3 (JUMU'AH TOPICS) CONTROLLERS
 // ============================================================================
 
-window.askPhoneQuestion = function (queryText) {
-  setActiveScreen(3, false);
-  submitPhoneChatInstant(queryText);
-};
-
-window.askRandomInquiry = function () {
-  setActiveScreen(3, false);
-  const key = INQUIRY_KEYS[randomInquiryIndex % INQUIRY_KEYS.length];
-  randomInquiryIndex++;
-  const inquiry = SCHOLARLY_REPLIES[key];
-  submitPhoneChatInstant(inquiry.question);
-};
-
-window.clearPhoneChatHistory = function () {
-  const container = document.getElementById("chat-messages-container");
-  if (container) {
-    container.innerHTML = `
-      <div class="flex items-start space-x-1.5">
-        <div class="w-5 h-5 rounded-full bg-deen-gold/20 flex items-center justify-center text-deen-gold text-[9px] flex-shrink-0 mt-0.5">
-          <i class="fa-solid fa-comment-dots"></i>
-        </div>
-        <div class="bg-[#0c2326] border border-white/10 rounded-2xl rounded-tl-none p-2.5 text-slate-200 text-[10.5px] leading-relaxed shadow-sm">
-          <p>As-salamu alaykum! I am your Imam AI Assistant. Tap any of the authenticated scholarly questions above for immediate verified answers.</p>
-          <span class="text-[8px] text-slate-500 mt-1 block text-right">1:29 am</span>
-        </div>
-      </div>
-    `;
+window.filterJumuahTopics = function (mode, btnEl) {
+  document.querySelectorAll(".jumuah-filter-chip").forEach((chip) => {
+    chip.className = "jumuah-filter-chip py-1 rounded-lg bg-[#0c2326] border border-white/10 text-slate-300 font-medium text-[7.5px] text-center transition-all";
+  });
+  if (btnEl) {
+    btnEl.className = "jumuah-filter-chip active py-1 rounded-lg bg-deen-gold text-slate-950 font-bold text-[7.5px] text-center transition-all";
   }
-};
 
-function submitPhoneChatInstant(question) {
-  const container = document.getElementById("chat-messages-container");
-  if (!container) return;
-
-  // 1. Add User Question Bubble Immediately
-  const userBubble = document.createElement("div");
-  userBubble.className = "flex items-start justify-end space-x-1.5";
-  userBubble.innerHTML = `
-    <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl rounded-tr-none p-2.5 text-[10.5px] leading-relaxed max-w-[85%] shadow-sm">
-      ${escapeHtml(question)}
-    </div>
-  `;
-  container.appendChild(userBubble);
-
-  // 2. Resolve 100% Locally from in-memory dictionary (ZERO API CALL)
-  const normalizedKey = question.toLowerCase().trim();
-  let reply = SCHOLARLY_REPLIES[normalizedKey];
-
-  if (!reply) {
-    for (const [key, val] of Object.entries(SCHOLARLY_REPLIES)) {
-      if (normalizedKey.includes(key) || key.includes(normalizedKey)) {
-        reply = val;
-        break;
-      }
+  const cards = document.querySelectorAll(".jumuah-topic-card");
+  cards.forEach((card) => {
+    if (mode === "all") {
+      card.style.display = "";
+    } else if (mode === "nearby") {
+      const dist = parseInt(card.getAttribute("data-distance"), 10) || 0;
+      card.style.display = dist <= 300 ? "" : "none";
+    } else if (mode === "khateeb") {
+      const khateeb = card.getAttribute("data-khateeb") || "";
+      card.style.display = khateeb === "ibrahim" ? "" : "none";
+    } else if (mode === "masjid") {
+      const cat = card.getAttribute("data-category") || "";
+      card.style.display = cat === "makkah" ? "" : "none";
     }
-  }
+  });
+};
 
-  if (!reply) {
-    reply = {
-      question: question,
-      answer: `In orthodox Islamic jurisprudence, questions concerning "${question}" are resolved via authenticated texts in the Quran and Sunnah. Continuous remembrance of Allah, adhering to legitimate scholarly consensus, and fulfilling obligatory Salah are paramount.`,
-      sources: [
-        {
-          title: "Sahih al-Bukhari & Sahih Muslim",
-          ref: "Authentic Hadith Compilations",
-          archive: "archive.org/details/islamic-texts-verified",
-        },
-      ],
-    };
-  }
-
-  // 3. Render Citations HTML
-  let sourcesHtml = "";
-  if (reply.sources && reply.sources.length) {
-    const sourceList = reply.sources
-      .map(
-        (s) => `
-      <div class="flex items-center justify-between text-[8px] text-slate-300 py-0.5 border-b border-white/5 last:border-0">
-        <span><i class="fa-solid fa-book-bookmark text-deen-gold mr-1"></i> ${s.title} (${s.ref})</span>
-        <span class="text-deen-gold font-mono">IA Verified</span>
-      </div>
-    `
-      )
-      .join("");
-
-    sourcesHtml = `
-      <div class="mt-2 pt-1.5 border-t border-white/10">
-        <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="text-[8.5px] font-bold text-deen-gold hover:text-amber-200 flex items-center gap-1">
-          <i class="fa-solid fa-archive text-[9px]"></i>
-          <span>Verified Sources (${reply.sources.length} citations)</span>
-          <i class="fa-solid fa-chevron-down text-[7px] ml-0.5"></i>
-        </button>
-        <div class="hidden mt-1 p-1.5 bg-black/40 rounded-lg border border-white/5 space-y-0.5">
-          ${sourceList}
-        </div>
-      </div>
-    `;
-  }
-
-  // 4. Append AI Scholarly Bubble Immediately (100% Instant)
-  const aiBubble = document.createElement("div");
-  aiBubble.className = "flex items-start space-x-1.5";
-  aiBubble.innerHTML = `
-    <div class="w-5 h-5 rounded-full bg-deen-gold/20 flex items-center justify-center text-deen-gold text-[9px] flex-shrink-0 mt-0.5">
-      <i class="fa-solid fa-comment-dots"></i>
-    </div>
-    <div class="bg-[#0c2326] border border-white/10 rounded-2xl rounded-tl-none p-2.5 text-slate-200 text-[10.5px] leading-relaxed shadow-sm max-w-[85%]">
-      <p>${reply.answer}</p>
-      ${sourcesHtml}
-    </div>
-  `;
-
-  container.appendChild(aiBubble);
-  container.scrollTop = container.scrollHeight;
-}
-
-function escapeHtml(string) {
-  const div = document.createElement("div");
-  div.innerText = string;
-  return div.innerHTML;
-}
-
-// ============================================================================
-// 9. SCREEN 4: IN-CARD MAHMOOD WATCH CO. TIMING BOARD & QIBLA COMPASS
-// ============================================================================
-
-window.toggleMasjidTimingsBoard = function (id) {
-  const board = document.getElementById(`masjid-timings-board-${id}`);
-  const btnText = document.getElementById(`btn-text-timings-${id}`);
-  if (board) {
-    if (board.classList.contains("hidden")) {
-      board.classList.remove("hidden");
-      if (btnText) btnText.textContent = "Hide Timings ⌃";
-    } else {
-      board.classList.add("hidden");
-      if (btnText) btnText.textContent = "View Timings ⌵";
-    }
+window.likeJumuahTopic = function (btnEl) {
+  if (!btnEl) return;
+  const numSpan = btnEl.querySelector(".like-num");
+  if (numSpan) {
+    const count = parseInt(numSpan.textContent, 10) || 0;
+    numSpan.textContent = count + 1;
+    btnEl.classList.add("text-red-400", "border-red-500/40");
   }
 };
 
-window.expandMasjidBoard = function (id = 1) {
-  setActiveScreen(4, false);
-  scrollToPhoneOnMobile();
-  const board = document.getElementById(`masjid-timings-board-${id}`);
-  const btnText = document.getElementById(`btn-text-timings-${id}`);
-  if (board) {
-    board.classList.remove("hidden");
-    if (btnText) btnText.textContent = "Hide Timings ⌃";
-  }
-};
+// ============================================================================
+// 10. SCREEN 4 (MORE & QIBLA) CONTROLLERS
+// ============================================================================
 
 window.openPhoneQiblaCompass = function () {
   closeAllPhoneModals();
@@ -904,6 +720,466 @@ window.closeQiblaCompass = function () {
   }
 };
 
+// ============================================================================
+// 11. DYNAMIC SUB-SCREEN OVERLAY MODAL (RICH 1:1 REPLICAS)
+// ============================================================================
+
+function renderSubModalContent(type) {
+  const wrap = (title, iconClass, bodyHtml) => `
+    <div class="flex flex-col h-full text-slate-200">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/10 flex-shrink-0">
+        <div class="flex items-center gap-1.5">
+          <i class="${iconClass} text-deen-gold text-xs"></i>
+          <h4 class="text-xs font-bold text-white font-display">${title}</h4>
+        </div>
+        <button onclick="closePhoneSubModal()" class="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-xs transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <!-- Modal Scrollable Body -->
+      <div class="flex-1 overflow-y-auto space-y-2 pr-0.5 text-[9px] leading-relaxed">
+        ${bodyHtml}
+      </div>
+    </div>
+  `;
+
+  switch (type) {
+    case "clean-stats":
+      return wrap(
+        "Days Clean & Protection Stats",
+        "fa-solid fa-shield",
+        `
+        <div class="bg-[#081517] border border-white/5 rounded-2xl p-3 text-center">
+          <div class="w-20 h-20 mx-auto rounded-full border-2 border-deen-gold flex flex-col items-center justify-center shadow-lg my-1">
+            <span class="text-2xl font-extrabold text-deen-gold leading-none">67</span>
+            <span class="text-[7px] font-bold text-white uppercase tracking-wider mt-0.5">DAYS CLEAN</span>
+          </div>
+          <p class="text-[8.5px] text-emerald-400 font-semibold mt-1">Status: Clean & Protected</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-1.5">
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
+            <strong class="text-deen-gold text-xs block">67</strong>
+            <span class="text-[7.5px] text-slate-400">Max Clean</span>
+          </div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
+            <strong class="text-white text-xs block">42</strong>
+            <span class="text-[7.5px] text-slate-400">Avg Streak</span>
+          </div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
+            <strong class="text-emerald-400 text-xs block">3</strong>
+            <span class="text-[7.5px] text-slate-400">Blocks Saved</span>
+          </div>
+        </div>
+
+        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-2">
+          <strong class="text-emerald-300 block text-[8px] mb-0.5">Surah Al-Baqarah (2:222)</strong>
+          <p class="text-[7.5px] text-slate-300 italic">"Indeed, Allah loves those who are constantly repentant and loves those who purify themselves."</p>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1">
+          <strong class="text-white text-[8px] block">Purity Journey History</strong>
+          <div class="flex items-center justify-between text-[7.5px] text-slate-400 py-0.5 border-b border-white/5">
+            <span>Milestone: 60 Days Clean</span>
+            <span class="text-emerald-400 font-mono">Achieved</span>
+          </div>
+          <div class="flex items-center justify-between text-[7.5px] text-slate-400 py-0.5 border-b border-white/5">
+            <span>Milestone: 30 Days Clean</span>
+            <span class="text-emerald-400 font-mono">Achieved</span>
+          </div>
+          <div class="flex items-center justify-between text-[7.5px] text-slate-400 py-0.5">
+            <span>Milestone: 7 Days Shield Start</span>
+            <span class="text-emerald-400 font-mono">Achieved</span>
+          </div>
+        </div>
+        `
+      );
+
+    case "community":
+      return wrap(
+        "Khadim-e-Masjid Community",
+        "fa-solid fa-trophy",
+        `
+        <div class="grid grid-cols-4 gap-1 text-[7.5px] font-bold text-center">
+          <span class="py-1 rounded bg-deen-gold text-slate-950">Ranks</span>
+          <span class="py-1 rounded bg-[#081517] text-slate-300">Community</span>
+          <span class="py-1 rounded bg-[#081517] text-slate-300">Requests</span>
+          <span class="py-1 rounded bg-[#081517] text-slate-300">Reach Us</span>
+        </div>
+
+        <div class="bg-amber-950/30 border border-amber-500/30 rounded-xl p-2 text-[7.5px] text-amber-200">
+          <strong class="block mb-0.5 text-[8px]">Sadaqah Point Engine Legend</strong>
+          <span>+100 pts New Masjid • +50 pts Unique Masjid • +10 pts Verified Timing Update</span>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1.5">
+          <strong class="text-white text-[8px] block">Top Khadims (Leaderboard)</strong>
+          
+          <div class="flex items-center justify-between p-1.5 rounded-lg bg-black/40 border border-white/5">
+            <div class="flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-deen-gold text-slate-950 font-bold text-[8px] flex items-center justify-center">1</span>
+              <div><strong class="text-white block">Qasim Bhai</strong><span class="text-slate-400 text-[7px]">Historic Makkah Masjid</span></div>
+            </div>
+            <span class="text-deen-gold font-bold font-mono">3,940 pts</span>
+          </div>
+
+          <div class="flex items-center justify-between p-1.5 rounded-lg bg-black/40 border border-white/5">
+            <div class="flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-slate-400 text-slate-950 font-bold text-[8px] flex items-center justify-center">2</span>
+              <div><strong class="text-white block">Hafiz Ibrahim</strong><span class="text-slate-400 text-[7px]">Resident Aalim & Qari</span></div>
+            </div>
+            <span class="text-slate-300 font-bold font-mono">2,460 pts</span>
+          </div>
+
+          <div class="flex items-center justify-between p-1.5 rounded-lg bg-black/40 border border-white/5">
+            <div class="flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-amber-700 text-white font-bold text-[8px] flex items-center justify-center">3</span>
+              <div><strong class="text-white block">Syed Ahmed Quadri</strong><span class="text-slate-400 text-[7px]">Jamia Masjid Bilal</span></div>
+            </div>
+            <span class="text-amber-400 font-bold font-mono">1,920 pts</span>
+          </div>
+        </div>
+
+        <button onclick="this.textContent='Reset Completed'; setTimeout(() => this.textContent='Reset Leaderboard Stats', 1200)" class="w-full py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-red-500 text-slate-400 hover:text-red-300 text-[8px] font-bold transition-colors">
+          Reset Leaderboard Stats
+        </button>
+        `
+      );
+
+    case "network":
+      return wrap(
+        "SalahTime Community Network",
+        "fa-solid fa-globe",
+        `
+        <div class="grid grid-cols-2 gap-1.5 text-center">
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-deen-gold text-sm block">140+</strong>Connected Masjids</div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-white text-sm block">2,840</strong>Active Musallis</div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-emerald-400 text-sm block">482</strong>JazakAllah Sent</div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-cyan-400 text-sm block">38</strong>Verified Updaters</div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-amber-400 text-sm block">99.4%</strong>Freshness Rate</div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5"><strong class="text-teal-400 text-sm block">12</strong>City Clusters</div>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1">
+          <strong class="text-white text-[8px] block">Active Regional Clusters</strong>
+          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5 border-b border-white/5">
+            <span>Hyderabad Central & Old City</span>
+            <span class="text-emerald-400 font-bold">68 Masajid</span>
+          </div>
+          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5 border-b border-white/5">
+            <span>Cyberabad (Hitec City & Gachibowli)</span>
+            <span class="text-emerald-400 font-bold">42 Masajid</span>
+          </div>
+          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5">
+            <span>Secunderabad & Cantonment</span>
+            <span class="text-emerald-400 font-bold">30 Masajid</span>
+          </div>
+        </div>
+        `
+      );
+
+    case "prayer-api":
+      return wrap(
+        "Solar Start & End Windows",
+        "fa-solid fa-sun",
+        `
+        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
+          <p class="text-[8.5px] text-deen-gold font-bold">Hyderabad, Telangana • Karachi (Hanafi)</p>
+          <p class="text-[7.5px] text-slate-400">Wednesday, 28 October 2026 • 17 Jumada I, 1448 AH</p>
+        </div>
+
+        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-2 text-center">
+          <span class="text-[8px] text-slate-300 uppercase">Upcoming Solar Window</span>
+          <p class="text-xs font-bold text-emerald-400 mt-0.5">Asr: 03:22 PM – 05:51 PM</p>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1 font-mono text-[8px]">
+          <div class="flex items-center justify-between py-0.5 border-b border-white/5">
+            <span class="text-white font-sans font-bold">Fajr</span>
+            <span class="text-slate-300">04:56 AM – 06:10 AM</span>
+          </div>
+          <div class="flex items-center justify-between py-0.5 border-b border-white/5">
+            <span class="text-white font-sans font-bold">Dhuhr</span>
+            <span class="text-slate-300">12:01 PM – 03:22 PM</span>
+          </div>
+          <div class="flex items-center justify-between py-0.5 border-b border-white/5 text-emerald-400 font-bold">
+            <span class="font-sans font-bold">Asr</span>
+            <span>03:22 PM – 05:51 PM</span>
+          </div>
+          <div class="flex items-center justify-between py-0.5 border-b border-white/5">
+            <span class="text-white font-sans font-bold">Maghrib</span>
+            <span class="text-slate-300">05:51 PM – 07:21 PM</span>
+          </div>
+          <div class="flex items-center justify-between py-0.5">
+            <span class="text-white font-sans font-bold">Isha</span>
+            <span class="text-slate-300">07:21 PM – 11:38 PM</span>
+          </div>
+        </div>
+        `
+      );
+
+    case "fasting":
+      return wrap(
+        "12-Month Hijri Fasting Calendar",
+        "fa-solid fa-moon",
+        `
+        <div class="flex items-center gap-1 overflow-x-auto pb-1 text-[7.5px] font-bold">
+          <span class="px-2 py-0.5 rounded bg-deen-gold text-slate-950 shrink-0">1. Muharram</span>
+          <span class="px-2 py-0.5 rounded bg-[#081517] text-slate-300 shrink-0">7. Rajab</span>
+          <span class="px-2 py-0.5 rounded bg-[#081517] text-slate-300 shrink-0">8. Sha'ban</span>
+          <span class="px-2 py-0.5 rounded bg-[#081517] text-slate-300 shrink-0">9. Ramadhan</span>
+          <span class="px-2 py-0.5 rounded bg-[#081517] text-slate-300 shrink-0">12. Dhu al-Hijjah</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-1.5 text-center">
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5">
+            <span class="text-[7.5px] text-slate-400 block">SUHOOR ENDS</span>
+            <strong class="text-deen-gold text-xs">05:05 AM</strong>
+          </div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5">
+            <span class="text-[7.5px] text-slate-400 block">IFTAR TIME</span>
+            <strong class="text-amber-400 text-xs">06:04 PM</strong>
+          </div>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1">
+          <strong class="text-white text-[8px] block">Ayam-ul-Bidh (White Days 13, 14, 15)</strong>
+          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5 border-b border-white/5">
+            <span>13th Jumada I (Sunnah Fast)</span>
+            <span class="text-deen-gold font-bold">Upcoming</span>
+          </div>
+          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5 border-b border-white/5">
+            <span>14th Jumada I (Sunnah Fast)</span>
+            <span class="text-deen-gold font-bold">Upcoming</span>
+          </div>
+          <div class="flex items-center justify-between text-[7.5px] text-slate-300 py-0.5">
+            <span>15th Jumada I (Sunnah Fast)</span>
+            <span class="text-deen-gold font-bold">Upcoming</span>
+          </div>
+        </div>
+
+        <div class="bg-black/40 rounded-xl p-2 border border-white/5 text-[7.5px] text-slate-300">
+          <strong class="text-deen-gold block mb-0.5">Iftar Dua:</strong>
+          ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الأَجْرُ إِنْ شَاءَ اللَّهُ
+        </div>
+        `
+      );
+
+    case "azkar":
+      return wrap(
+        "Daily & Custom Azkar",
+        "fa-solid fa-book-open",
+        `
+        <div class="flex items-center justify-between text-[7.5px] font-bold border-b border-white/5 pb-1">
+          <span class="text-deen-gold">Morning Azkar</span>
+          <span class="text-slate-400">Evening Azkar</span>
+          <span class="text-slate-400">Rabbana Duas</span>
+          <span class="text-slate-400">+ Custom</span>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <strong class="text-white text-[8.5px]">Ayat al-Kursi (Surah 2:255)</strong>
+            <button onclick="this.querySelector('.count').textContent = (parseInt(this.querySelector('.count').textContent) + 1) % 4" class="px-2 py-0.5 rounded-full bg-deen-gold text-slate-950 font-bold text-[7.5px]">
+              Tap: <span class="count">0</span> / 3
+            </button>
+          </div>
+          <p class="font-arabic text-amber-200 text-[10px] text-right" dir="rtl">اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ</p>
+          <p class="text-[7.5px] text-slate-300">"Allah! There is no deity except Him, the Ever-Living, the Sustainer of existence."</p>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2.5 border border-white/5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <strong class="text-white text-[8.5px]">Sayyidul Istighfar</strong>
+            <button onclick="this.querySelector('.count').textContent = (parseInt(this.querySelector('.count').textContent) + 1) % 2" class="px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 font-bold text-[7.5px]">
+              Tap: <span class="count">0</span> / 1
+            </button>
+          </div>
+          <p class="font-arabic text-amber-200 text-[10px] text-right" dir="rtl">اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ</p>
+        </div>
+        `
+      );
+
+    case "names99":
+      return wrap(
+        "99 Names of Allah (Asma-ul-Husna)",
+        "fa-solid fa-hands-praying",
+        `
+        <button id="play-all-names-btn" onclick="this.innerHTML = this.innerHTML.includes('Pause') ? '<i class=\'fa-solid fa-play text-[8px]\'></i><span>Play All (1–99)</span>' : '<i class=\'fa-solid fa-pause text-[8px]\'></i><span>Pause Audio (Playing #1)</span>'" class="w-full py-1.5 rounded-xl bg-deen-gold text-slate-950 font-bold text-[8.5px] flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-play text-[8px]"></i>
+          <span>Play All (1–99)</span>
+        </button>
+
+        <div class="grid grid-cols-2 gap-1.5">
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
+            <span class="font-arabic text-deen-gold text-xs block">الرَّحْمَٰنُ</span>
+            <strong class="text-white text-[8px] block">1. Ar-Rahman</strong>
+            <span class="text-[7px] text-slate-400">The Most Merciful</span>
+          </div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
+            <span class="font-arabic text-deen-gold text-xs block">الرَّحِيمُ</span>
+            <strong class="text-white text-[8px] block">2. Ar-Rahim</strong>
+            <span class="text-[7px] text-slate-400">The Bestower of Mercy</span>
+          </div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
+            <span class="font-arabic text-deen-gold text-xs block">الْمَلِكُ</span>
+            <strong class="text-white text-[8px] block">3. Al-Malik</strong>
+            <span class="text-[7px] text-slate-400">The King & Owner</span>
+          </div>
+          <div class="bg-[#081517] rounded-xl p-2 border border-white/5 text-center">
+            <span class="font-arabic text-deen-gold text-xs block">الْقُدُّوسُ</span>
+            <strong class="text-white text-[8px] block">4. Al-Quddus</strong>
+            <span class="text-[7px] text-slate-400">The Absolutely Pure</span>
+          </div>
+        </div>
+        `
+      );
+
+    case "admin":
+      return wrap(
+        "Admin Control Center",
+        "fa-solid fa-shield-halved",
+        `
+        <div class="grid grid-cols-4 gap-1 text-[7.5px] font-bold text-center">
+          <span class="py-1 rounded bg-deen-gold text-slate-950">Users</span>
+          <span class="py-1 rounded bg-[#081517] text-slate-300">Masjids</span>
+          <span class="py-1 rounded bg-[#081517] text-slate-300">Stats</span>
+          <span class="py-1 rounded bg-[#081517] text-slate-300">Broadcasts</span>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <div><strong class="text-white text-[8.5px] block">Qasim Bhai (Super Admin)</strong><span class="text-slate-400 text-[7.5px]">qasim@salahtime.org</span></div>
+            <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="px-2 py-0.5 rounded bg-deen-gold text-slate-950 font-bold text-[7.5px]">Fetch Update Count</button>
+            <span class="hidden text-emerald-400 font-bold font-mono text-[7.5px]">84 Live Updates</span>
+          </div>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1.5">
+          <strong class="text-white text-[8px] block">Pending Masjid Approvals</strong>
+          <div class="flex items-center justify-between text-[7.5px] bg-black/40 p-1.5 rounded-lg border border-white/5">
+            <span>Masjid Usmani (Amberpet)</span>
+            <div class="flex items-center gap-1">
+              <button onclick="this.parentElement.innerHTML='<span class=\'text-emerald-400 font-bold\'>Approved</span>'" class="px-1.5 py-0.5 rounded bg-emerald-600 text-white font-bold">Approve</button>
+              <button onclick="this.parentElement.innerHTML='<span class=\'text-red-400 font-bold\'>Rejected</span>'" class="px-1.5 py-0.5 rounded bg-red-600 text-white font-bold">Reject</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-[#081517] rounded-xl p-2 border border-white/5 space-y-1">
+          <strong class="text-white text-[8px] block">SalahTime FCM Push Broadcast</strong>
+          <input type="text" placeholder="Notification Title..." class="w-full bg-black/40 rounded p-1 text-[7.5px] text-white border border-white/10" value="Jumu'ah Timings Updated Across Hyderabad">
+          <button onclick="this.textContent='Broadcast Sent to 2,840 Musallis!'" class="w-full py-1 rounded bg-emerald-600 text-white font-bold text-[7.5px] mt-1">
+            SalahTime FCM Push Broadcast
+          </button>
+        </div>
+        `
+      );
+
+    case "add-juma":
+      return wrap(
+        "Add Friday Topic",
+        "fa-solid fa-microphone",
+        `
+        <div class="space-y-1.5">
+          <div>
+            <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Select Masjid</label>
+            <select class="w-full bg-[#081517] text-slate-200 border border-white/10 rounded-lg p-1 text-[8px]">
+              <option>Historic Makkah Masjid (Charminar)</option>
+              <option>Jamia Masjid Bilal (Mehdipatnam)</option>
+              <option>Masjid Al-Noor (Tolichowki)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Khutbah Topic Title</label>
+            <input type="text" placeholder="e.g. Importance of Sincerity & Cleanliness..." class="w-full bg-[#081517] text-white border border-white/10 rounded-lg p-1 text-[8px]">
+          </div>
+
+          <div>
+            <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Select Verified Scholar (isAalim)</label>
+            <select class="w-full bg-[#081517] text-slate-200 border border-white/10 rounded-lg p-1 text-[8px]">
+              <option>Maulana Hafiz Mohammed Ibrahim (Resident Aalim)</option>
+              <option>Shaikh Saleh Saed Ba Yazid (Verified Scholar)</option>
+              <option>Mufti Abdul Qadeer (Darul Uloom Al-Huda)</option>
+              <option>None of the above / Manual Input</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5">
+            <div>
+              <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Friday Date</label>
+              <input type="text" value="30/10/2026" class="w-full bg-[#081517] text-white border border-white/10 rounded-lg p-1 text-[8px]">
+            </div>
+            <div>
+              <label class="text-[7.5px] font-bold text-slate-300 block mb-0.5">Jama'at Time</label>
+              <input type="text" value="01:15 PM" class="w-full bg-[#081517] text-white border border-white/10 rounded-lg p-1 text-[8px]">
+            </div>
+          </div>
+
+          <button onclick="this.textContent='Friday Topic Published Successfully!'; this.className='w-full py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-[8.5px] mt-2'" class="w-full py-1.5 rounded-xl bg-deen-gold hover:bg-[#c28424] text-slate-950 font-bold text-[8.5px] mt-2 transition-colors">
+            Publish Friday Topic
+          </button>
+        </div>
+        `
+      );
+
+    default:
+      return wrap("Detail View", "fa-solid fa-circle-info", "<p>Content not available.</p>");
+  }
+}
+
+window.openPhoneSubModal = function (type) {
+  closeAllPhoneModals();
+  scrollToPhoneOnMobile();
+  const modal = document.getElementById("phone-subscreen-modal");
+  if (!modal) return;
+  modal.innerHTML = renderSubModalContent(type);
+  modal.classList.remove("hidden");
+  modal.style.setProperty("display", "flex", "important");
+};
+
+window.closePhoneSubModal = function () {
+  const modal = document.getElementById("phone-subscreen-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.style.setProperty("display", "none", "important");
+    modal.innerHTML = "";
+  }
+};
+
+// ============================================================================
+// 12. SALAH COUNTDOWN ENGINE (UPDATING BOTH PRAYER & HOME LED COUNTDOWNS)
+// ============================================================================
+
+function startPrayerCountdown() {
+  let secondsRemaining = 1 * 3600 + 39 * 60 + 2;
+
+  setInterval(() => {
+    if (secondsRemaining > 0) {
+      secondsRemaining -= 1;
+    } else {
+      secondsRemaining = 2 * 3600;
+    }
+
+    const hrs = Math.floor(secondsRemaining / 3600);
+    const mins = Math.floor((secondsRemaining % 3600) / 60);
+    const secs = secondsRemaining % 60;
+    const pad = (n) => (n < 10 ? "0" + n : n);
+
+    const prayerTimerEl = document.getElementById("prayer-countdown-timer");
+    if (prayerTimerEl) {
+      prayerTimerEl.textContent = `in ${hrs}h ${pad(mins)}m ${pad(secs)}s`;
+    }
+
+    const homeLedCountdownEl = document.getElementById("home-led-countdown");
+    if (homeLedCountdownEl) {
+      homeLedCountdownEl.textContent = `${hrs}H ${pad(mins)}M ${pad(secs)}S`;
+    }
+  }, 1000);
+}
+
 function startClockSync() {
   function updateClocks() {
     const now = new Date();
@@ -911,7 +1187,6 @@ function startClockSync() {
     const mins = now.getMinutes();
     hours = hours % 12;
     hours = hours ? hours : 12;
-
     const pad = (n) => (n < 10 ? "0" + n : n);
 
     const statusTime = document.getElementById("phone-status-time");
@@ -925,13 +1200,12 @@ function startClockSync() {
 }
 
 // ============================================================================
-// 10. AUTOMATIC DYNAMIC DISPLAY SCALING ENGINE (100% AUTOMATIC)
+// 13. AUTOMATIC DYNAMIC DISPLAY SCALING ENGINE
 // ============================================================================
 
 export function initDisplayScalingEngine() {
   const root = document.documentElement;
 
-  // 1. Hardware Profile Detection
   function getDisplayProfile() {
     const sw = window.screen.width || window.innerWidth;
     const sh = window.screen.height || window.innerHeight;
@@ -940,63 +1214,25 @@ export function initDisplayScalingEngine() {
 
     let autoScale = 1.0;
 
-    // Ultrawide (21:9 or 32:9) & 4K UHD
     if (sw >= 3440 || (sw >= 1920 && dpr >= 2 && sw * dpr >= 3840)) {
       autoScale = (sw / sh > 2.0) ? 1.30 : 1.45;
-    }
-    // 1440p QHD / 2K (2560x1440 or 2560x1600, typical 27" monitor)
-    else if (sw >= 2400 || (sw >= 2000 && sh >= 1300) || iw >= 2200) {
-      autoScale = 1.25; // 125% ideal dynamic scaling for 1440p 27-inch monitors
-    }
-    // 1080p Full HD (1920x1080)
-    else if (sw >= 1800 || iw >= 1800) {
+    } else if (sw >= 2400 || (sw >= 2000 && sh >= 1300) || iw >= 2200) {
+      autoScale = 1.25;
+    } else if (sw >= 1800 || iw >= 1800) {
       autoScale = 1.05;
-    }
-    // Laptops / Smaller screens
-    else {
+    } else {
       autoScale = 1.0;
     }
 
     return autoScale;
   }
 
-  // 2. High-FPS Detection (120Hz+) for GPU Compositing
-  function detectHighFpsMode() {
-    let frameCount = 0;
-    let lastTime = performance.now();
-    const deltas = [];
-
-    function sample(now) {
-      const delta = now - lastTime;
-      lastTime = now;
-      if (delta > 2 && delta < 100) {
-        deltas.push(delta);
-      }
-      frameCount++;
-      if (frameCount < 30) {
-        requestAnimationFrame(sample);
-      } else {
-        deltas.sort((a, b) => a - b);
-        const trimmed = deltas.slice(Math.floor(deltas.length * 0.2), Math.ceil(deltas.length * 0.8));
-        const avg = trimmed.reduce((sum, v) => sum + v, 0) / (trimmed.length || 1);
-        const fps = 1000 / avg;
-
-        if (fps >= 110) {
-          document.body.classList.add("high-fps-mode");
-        }
-      }
-    }
-    requestAnimationFrame(sample);
-  }
-
-  // 3. Apply Dynamic Scale to Root and DOM elements
   function applyScale(scale) {
     const num = Math.min(Math.max(parseFloat(scale) || 1.0, 0.85), 1.6);
     root.style.setProperty("--display-scale", num.toString());
     root.style.setProperty("--phone-scale", num.toString());
     root.style.fontSize = `${16 * num}px`;
 
-    // 1. Update the dynamic <style> tag so zoom and max-width apply immediately with highest specificity
     let styleEl = document.getElementById("dynamic-display-scale-style");
     if (!styleEl) {
       styleEl = document.createElement("style");
@@ -1009,7 +1245,6 @@ export function initDisplayScalingEngine() {
       `#hero-content-container { zoom: ${num} !important; }\n` +
       `.max-w-7xl { max-width: min(${88 * num}rem, 95vw) !important; }\n`;
 
-    // 2. Direct zoom on elements for instantaneous feedback
     const phone = document.getElementById("phone-container");
     if (phone) {
       phone.style.zoom = num;
@@ -1025,19 +1260,15 @@ export function initDisplayScalingEngine() {
     }
   }
 
-  // Apply automatic scale and detect high refresh rate
   applyScale(getDisplayProfile());
-  detectHighFpsMode();
 
-  // Automatic adaptation on window resize or monitor transfer
   window.addEventListener("resize", () => {
     applyScale(getDisplayProfile());
   }, { passive: true });
 }
 
 // ============================================================================
-// ============================================================================
-// 10B. THEME ENGINE (Dark, Light, System Sync matching Mobile APK theme.tsx)
+// 14. THEME ENGINE (Dark, Light, System Sync)
 // ============================================================================
 
 function initThemeEngine() {
@@ -1063,7 +1294,6 @@ function initThemeEngine() {
     document.documentElement.classList.toggle("light", !isDark);
     document.documentElement.classList.toggle("dark", isDark);
 
-    // Update active button indicators
     const buttons = document.querySelectorAll("[data-theme-btn]");
     buttons.forEach((btn) => {
       const btnMode = btn.getAttribute("data-theme-btn");
@@ -1082,7 +1312,6 @@ function initThemeEngine() {
     applyTheme(mode);
   }
 
-  // Bind clicks
   const buttons = document.querySelectorAll("[data-theme-btn]");
   buttons.forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -1094,14 +1323,12 @@ function initThemeEngine() {
     });
   });
 
-  // Listen for storage changes from other tabs or the portfolio page
   window.addEventListener("storage", (e) => {
     if (e.key === THEME_STORAGE_KEY) {
       applyTheme(getStoredMode());
     }
   });
 
-  // Listen for system appearance change if currently on 'system' mode
   if (window.matchMedia) {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
     mediaQuery.addEventListener("change", () => {
@@ -1111,11 +1338,11 @@ function initThemeEngine() {
     });
   }
 
-  // Initial apply
   applyTheme(getStoredMode());
 }
 
-// 11. INITIALIZATION
+// ============================================================================
+// 15. INITIALIZATION
 // ============================================================================
 
 function runInit() {
@@ -1138,7 +1365,6 @@ function runInit() {
   window.setSystemProtection(true);
   setActiveScreen(0, true);
 
-  // Guarantee view starts at top of Hero section
   requestAnimationFrame(() => {
     if (!window.location.hash) {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
