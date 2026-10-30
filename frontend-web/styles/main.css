@@ -191,6 +191,37 @@ html.light #mobile-menu a {
   border-bottom-color: rgba(15, 41, 42, 0.08) !important;
 }
 
+/* Deen-AI Launch Preview Button (Green Background + Golden Typography) */
+#topbar-deen-preview-btn,
+.topbar-deen-preview-btn,
+html[data-theme="light"] #topbar-deen-preview-btn,
+html[data-theme="light"] .topbar-deen-preview-btn,
+html.light #topbar-deen-preview-btn,
+html.light .topbar-deen-preview-btn {
+  background-color: #059669 !important;
+  color: #ffd175 !important;
+  border-color: rgba(255, 209, 117, 0.45) !important;
+  box-shadow: 0 2px 10px rgba(5, 150, 105, 0.35) !important;
+}
+#topbar-deen-preview-btn:hover,
+.topbar-deen-preview-btn:hover,
+html[data-theme="light"] #topbar-deen-preview-btn:hover,
+html[data-theme="light"] .topbar-deen-preview-btn:hover,
+html.light #topbar-deen-preview-btn:hover,
+html.light .topbar-deen-preview-btn:hover {
+  background-color: #047857 !important;
+  color: #ffe49e !important;
+  border-color: rgba(255, 209, 117, 0.7) !important;
+}
+#topbar-deen-preview-btn span,
+.topbar-deen-preview-btn span,
+html[data-theme="light"] #topbar-deen-preview-btn span,
+html[data-theme="light"] .topbar-deen-preview-btn span,
+html.light #topbar-deen-preview-btn span,
+html.light .topbar-deen-preview-btn span {
+  color: #ffd175 !important;
+}
+
 /* Headings & Text in Light Mode */
 html[data-theme="light"] h1,
 html[data-theme="light"] h2,

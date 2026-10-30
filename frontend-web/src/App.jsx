@@ -84,9 +84,9 @@ export default function App() {
           <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
           <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
           
-          <a href="/Deen-AI" className="px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/30 hover:border-emerald-500/60 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-sm shadow-emerald-950/30 group">
+          <a id="topbar-deen-preview-btn" href="/Deen-AI" className="topbar-deen-preview-btn px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-[#ffd175] hover:text-[#ffe49e] bg-[#059669] hover:bg-[#047857] border border-[#ffd175]/40 hover:border-[#ffd175]/70 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md shadow-emerald-950/30 group">
             <img src="/assets/favicon.PNG" alt="Deen-AI" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm group-hover:scale-110 transition-transform" />
-            <span>Launch App Preview &rarr;</span>
+            <span className="text-[#ffd175] font-bold group-hover:text-[#ffe49e] transition-colors">Launch App Preview &rarr;</span>
           </a>
 
 
@@ -129,9 +129,9 @@ export default function App() {
         <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadowPlane</a>
         <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>
         
-        <a href="/Deen-AI" className="block px-4 py-3 text-sm font-semibold uppercase tracking-wider text-emerald-400 hover:text-emerald-300 bg-emerald-950/30 hover:bg-emerald-900/50 rounded-lg border-b border-slate-900 transition-colors flex items-center gap-2.5">
+        <a href="/Deen-AI" className="topbar-deen-preview-btn block px-4 py-3 text-sm font-bold uppercase tracking-wider text-[#ffd175] bg-[#059669] hover:bg-[#047857] rounded-lg border border-[#ffd175]/30 transition-colors flex items-center gap-2.5 shadow-md shadow-emerald-950/20">
           <img src="/assets/favicon.PNG" alt="Deen-AI" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm" />
-          <span>Launch Interactive App Preview &rarr;</span>
+          <span className="text-[#ffd175] font-bold">Launch Interactive App Preview &rarr;</span>
         </a>
         
         <a 
