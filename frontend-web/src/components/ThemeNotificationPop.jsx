@@ -49,7 +49,7 @@ export default function ThemeNotificationPop() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
                 </span>
                 <span className="text-[11.5px] font-semibold tracking-tight theme-pop-title">
-                  Experience the site in these ways
+                  Dial in your visual atmosphere
                 </span>
               </div>
               <button
@@ -122,11 +122,11 @@ export default function ThemeNotificationPop() {
             type="button"
             onClick={handleToggleMinimize}
             className="theme-pop-pill inline-flex items-center gap-2 px-3.5 py-2 rounded-full border shadow-xl backdrop-blur-xl cursor-pointer hover:scale-105 active:scale-95 transition-all duration-200"
-            title="Experience the site in these ways (Click to switch theme)"
+            title="Dial in your visual atmosphere (Click to switch theme)"
             aria-label="Open theme mode switcher"
           >
             <i className="fa-solid fa-wand-magic-sparkles text-amber-400 text-xs" />
-            <span className="text-xs font-bold theme-pop-pill-text">Theme</span>
+            <span className="text-xs font-bold theme-pop-pill-text">Atmosphere</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
             <span className="text-[11px] font-mono opacity-80">
               {themeMode === 'dark' ? '🌙 Dark' : themeMode === 'light' ? '☀️ Light' : '💻 Auto'}

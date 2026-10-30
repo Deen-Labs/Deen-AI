@@ -489,3 +489,68 @@ html[data-theme="light"] .theme-pop-pill-text,
 html.light .theme-pop-pill-text {
   color: #0F292A !important;
 }
+
+/* Authentic Mahmood Watch Co. Digital LED Board Typography (Luminous Segments on Black) */
+.led-board-chassis,
+html[data-theme="light"] .led-board-chassis,
+html.light .led-board-chassis {
+  background: #080808 !important;
+  border: 3.5px solid #4a3321 !important;
+  color: #ffffff !important;
+}
+.led-board-chassis *,
+html[data-theme="light"] .led-board-chassis *,
+html.light .led-board-chassis * {
+  color: #f8fafc;
+}
+.led-board-chassis .text-slate-300,
+.led-board-chassis .text-slate-400,
+html[data-theme="light"] .led-board-chassis .text-slate-300,
+html[data-theme="light"] .led-board-chassis .text-slate-400,
+html.light .led-board-chassis .text-slate-300,
+html.light .led-board-chassis .text-slate-400 {
+  color: #f1f5f9 !important;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.4) !important;
+}
+.led-board-chassis .text-slate-500,
+.led-board-chassis .text-slate-600,
+html[data-theme="light"] .led-board-chassis .text-slate-500,
+html[data-theme="light"] .led-board-chassis .text-slate-600,
+html.light .led-board-chassis .text-slate-500,
+html.light .led-board-chassis .text-slate-600 {
+  color: #94a3b8 !important;
+}
+.led-board-chassis .led-green,
+html[data-theme="light"] .led-board-chassis .led-green,
+html.light .led-board-chassis .led-green {
+  color: #00ff66 !important;
+  text-shadow: 0 0 3px rgba(0, 255, 102, 0.9), 0 0 8px rgba(0, 255, 102, 0.45) !important;
+}
+.led-board-chassis .led-red,
+html[data-theme="light"] .led-board-chassis .led-red,
+html.light .led-board-chassis .led-red {
+  color: #ff3333 !important;
+  text-shadow: 0 0 3px rgba(255, 51, 51, 0.9), 0 0 8px rgba(255, 51, 51, 0.45) !important;
+}
+.led-board-chassis .text-deen-gold,
+html[data-theme="light"] .led-board-chassis .text-deen-gold,
+html.light .led-board-chassis .text-deen-gold {
+  color: #f59e0b !important;
+  text-shadow: 0 0 2px rgba(245, 158, 11, 0.6) !important;
+}
+.led-board-chassis .border-slate-800,
+html[data-theme="light"] .led-board-chassis .border-slate-800,
+html.light .led-board-chassis .border-slate-800 {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+.led-board-chassis a,
+html[data-theme="light"] .led-board-chassis a,
+html.light .led-board-chassis a {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.led-board-chassis a span,
+html[data-theme="light"] .led-board-chassis a span,
+html.light .led-board-chassis a span {
+  color: #f1f5f9 !important;
+}
