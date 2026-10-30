@@ -36,3 +36,13 @@ local.properties
 # macOS/Windows
 .DS_Store
 Thumbs.db
+
+# Audits, Repomix & Archives
+audits-and-apks/
+archives/
+*audit*.txt
+*audit*.xml
+*repomix*
+Repomix.txt
+repomix-output.xml
+salat times/

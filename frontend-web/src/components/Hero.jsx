@@ -8,14 +8,14 @@ export default function Hero({ tags, badges }) {
       <section className="hero hero--fullscreen" id="hero">
         <div className="hero__grid hero__grid--page1">
           <div className="hero__content">
-            <div className="pill pill--highlight">DEEN AI PREVIEW</div>
+            <div className="pill pill--highlight">DEENHUB PREVIEW</div>
             <h1 className="hero__title">
               Reimagining day-to-day Prayers with calm, thoughtful technology.
             </h1>
           
             <a
               href="/assets/deen-app-v3.2.0.apk"
-              download="Deen-AI-v3.2.0.apk"
+              download="DeenHub-v3.2.0.apk"
               className="button button--lg"
               style={{
                 display: "inline-block",
@@ -28,7 +28,7 @@ export default function Hero({ tags, badges }) {
           <div className="hero__image-wrapper">
             <img
               src="/assets/hero.png"
-              alt="DEEN A.I. Hero"
+              alt="DeenHub Hero"
               className="hero__image"
             />
           </div>
@@ -40,11 +40,11 @@ export default function Hero({ tags, badges }) {
           <div className="panel panel--mission">
             <SectionTitle text="Our mission at Deen Labs" />
             <p className="text-block text-block--inset">
-              DEEN A.I. links masjid schedules to your pocket, syncs imam
+              DeenHub links masjid schedules to your pocket, syncs imam
               updates in real-time, and gently blocks distracting content so you
               can stay present.It has tools that strengthen faith practice instead of distracting from it—connecting people to
               their masajid, filtering content mindfully, and delivering trustworthy, source-backed answers.
-              DEEN AI is our flagship app to make that mission tangible.
+              DeenHub is our flagship app to make that mission tangible.
             </p>
           </div>
         </div>

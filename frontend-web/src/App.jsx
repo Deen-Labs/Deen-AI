@@ -15,7 +15,7 @@ export default function App() {
   const scrollToSection = (e, id) => {
     e.preventDefault();
     setIsMobileMenuOpen(false);
-    const element = document.getElementById(id);
+    const element = document.getElementById(id) || (id === "deenhub" ? document.getElementById("deen-ai") : (id === "deen-ai" ? document.getElementById("deenhub") : null));
     if (element) {
       const navOffset = 88;
       const elementPosition = element.getBoundingClientRect().top;
@@ -80,13 +80,13 @@ export default function App() {
 
         {/* Desktop Navigation Items */}
         <nav className="hidden md:flex items-center space-x-1" aria-label="Main Navigation">
-          <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">DeenHub</a>
+          <a href="#deenhub" onClick={(e) => scrollToSection(e, 'deenhub')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">DeenHub</a>
           <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
           <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
           
-          <a id="topbar-deen-preview-btn" href="/Deen-AI" className="topbar-deen-preview-btn px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-[#ffd175] hover:text-[#ffe49e] bg-[#059669] hover:bg-[#047857] border border-[#ffd175]/40 hover:border-[#ffd175]/70 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md shadow-emerald-950/30 group">
-            <img src="/assets/favicon.PNG" alt="Deen-AI" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm group-hover:scale-110 transition-transform" />
-            <span className="text-[#ffd175] font-bold group-hover:text-[#ffe49e] transition-colors">Launch App Preview &rarr;</span>
+          <a id="topbar-deen-preview-btn" href="/DeenHub" className="topbar-deen-preview-btn px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-[#ffd175] hover:text-[#ffe49e] bg-[#059669] hover:bg-[#047857] border border-[#ffd175]/40 hover:border-[#ffd175]/70 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md shadow-emerald-950/30 group">
+            <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm group-hover:scale-110 transition-transform" />
+            <span className="text-[#ffd175] font-bold group-hover:text-[#ffe49e] transition-colors">Launch DeenHub Preview &rarr;</span>
           </a>
 
 
@@ -125,13 +125,13 @@ export default function App() {
         <div className="py-2 px-1 mb-1">
           <ThemeToggle className="w-full justify-around py-1.5" />
         </div>
-        <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">DeenHub</a>
+        <a href="#deenhub" onClick={(e) => scrollToSection(e, 'deenhub')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">DeenHub</a>
         <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadowPlane</a>
         <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>
         
-        <a href="/Deen-AI" className="topbar-deen-preview-btn block px-4 py-3 text-sm font-bold uppercase tracking-wider text-[#ffd175] bg-[#059669] hover:bg-[#047857] rounded-lg border border-[#ffd175]/30 transition-colors flex items-center gap-2.5 shadow-md shadow-emerald-950/20">
-          <img src="/assets/favicon.PNG" alt="Deen-AI" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm" />
-          <span className="text-[#ffd175] font-bold">Launch Interactive App Preview &rarr;</span>
+        <a href="/DeenHub" className="topbar-deen-preview-btn block px-4 py-3 text-sm font-bold uppercase tracking-wider text-[#ffd175] bg-[#059669] hover:bg-[#047857] rounded-lg border border-[#ffd175]/30 transition-colors flex items-center gap-2.5 shadow-md shadow-emerald-950/20">
+          <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm" />
+          <span className="text-[#ffd175] font-bold">Launch DeenHub Preview &rarr;</span>
         </a>
         
         <a 
@@ -212,8 +212,8 @@ export default function App() {
                 <div className="flex items-center space-x-3">
                   <i className="fa-solid fa-server text-teal-400 text-sm"></i>
                   <div>
-                    <p className="font-bold text-white">DEEN-AI-RAG-01</p>
-                    <p className="text-[10px] text-slate-500">FastAPI backend engine</p>
+                    <p className="font-bold text-white">DEENHUB-SYNC-01</p>
+                    <p className="text-[10px] text-slate-500">SalahTime & Masjid LED Engine</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -296,7 +296,7 @@ export default function App() {
         {/* ==========================================
              DEEN-AI PRODUCT SHOWCASE (Row 1)
              ========================================== */}
-        <InteractiveProjectCard id="deen-ai"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-teal-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-950/10 group relative overflow-hidden">
+        <InteractiveProjectCard id="deenhub"   className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-teal-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-950/10 group relative overflow-hidden">
 
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-brand-accent to-emerald-500"></div>
@@ -307,8 +307,8 @@ export default function App() {
             <div className="lg:col-span-7 flex flex-col space-y-5">
               <div className="flex items-center space-x-4">
                 <img 
-                  src="/assets/favicon.PNG" 
-                  alt="Deen-AI Logo" 
+                  src="/assets/new-app-icon.png" 
+                  alt="DeenHub Logo" 
                   className="h-20 w-20 sm:h-24 sm:w-24 object-contain shrink-0 group-hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_16px_rgba(20,184,166,0.3)]" 
                 />
                 <div>
@@ -318,7 +318,7 @@ export default function App() {
               </div>
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                DeenHub is an all-in-one Islamic mobile ecosystem engineered for daily spiritual practice, community masjid connectivity, and digital purity. Featuring live crowd-verified Masjid Jama'at timings across 140+ masajid, authentic Mahmood Watch Co. digital LED timing boards, weekly Jumu'ah Khutbah topics, Custom Azkar, 12-Month Hijri Fasting Calendar, and 24/7 native Accessibility + Private DNS content shielding.
+                DeenHub is an all-in-one Masjid & SalahTime companion engineered for daily congregational prayer, live Mahmood Watch Co. digital LED timetable synchronization, and 24/7 device-level content shielding. Featuring live crowd-verified Masjid Jama'at timings across 140+ masajid, authentic Mahmood Watch Co. digital LED timing boards, weekly Jumu'ah Khutbah topics, Custom Azkar, 12-Month Hijri Fasting Calendar, and 24/7 native Accessibility + Private DNS content shielding.
               </p>
 
               {/* Core Feature Highlights (2x2 Grid) */}
@@ -376,17 +376,17 @@ export default function App() {
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <MagneticButton
                   as="a"
-                  href="/Deen-AI"
+                  href="/DeenHub"
                   className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 rounded-xl shadow-lg shadow-teal-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2.5 whitespace-nowrap"
                 >
-                  <img src="/assets/favicon.PNG" alt="Deen-AI" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm" />
-                  <span>Launch Interactive Preview &rarr;</span>
+                  <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-5 h-5 shrink-0 object-contain drop-shadow-sm" />
+                  <span>Launch DeenHub Preview &rarr;</span>
                 </MagneticButton>
 
                 <MagneticButton
                   as="a"
                   href="/assets/deen-app-v3.2.0.apk"
-                  download="Deen-AI-v3.2.0.apk"
+                  download="DeenHub-v3.2.0.apk"
                   className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f59e0b] rounded-xl shadow-lg shadow-amber-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
                 >
                   <i className="fa-solid fa-download text-xs"></i>
@@ -429,18 +429,18 @@ export default function App() {
                     </div>
                     <div className="flex items-center justify-between py-0.5">
                       <span className="text-slate-300 font-bold">FAJR (+25m)</span>
-                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_3px_#00ff66]">04:58 AM</span>
-                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_3px_#ff3333]">05:23 AM</span>
+                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_1.5px_#00ff66]">04:58 AM</span>
+                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_1.5px_#ff3333]">05:23 AM</span>
                     </div>
                     <div className="flex items-center justify-between py-0.5 bg-emerald-950/50 rounded px-1 text-emerald-400 font-bold border border-emerald-500/30">
                       <span>▶ ASR (CURRENT)</span>
-                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_3px_#00ff66]">03:36 PM</span>
-                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_3px_#ff3333]">04:15 PM</span>
+                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_1.5px_#00ff66]">03:36 PM</span>
+                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_1.5px_#ff3333]">04:15 PM</span>
                     </div>
                     <div className="flex items-center justify-between py-0.5">
                       <span className="text-slate-300 font-bold">MAGHRIB</span>
-                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_3px_#00ff66]">05:58 PM</span>
-                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_3px_#ff3333]">06:05 PM</span>
+                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_1.5px_#00ff66]">05:58 PM</span>
+                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_1.5px_#ff3333]">06:05 PM</span>
                     </div>
                   </div>
 

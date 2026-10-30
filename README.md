@@ -1,128 +1,193 @@
-# Deen AI
+# Deen AI & SalahTime (v3.3.0)
 
-Deen AI is an Islamic-focused AI assistant and digital wellness companion by **Deen Labs**. It combines proactive prayer reminders, daily dhikr & Quran/Hadith inspiration, halal content protection, and authentic Islamic Q&A powered by Retrieval-Augmented Generation (RAG).
-
----
-
-## Latest Release (v3.2.0) - Verified Muazzin Passkey, Digital LED Timing Board, Add Masjid & Release Bundle
-
-### Key Enhancements & Upgrades (v3.2.0)
-- **Verified Muazzin Passcode & Official Verification Badge**: In-person verified Muazzins and Masjid committee members can enter their 4-digit verification code directly in the timing board modal to instantly publish official verified timings (`Verified by Muazzin 🕌`), featured prominently on the Masjid card and inside the digital LED board header.
-- **In-App Digital LED Timing Board (Mahmood Watch Co. Replica)**: Rebuilt the masjid timing editor to mirror physical LED prayer clocks with simultaneous green Athan and red Jama'at digital columns, locked `:` colons, and number-pad inputs.
-- **Glitch-Free Split Digit Time Input & Smooth Modal Scrolling**: Eliminated backspace glitches and restored smooth modal scrolling by moving touch dismiss handlers to a dedicated background layer.
-- **In-App Missing Masjid Addition**: Users can add missing masjids with automatic GPS tagging, school of thought selection, and instant optimistic local persistence.
-- **Google Sheets / Apps Script Webhook Integration**: Background synchronization pipeline with support for Google Apps Script Webhook directly writing prayer time updates and new masjids to Google Sheets without authentication blocks.
-- **Direct Sideload Production APK (`deen-app-v3.2.0.apk`)**: Packaged standalone release APK with Proguard/R8 optimization, Hermes JS bytecode compilation, updated version codes (`versionCode 12`, `versionName "3.2.0"`), and zero external dependency on Expo Go.
-- **Unified Website Distribution**: Integrated directly into the [Deen Labs](https://deenlabs.tech) showcase website with instant 1-click download (`Download App (v3.2.0)`).
+<div align="center">
+  <h3>Unified Islamic Intelligence, Live Masjid Digital LED Clocks, & Halal Digital Well-Being</h3>
+  <p><b>Production Release v3.3.0 • React Native & Expo SDK 58 • Android Old Architecture & New Fabric Compatible</b></p>
+</div>
 
 ---
 
-## Previous Releases
+## 📖 Executive Summary & Architectural Overview
 
-### v3.1.1 - Scunthorpe Problem Elimination, Native SharedPreferences Focus Blocking, Background-Safe Timers & Spatial Accuracy
-- **Scunthorpe Problem Elimination & Bounded Regex Content Filter**: Replaced naive substring matching in `ContentFilterAccessibilityService` with compiled word-boundary regular expressions, preventing false positive blocks on legitimate words (e.g. "Essex", "Sussex", "sextant", "sixth").
-- **Native SharedPreferences Focus Mode App Blocking**: Added `@ReactMethod syncFocusBlocking` in `ContentProtectionModule` bridging React Native focus sessions directly to Android's `AccessibilityService` via `deen_ai_prefs` (`is_focus_mode_active`, `focus_blocked_packages`), intercepting unauthorized app launches in real time and routing to `focus-blocked` deep link banner.
-- **Background-Safe Focus Mode Countdown Timer**: Implemented wall-clock timestamp synchronization (`targetEndTimeRef` based on `Date.now() + remaining`) with `AppState` change listeners in `focus.tsx` to ensure timers remain accurate and never freeze or drift when switching apps or locking the device.
-- **Prayer Calculation Method Parameter Plumbing & Live Chat Integration**: Fixed calculation method parsing in `prayerTimes.ts` (`PRAYER_TIMES_${todayStr}_${lat}_${lng}_M${method}`) and wired dynamic cached prayer times directly into the AI Imam chat command response.
-- **Masjid Spatial Accuracy & Navigation Safety**: Replaced synthetic/fake coordinate generation in `masjid.ts` with filtered fallback masjids, and patched `masjid.tsx` & `chat.tsx` navigation handlers to redirect fallback/simulated IDs to genuine Google Maps search queries by masjid name instead of misleading GPS routing.
-- **Non-Blocking UI Feedback & PIN Submissions**: Wrapped PIN submission verification in `PINModal` within a micro-task delay (`setTimeout(..., 16)`) to ensure ripple and button press feedback renders smoothly on the UI thread without JS hitching.
-- **Direct Sideload Production APK (`Deen-AI-v3.1.1.apk`)**: Packaged standalone release APK with Proguard/R8 optimization, Hermes JS bytecode compilation, updated version codes (`versionCode 11`, `versionName "3.1.1"`), and zero external dependency on Expo Go.
-- **Unified Website Distribution**: Integrated directly into the [Deen Labs](https://deenlabs.tech) showcase website with instant 1-click download (`Download App (v3.1.1)`).
+**Deen AI / SalahTime (v3.3.0)** is an enterprise-grade mobile application combining high-precision prayer calculation engines, community-verified masjid congregation timing boards, authentic multi-language Quranic and Hadith exploration, and device-wide spiritual protection.
+
+Moving from legacy scattered routes into a unified **4-Tab Minimalist Architecture**, Deen AI v3.3.0 delivers sub-millisecond startup times, 100% offline-first resilience with background pre-warming, universal high-contrast Light/Dark theming across 25+ screens and modals, and authenticated 5-tier role-based masjid management.
 
 ---
 
-## Previous Releases
+## 🏛️ Monorepo Architecture & 4-Tab Navigation
 
-### v2.2.1 - Critical Security Hardening, Multi-Round SHA-256 PBKDF2 PIN Shield, Anti-Tamper Guardrails & RAG Injection Defense
-- **Multi-Round Iterative SHA-256 PIN Shield (VULN-05)**: Replaced legacy bitwise hashing with a hardened 10,000-round pure JS SHA-256 hash combined with a per-device cryptographically random 16-byte salt (`@deen_ai_pin_salt`), featuring transparent automatic legacy migration.
-- **Progressive Brute-Force Rate Limiting (VULN-08)**: Enforced anti-automation lockout cooldowns (60s at 5 failures, 120s at 10, 300s at 15+) with a dynamic real-time lockout countdown in `PINModal`.
-- **RAG Context Isolation & Prompt Injection Defense (VULN-02)**: Strict isolation of untrusted external reference material inside `<reference_context>` tags in user turns; `SYSTEM_INSTRUCTION` remains immutable, and all metadata fields are sanitized.
-- **Protected Anti-Tamper & Accessibility Self-Disable Interception (VULN-04)**: Fixed PackageInstaller detection logic to require both target app ID and uninstall actions; intercepts settings navigation attempting to disable Deen AI Accessibility Service.
-- **Service State Integrity & Secure Teardown (VULN-09)**: `stopVPNService` validates active PIN lock status, stops the VPN service, directs to Accessibility settings, and persists lifecycle states.
-- **Bounded DOM Tree Scanning & Throttling (VULN-10)**: Implemented strict 12-level depth limit (`maxDepth = 12`) on node and URL traversal with 350ms debouncing on browser DOM updates to eliminate UI freezes and ANRs.
-- **Overpass QL Regex Sanitization (VULN-06)**: Added `sanitizeOverpassRegex()` to strip syntax terminators and escape regex metacharacters in spatial Masjid searches.
-- **Component Attack Surface Reduction (VULN-12, VULN-13)**: Closed `ContentFilterVPNService` to third-party apps (`android:exported="false"`), disabled ADB backup (`android:allowBackup="false"`), and turned off network inspection in production configurations.
-- **Production PII Privacy Gate (VULN-14)**: Gated all sensitive user typing, clicked nodes, and URL logs behind `if (BuildConfig.DEBUG)`.
-- **Direct Sideload Production APK (`Deen-AI-v2.2.1.apk`)**: Packaged standalone release APK with Proguard/R8 optimization, Hermes JS bytecode compilation, and full security hardening.
+Deen AI v3.3.0 reorganizes mobile navigation into 4 dedicated, focused root tabs (`mobile-app/app/(tabs)/_layout.tsx`), while deprecating legacy standalone tabs into the centralized **Deen More** hub.
 
----
-
-## Previous Releases
-
-### v2.1.5 - Standalone Android Production Packaging, Live Sensor Qibla Compass & Privacy Anti-Tamper Shield
-- **Direct Sideload Production APK (`Deen-AI-v2.1.5.apk`)**: Packaged standalone release APK pre-optimized with R8/Proguard, Hermes JavaScript bytecode compilation, and zero external dependency on Expo Go.
-- **Multi-Session Client-Side Chat Engine**: Independent conversation sessions with immediate contextual titles and drawer history modal.
-- **String-Based Fast-Path Recall**: Sub-300ms in-app agent actions with $0 LLM token cost.
-- **Live Sensor Qibla Compass**: Native motion sensor fusion with dynamic orientation and Kaaba alignment.
-- **Action-Level Anti-Tamper Protection**: Selective destruction interception in Settings.
-- **Daily Inspiration Panel**: 30-day non-repeating FIFO with authenticated Hadith and Quranic Ayahs.
-
-### v1.5.3 - Multi-Session Imam AI & Fast-Path Engine
-- Integrated on-device conversation drawer and session history persistence.
-- Added regex deterministic in-app tool execution and strict Islamic guardrail refusal.
-- Implemented cascading Gemini quota hierarchy (`gemini-3.5-flash-lite` -> `gemini-2.5-flash`).
-
-### v1.5.2 - In-App Agent, Mandatory PIN Security & Ergonomic Focus Update
-- **In-App Tool Execution**: Imam AI executes in-app tasks (Focus timers, Masjids) via command blocks.
-- **Inline Masjid Cards**: Renders interactive cards with distance, address, and Google Maps turn-by-turn navigation.
-- **Mandatory PIN Security**: System-Wide Protection requires 4-digit PIN setup before activation.
-- **Focus Screen Ergonomic Overhaul**: Unionized hero dial fitting above the fold on all screen sizes.
-- **1km Walking Radius Query**: Rapid Overpass OSM queries scoped to 1000m around live GPS.
-- **7-Minute Pre-Prayer Notifications**: Exact 7-minute offset restricted strictly to 5 daily prayers.
-
-### v1.5.1 / v1.5.1i - Performance, UI & Warm-Up Update
-- **Concurrent Startup Pre-Fetch**: Background engine (`lib/backgroundWarmup.ts`) executes immediately upon launch for 0ms transitions.
-- **Streamlined 5-Tab Navigation**: `Home`, `Prayer`, `Focus`, `Imam AI`, `Masjid` with clean top-right settings shortcut.
-- **Dual Calendar**: Simultaneous Gregorian and Hijri date displays with next Azan live ticker.
-- **Uninstall PIN Lock**: Device settings interception prompts a strictly enforced 4-digit PIN screen.
-
----
-
-## Monorepo Layout
-
-- `mobile-app/` — React Native & Expo mobile application for Android & iOS.
-- `frontend-web/` — Web landing page and interactive showcase (`deenlabs.tech`).
-- `ai-engine/` — RAG pipeline, embeddings, and LLM connectors.
-- `backend-data/` — Database schemas, ETL pipelines for Quran, Hadith, and Tafsir data.
+```
+mobile-app/
+├── app/
+│   ├── (tabs)/
+│   │   ├── _layout.tsx           # 4 visible tabs: Home, Masjid, Focus, More (prayer/chat/settings hidden)
+│   │   ├── index.tsx             # Tab 1: Home Dashboard & Mahmood Watch Co. LED Board
+│   │   ├── masjid.tsx            # Tab 2: Nearby Masajid, Verified Muazzin Portal & Add Masjid
+│   │   ├── focus.tsx             # Tab 3: Spiritual Focus Timer & App Blocker
+│   │   └── more.tsx              # Tab 4: Unified Deen Hub & Localized Settings
+│   ├── hub/
+│   │   ├── quran-hadith-search.tsx # Deep 114-Surah Browser, Hadith Bank & Internet Archive
+│   │   ├── friday-topics.tsx       # Searchable Jumu'ah Topics & Khutbah Roster
+│   │   ├── azkar.tsx               # Morning & Evening Hisnul Muslim Dhikr with Tap Counter
+│   │   ├── asma-ul-husna.tsx       # 99 Names of Allah with Audio & Meanings
+│   │   ├── ramadhan.tsx            # 30-Day Ramadhan Fasting Timetable (Sahar & Iftar)
+│   │   ├── tasbih.tsx              # Digital Tasbih with Target Presets & Session History
+│   │   ├── madrasa.tsx             # Maktab Student Roster & Attendance Ledger
+│   │   ├── community-feedback.tsx  # Community Masjid Reports & Feedback
+│   │   └── admin-dashboard.tsx     # 5-Tier RBAC Approval & Management Console
+│   └── auth/
+│       ├── login.tsx               # Email / Mobile & Password Authentication
+│       ├── signup.tsx              # Account Creation with Role Request & Onboarding Route
+│       └── profile.tsx             # User Profile, Assigned Masjid & Security Settings
+├── components/
+│   ├── MasjidLedBoard.tsx          # Mahmood Watch Co. Replica Digital LED Timing Display
+│   ├── FirstTimeWalkthroughModal.tsx # Interactive 4-Step Masjid & App Onboarding Guide
+│   ├── UpdateMasjidTimingModal.tsx # Digital LED Board Editor with Muazzin Verification
+│   ├── MuazzinLoginModal.tsx       # Fast-path Muazzin Passkey Authentication
+│   ├── QiblaCompassModal.tsx       # Real-time Sensor Fusion Kaaba Compass
+│   ├── PINModal.tsx                # Hardened SHA-256 PIN Shield with Rate Limiting
+│   └── HubBottomBar.tsx            # 4-Tab Elevated Navigation Bar (Swipe-Gesture Safe)
+└── lib/
+    ├── quranData.ts                # 114 Surahs Metadata, Multi-Edition Caching & Hadith Bank
+    ├── salahTimeBackend.ts         # Jumu'ah Khutbah History, President & Proximity Sorting
+    ├── masjidTimingSync.ts         # Dual Firestore & Google Sheets Push Pipeline
+    ├── prayerTimes.ts              # High-Precision Solar Calculation Engine
+    ├── theme.tsx                   # High-Contrast Universal Semantic Theme Tokens
+    └── auth.ts                     # 5-Tier RBAC Matrix & Token Auto-Refresh Engine
+```
 
 ---
 
-## Tech Stack
+## 🌟 Major Highlights in v3.3.0
 
-- **Mobile Framework**: React Native (0.86.2), Expo (SDK 57), Expo Router (v57)
-- **Styling**: NativeWind (Tailwind CSS v4)
-- **Vector Icons**: Expo Vector Icons (Feather)
-- **AI Core**: Google Gemini API & Local LLMs
-- **Native Android Security**: Custom `AccessibilityService` and `VpnService`
-- **Build Tools**: Gradle 8.13, Android SDK 36, NDK 27.1.12297006, Java 21 LTS
+### 1. Reusable Mahmood Watch Co. Digital LED Board (`components/MasjidLedBoard.tsx`)
+- **Authentic Physical Clock Replica**: Faithful digital representation of the iconic Mahmood Watch Co. prayer clocks found across Hyderabad, South Asia, and the Gulf.
+- **Bi-Color Digit Illumination**: High-contrast glowing green digits (`#00ff66`) for Athan times and glowing red digits (`#ff2a2a`) for Jama'at congregation times.
+- **Traditional Calligraphy Header**: Renders the Shahada (`لَا إِلٰهَ إِلَّا ٱللَّٰهُ مُحَمَّدٌ رَسُولُ ٱللَّٰهِ`) above the prayer matrix.
+- **Unupdated Masjid Solar Fallback Banner**: When a newly added or unverified masjid lacks published Jama'at times, an amber/gold indicator notifies believers:
+  > *Masjid Jama'at times not yet updated • Showing accurate Solar/API timings*
+- **Muazzin Verification Badge**: Shows the verified green seal (`Verified by Muazzin 🕌`) once an authorized muazzin submits confirmed timings.
+- **Universal Reusability**: Seamlessly embedded in both the **Home Screen** (`app/(tabs)/index.tsx`) and the **Masjid Screen** (`app/(tabs)/masjid.tsx`).
+
+### 2. Deep Quran & Hadith Explorer (`app/hub/quran-hadith-search.tsx` & `lib/quranData.ts`)
+- **114-Surah Browser**: Instant browsing of all 114 Surahs with Arabic calligraphy, transliteration, English meanings, verse counts, and Meccan/Medinan tags.
+- **Complete Surah Reader with Offline Caching**:
+  - Fetches complete Arabic text alongside multi-edition translations (`en.asad`, `ur.jalandhry`, `en.transliteration`) in a single network round-trip.
+  - Automatically caches every loaded Surah in `AsyncStorage` under `@deen_surah_cache_v2_{number}` for permanent offline reading.
+  - Instant translation toggles between English, Urdu, Transliteration, Hindi, and Telugu.
+  - One-tap `"Bookmark Last Read"` verse saving.
+- **Authentic 6-Book Hadith Collection Bank**:
+  - Curated hadiths across *Sahih al-Bukhari*, *Sahih Muslim*, *Sunan Abu Dawud*, *Jami` at-Tirmidhi*, *Sunan an-Nasa'i*, and *Sunan Ibn Majah*.
+  - Full Arabic text, English translation, authentic Urdu translation, narrator chains, chapter metadata, and authenticity pills (`Sahih`, `Hasan`).
+  - Collection filter chips for instant segmented browsing.
+- **Internet Archive Classical Islamic Library**:
+  - Direct real-time search against `archive.org/advancedsearch.php` covering tens of thousands of verified public domain classical Islamic manuscripts, Hadith commentaries, and Tafsir volumes (e.g., *Tafsir Ibn Kathir*, *Fath al-Bari*, *Riyad as-Salihin*).
+  - One-tap links opening full PDF and digital texts directly on Internet Archive.
+- **114-Surah Audio Streaming**:
+  - High-fidelity streaming of all 114 Surahs recited by Qari Mishary Rashid Alafasy via QuranicAudio CDN with secondary CDN failover.
+
+### 3. Multi-Field Jumu'ah Search & Khutbah Roster (`app/hub/friday-topics.tsx`)
+- **Multi-Field Live Querying**: Search across topic title, Khateeb name, Masjid name, Committee President, or neighborhood address.
+- **Categorical Filter Chips**: Quickly isolate khutbahs `By Khateeb`, `By Masjid`, or `By President`.
+- **Proximity & Freshness Ranking**: Masjids with freshly announced topics (within 7 days) and closest GPS proximity float to the top of the congregant's feed.
+- **Historical Khutbah Archives**: Expands past topics (Y & Z) alongside current Friday topics (X).
+
+### 4. Interactive Masjid Onboarding Walkthrough & Login Gate (`components/FirstTimeWalkthroughModal.tsx`)
+- **4-Step Visual Onboarding Guide**:
+  1. *Find or Pin Your Default Masjid*: Explains GPS auto-selection and how to pin a home masjid to the Home screen LED board.
+  2. *Adding a Missing Masjid*: Shows how to tap `+ Add Missing Masjid`, auto-tag GPS coordinates, and register committee details.
+  3. *Setting the Digital LED Timing Board*: Demonstrates how green Athan and red Jama'at digits function alongside solar fallbacks.
+  4. *Muazzin, Imam & Committee Verification*: Details how authorized officials earn the verified seal.
+- **Account Registration Onboarding Route**: Automatically invites newly registered users in `app/auth/signup.tsx` to view the walkthrough before navigating to the masjid directory.
+- **Masjid Creation Login Gate**: Prompts unauthenticated guests to sign in or create a free account with direct access to view the onboarding walkthrough before submitting new masjids.
+
+### 5. Unified Deen More Tab (`app/(tabs)/more.tsx`)
+- **User Account & Role Banner**: Displays active session details, name, and 5-tier role badge (`USER`, `MUAZZIN`, `IMAM`, `PRESIDENT`, `ADMIN`).
+- **Guide to Add Masjid Button**: Triggers the interactive masjid onboarding guide on demand.
+- **Spiritual & Community Bento Grid**: High-contrast grid directing believers to Qibla Compass, Azkar, 99 Names, Quran & Hadith, Friday Topics, Ramadhan, Tasbih, Maktab, Community Feedback, and Admin Console.
+- **Localized Settings Section**:
+  - Theme mode selector: **Dark Mode**, **Light Mode**, and **System** (with high-contrast dynamic styling).
+  - Language toggle: **English** and **Urdu**.
+  - Salah calculation method selector: University of Islamic Sciences (Karachi), Muslim World League, ISNA, Umm al-Qura, Egyptian General Authority.
+  - Salah notification alerts toggle.
+  - 18+ Private DNS Halal protection guide, copyable hostname, and one-tap launcher for Android Network Settings.
 
 ---
 
-## Local Setup & Development
+## 🔒 Security Architecture & Content Protection
 
-### Mobile App (`mobile-app/`)
-1. Ensure **Node.js ≥ 20** and **Java 21 LTS** are installed.
-2. Navigate to the mobile app directory:
-   ```bash
-   cd mobile-app
-   npm install
-   ```
-3. Start the Expo development server:
-   ```bash
-   npx expo start
-   ```
-4. Build the standalone Android APK:
-   ```bash
-   cd android
-   ./gradlew assembleRelease
-   ```
-   The generated release APK is located at:
-   `android/app/build/outputs/apk/release/app-release.apk`
+Deen AI incorporates multiple defensive layers protecting user privacy, app integrity, and spiritual digital well-being:
+
+| Component | Defensive Mechanism | Implementation |
+| :--- | :--- | :--- |
+| **PIN Shield** | 10,000-round SHA-256 with 16-byte cryptographically random per-device salt | `lib/lock.ts` |
+| **Brute-Force Guard** | Progressive lockout cooldowns (60s at 5 attempts, 120s at 10, 300s at 15+) | `components/PINModal.tsx` |
+| **5-Tier RBAC** | Server-side Firestore claims and normalized client authorization matrix | `lib/auth.ts` |
+| **Halal Shield** | System-wide Private DNS filter (`family-filter-dns.cleanbrowsing.org`) | `app/(tabs)/more.tsx` |
+| **Native Accessibility** | Android `AccessibilityService` intercepting adult keywords & unauthorized app launches | `android/.../ContentFilterAccessibilityService.java` |
+| **Anti-Tamper** | PackageInstaller detection preventing unauthorized uninstallation or service teardown | `lib/nativeContentProtection.ts` |
 
 ---
 
-## Git Workflow
+## 🚀 Getting Started & Development
 
-- **`main`**: Production-ready branch. Protected.
-- **`progress`**: Active feature integration and testing branch.
-- Submit Pull Requests with at least 1 review prior to merging into `main`.
+### Prerequisites
+- **Node.js**: v18+ (LTS recommended)
+- **Package Manager**: npm or yarn
+- **Expo CLI**: SDK 58 compatible
+- **Android Studio / SDK**: Android SDK 34+ for native builds
+- **Python**: 3.10+ (for backend synchronization utilities)
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/syedammar1/deen.git
+cd deen/mobile-app
+
+# Install project dependencies
+npm install
+```
+
+### Running Locally
+```bash
+# Start the Expo development server with clear cache
+npx expo start -c
+
+# Run on connected Android device or emulator
+npx expo run:android
+```
+
+### Verification & Testing
+```bash
+# Run TypeScript compilation check (0 errors required)
+npx tsc --noEmit
+
+# Run Core Functionality Test Suite (5/5 suites)
+node scripts/runTests.js
+```
+
+---
+
+## 📱 Tech Stack
+
+- **Framework**: React Native 0.86, Expo SDK 58, Expo Router
+- **Language**: TypeScript 5.9 (Strict mode enabled)
+- **Styling**: NativeWind & Dynamic Semantic Theme Tokens (`lib/theme.tsx`)
+- **Icons**: Expo Vector Icons (Feather)
+- **Audio Engine**: `expo-audio` with CDN fallback failover (`lib/audioPlayer.ts`)
+- **State & Storage**: React Hooks, `@react-native-async-storage/async-storage`
+- **Backend & Cloud**: Google Cloud Firestore & Google Apps Script Webhooks
+- **Sensors**: `expo-sensors` (Magnetometer & Accelerometer for Qibla Compass)
+- **Testing**: Node.js automated test runner (`scripts/runTests.js`)
+
+---
+
+## 🤝 Community & Support
+
+- **Organization**: Deen Labs
+- **Official Website**: [https://deenlabs.tech](https://deenlabs.tech)
+- **Feedback & Bug Reports**: Submit via the in-app Community Feedback hub (`/hub/community-feedback`) or open an issue on GitHub.
+- **License**: Proprietary / All Rights Reserved © Deen Labs.

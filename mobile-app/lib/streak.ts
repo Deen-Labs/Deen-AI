@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { nativeContentProtection } from './nativeContentProtection';
 
 const STREAK_COUNT_KEY = '@deen_ai_streak_count';
 const STREAK_START_DATE_KEY = '@deen_ai_streak_start_date';
@@ -80,6 +81,12 @@ export async function checkAndUpdateStreak(): Promise<number> {
     if (lastCheckDate === todayStr) {
       return currentStreak;
     }
+
+    // Only count active clean streak days when Content Protection is actively enabled
+    const status = await nativeContentProtection.getStatus().catch(() => ({ active: false }));
+    if (!status.active) {
+      return currentStreak;
+    }
     
     const start = new Date(startDate);
     start.setHours(0, 0, 0, 0);
@@ -104,6 +111,55 @@ export async function checkAndUpdateStreak(): Promise<number> {
 
 export async function recordBlockEvent(): Promise<void> {
   await resetStreak('content_blocked');
+}
+
+export const recordContentBlocked = recordBlockEvent;
+
+export interface CleanAnalyticsStats {
+  currentStreak: number;
+  maxStreak: number;
+  averageStreak: number;
+  totalRelapses: number;
+  startDate: string | null;
+  lastResetReason: string | null;
+  history: Array<{ date: string; streak: number; resetReason?: string }>;
+}
+
+export async function getCleanAnalyticsStats(): Promise<CleanAnalyticsStats> {
+  try {
+    const [current, history] = await Promise.all([
+      getStreak(),
+      getStreakHistory(),
+    ]);
+
+    const allStreaks = [current.currentStreak, ...history.map((h) => h.streak)];
+    const maxStreak = allStreaks.length > 0 ? Math.max(...allStreaks) : current.currentStreak;
+
+    const validStreaks = allStreaks.filter((s) => typeof s === 'number' && !isNaN(s));
+    const sum = validStreaks.reduce((acc, v) => acc + v, 0);
+    const averageStreak = validStreaks.length > 0 ? Math.round((sum / validStreaks.length) * 10) / 10 : current.currentStreak;
+
+    return {
+      currentStreak: current.currentStreak,
+      maxStreak,
+      averageStreak,
+      totalRelapses: history.length,
+      startDate: current.startDate,
+      lastResetReason: current.lastResetReason,
+      history,
+    };
+  } catch (err) {
+    console.error('Error computing clean analytics stats:', err);
+    return {
+      currentStreak: 0,
+      maxStreak: 0,
+      averageStreak: 0,
+      totalRelapses: 0,
+      startDate: null,
+      lastResetReason: null,
+      history: [],
+    };
+  }
 }
 
 export async function recordVPNDisabled(): Promise<void> {

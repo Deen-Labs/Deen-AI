@@ -206,7 +206,7 @@ export async function setPIN(pin: string): Promise<boolean> {
     // Sync to native side for Accessibility Service
     await nativeContentProtection.syncLockState(true);
     
-    console.log('✅ PIN lock has been set');
+    console.log('PIN lock has been set');
     return true;
   } catch (error) {
     console.error('Error setting PIN:', error);
@@ -242,7 +242,7 @@ export async function verifyPIN(attempt: string): Promise<boolean> {
         isValid = true;
         const newHash = hashPINWithSalt(attempt, salt);
         await AsyncStorage.setItem(LOCK_PIN_KEY, newHash);
-        console.log('✅ Successfully migrated legacy PIN hash to v2 SHA-256');
+        console.log('Successfully migrated legacy PIN hash to v2 SHA-256');
       }
     }
 

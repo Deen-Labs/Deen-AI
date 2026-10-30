@@ -3,7 +3,7 @@ import SectionTitle from "./SectionTitle.jsx";
 
 export default function ChatBox() {
   const [messages, setMessages] = useState([
-    { role: "ai", content: "As-salamu alaykum! I am Deen A.I. How can I help you today?" }
+    { role: "ai", content: "As-salamu alaykum! I am DeenHub. How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +43,7 @@ export default function ChatBox() {
   return (
     <section className="section" id="ai-chat" style={{ background: "var(--color-surface)", padding: "4rem 1.5rem" }}>
       <div className="wrapper" style={{ maxWidth: "800px", margin: "0 auto" }}>
-        <SectionTitle text="Ask Deen A.I." />
+        <SectionTitle text="Ask DeenHub" />
         <div style={{
           backgroundColor: "var(--color-bg)",
           borderRadius: "16px",

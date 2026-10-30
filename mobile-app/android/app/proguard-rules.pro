@@ -12,3 +12,11 @@
 -keep class com.facebook.react.turbomodule.** { *; }
 
 # Add any project specific keep options here:
+
+# Deen AI & Native dependencies
+-keep class com.deenai.** { *; }
+-keep class org.salahtime.mohdqasim.** { *; }
+-keep class org.mohdqasim.salahtime.testing.** { *; }
+-keep class expo.modules.** { *; }
+-keep class com.facebook.hermes.unicode.** { *; }
+-keep class com.facebook.jni.** { *; }

@@ -14,7 +14,9 @@ export default defineConfig({
           const urlPath = rawUrl.split('?')[0];
           if (
             urlPath.toLowerCase() === '/deen-ai' ||
-            urlPath.toLowerCase() === '/deen-ai/'
+            urlPath.toLowerCase() === '/deen-ai/' ||
+            urlPath.toLowerCase() === '/deenhub' ||
+            urlPath.toLowerCase() === '/deenhub/'
           ) {
             req.url = '/Deen-AI/index.html' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '');
           }
@@ -27,7 +29,9 @@ export default defineConfig({
           const urlPath = rawUrl.split('?')[0];
           if (
             urlPath.toLowerCase() === '/deen-ai' ||
-            urlPath.toLowerCase() === '/deen-ai/'
+            urlPath.toLowerCase() === '/deen-ai/' ||
+            urlPath.toLowerCase() === '/deenhub' ||
+            urlPath.toLowerCase() === '/deenhub/'
           ) {
             req.url = '/Deen-AI/index.html' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '');
           }

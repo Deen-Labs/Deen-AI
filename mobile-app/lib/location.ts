@@ -9,6 +9,60 @@ export interface Coordinates {
 const STORAGE_KEY_LAST_COORDS = '@deen_last_known_coords';
 let inMemoryCoords: Coordinates | null = null;
 
+export type LocationListener = (coords: Coordinates) => void;
+const locationListeners = new Set<LocationListener>();
+
+/**
+ * Subscribe to real-time location updates. Fires immediately if cached coords exist.
+ */
+export function subscribeToLocationUpdates(listener: LocationListener): () => void {
+  locationListeners.add(listener);
+  if (inMemoryCoords) {
+    try {
+      listener(inMemoryCoords);
+    } catch (e) {
+      console.warn('[Location] Listener error:', e);
+    }
+  }
+  return () => {
+    locationListeners.delete(listener);
+  };
+}
+
+export function notifyLocationUpdate(coords: Coordinates) {
+  inMemoryCoords = coords;
+  locationListeners.forEach((listener) => {
+    try {
+      listener(coords);
+    } catch (e) {
+      console.warn('[Location] Listener dispatch error:', e);
+    }
+  });
+}
+
+/**
+ * Calculate great-circle distance between two GPS coordinates in meters (Haversine formula).
+ */
+export function calculateDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371e3; // Earth's radius in meters
+  const phi1 = (lat1 * Math.PI) / 180;
+  const phi2 = (lat2 * Math.PI) / 180;
+  const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
+  const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return Math.round(R * c);
+}
+
 /**
  * Get synchronously cached in-memory coordinates for zero-latency execution.
  */
@@ -72,19 +126,20 @@ export async function getCurrentLocation(): Promise<Coordinates | null> {
     // Try instantaneous last-known position first
     const lastKnown = await Location.getLastKnownPositionAsync({ maxAge: 600000 });
     if (lastKnown?.coords) {
-      inMemoryCoords = {
+      const coords = {
         latitude: lastKnown.coords.latitude,
         longitude: lastKnown.coords.longitude,
       };
+      notifyLocationUpdate(coords);
     }
 
-    // Request fresh high-accuracy position with 3.5s timeout promise race
+    // Request fresh high-accuracy position with 4.5s timeout promise race
     const freshPositionPromise = Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.High,
     });
 
     const timeoutPromise = new Promise<null>((resolve) =>
-      setTimeout(() => resolve(null), 3500)
+      setTimeout(() => resolve(null), 4500)
     );
 
     const freshLocation = await Promise.race([freshPositionPromise, timeoutPromise]);
@@ -94,8 +149,8 @@ export async function getCurrentLocation(): Promise<Coordinates | null> {
         latitude: freshLocation.coords.latitude,
         longitude: freshLocation.coords.longitude,
       };
-      inMemoryCoords = coords;
       AsyncStorage.setItem(STORAGE_KEY_LAST_COORDS, JSON.stringify(coords)).catch(() => {});
+      notifyLocationUpdate(coords);
       return coords;
     }
 
@@ -109,6 +164,31 @@ export async function getCurrentLocation(): Promise<Coordinates | null> {
     console.error('[Location] Error getting current location:', error);
     return await getQuickLocation();
   }
+}
+
+/**
+ * Force refresh location actively requesting GPS hardware lock.
+ */
+export async function forceRefreshLocation(): Promise<Coordinates | null> {
+  try {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') return await getQuickLocation();
+    const freshLocation = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.Highest,
+    });
+    if (freshLocation?.coords) {
+      const coords = {
+        latitude: freshLocation.coords.latitude,
+        longitude: freshLocation.coords.longitude,
+      };
+      AsyncStorage.setItem(STORAGE_KEY_LAST_COORDS, JSON.stringify(coords)).catch(() => {});
+      notifyLocationUpdate(coords);
+      return coords;
+    }
+  } catch (e) {
+    console.warn('[Location] Force refresh error:', e);
+  }
+  return await getCurrentLocation();
 }
 
 /**

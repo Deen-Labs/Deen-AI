@@ -1,5 +1,6 @@
-// import "../global.css";
-import { Slot } from "expo-router";
+import { ThemeProvider } from "../lib/theme";
+import { LanguageProvider } from "../lib/i18n";
+import { Stack, useRouter } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
@@ -7,59 +8,96 @@ import * as Linking from "expo-linking";
 import SplashScreen from "../components/SplashScreen";
 import { initializeContentProtection } from "../lib/contentProtection";
 import { warmUpAppData } from "../lib/backgroundWarmup";
-import PINModal from "../components/PINModal";
-import { verifyPIN, isLocked } from "../lib/lock";
+import { checkForceUpdate } from "../lib/community";
+import MindfulBarrierModal from "../components/MindfulBarrierModal";
+import FirstTimeWalkthroughModal from "../components/FirstTimeWalkthroughModal";
+import { isWalkthroughCompleted } from "../lib/onboarding";
 import { NativeModules } from "react-native";
 
 const { ContentProtection } = NativeModules;
 
 export default function RootLayout() {
+  const router = useRouter();
   const [showSplash, setShowSplash] = useState(true);
-  const [showUninstallPin, setShowUninstallPin] = useState(false);
-  const [pinError, setPinError] = useState<string | null>(null);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [mindfulBarrierVisible, setMindfulBarrierVisible] = useState(false);
+  const [mindfulBarrierUrl, setMindfulBarrierUrl] = useState('');
 
   useEffect(() => {
     // 1. Kick off background data warm-up immediately on app launch!
     warmUpAppData();
+
+    // Check if first-time onboarding / walkthrough is needed
+    isWalkthroughCompleted().then((completed) => {
+      if (!completed) {
+        setShowWalkthrough(true);
+      }
+    });
 
     // 2. Initialize content protection when app starts
     initializeContentProtection().catch(error => {
       console.error('Failed to initialize content protection:', error);
     });
 
+    // 3. Non-blocking Force Update check on launch
+    checkForceUpdate().then((info) => {
+      if (info.updateRequired) {
+        Alert.alert(
+          "Update Required",
+          `A new version (${info.versionToUpdate}) of DeenHub is available.\n\nWhat's new:\n${info.whatsNew}`,
+          [
+            { text: "Later", style: "cancel" },
+            {
+              text: "Update Now",
+              onPress: () => {
+                Linking.openURL(info.url).catch(() => {});
+              },
+            },
+          ]
+        );
+      }
+    }).catch(() => {});
+
     // Listen for Accessibility Service blocked deep links
     const handleDeepLink = async (event: Linking.EventType) => {
       const data = Linking.parse(event.url);
       if (data.hostname === 'blocked') {
-        const rawUrl = String(data.queryParams?.url || "Unknown Site");
-        const safeUrl = rawUrl.replace(/[\r\n\t<>]/g, '').slice(0, 80);
-        Alert.alert(
-          '🛡️ Content Blocked by DEEN AI',
-          `Access to ${safeUrl} has been automatically blocked to protect your spiritual well-being.`,
-          [{ text: 'I Understand', style: 'default' }],
-          { cancelable: false }
-        );
-      } else if (data.hostname === 'unlock-uninstall') {
-        const locked = await isLocked();
-        if (locked) {
-          setShowUninstallPin(true);
+        const type = String(data.queryParams?.type || 'site');
+        const url = String(data.queryParams?.url || '');
+        const pkg = String(data.queryParams?.pkg || '');
+        try {
+          router.push({
+            pathname: '/blocked',
+            params: { type, url, pkg },
+          });
+        } catch (e) {
+          console.warn('Navigation to blocked screen failed:', e);
         }
       } else if (data.hostname === 'focus-blocked') {
-        Alert.alert(
-          '🎯 Focus Mode Active',
-          'This app is temporarily blocked while your Focus session is running. Stay mindful and focused!',
-          [{ text: 'Back to Focus', style: 'default' }]
-        );
+        const pkg = String(data.queryParams?.pkg || '');
+        try {
+          router.push({
+            pathname: '/blocked',
+            params: { type: 'app', pkg },
+          });
+        } catch (e) {
+          console.warn('Navigation to blocked screen failed:', e);
+        }
       } else if (data.hostname === 'blocked-keyword') {
-        Alert.alert(
-          '🛡️ Blocked Word Detected',
-          `Inappropriate typing or content was detected on screen. DEEN AI has blocked it.`,
-          [{ text: 'I Understand', style: 'default' }],
-          { cancelable: false }
-        );
+        try {
+          router.push({
+            pathname: '/blocked',
+            params: { type: 'site', url: 'Prohibited keyword' },
+          });
+        } catch (e) {
+          console.warn('Navigation to blocked screen failed:', e);
+        }
+      } else if (data.hostname === 'mindful-barrier') {
+        const url = String(data.queryParams?.url || '');
+        setMindfulBarrierUrl(url);
+        setMindfulBarrierVisible(true);
       }
     };
-
     Linking.getInitialURL().then(url => {
       if (url) handleDeepLink({ url });
     });
@@ -70,40 +108,42 @@ export default function RootLayout() {
     };
   }, []);
 
-  if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
-  }
 
-  const handlePinSubmit = async (pin: string) => {
-    setPinError(null);
-    const valid = await verifyPIN(pin);
-    if (valid) {
-      setShowUninstallPin(false);
-      if (ContentProtection && ContentProtection.temporarilyUnlockUninstall) {
-        // Unlock for 1 minute (60000 ms)
-        ContentProtection.temporarilyUnlockUninstall(60000);
-        Alert.alert("Unlocked", "Uninstall and protection changes paused for 1 minute. You can now modify settings or uninstall the app.");
-      }
-    } else {
-      setPinError("Invalid PIN");
-    }
-  };
 
   return (
-    <SafeAreaProvider>
-      <Slot />
-      <PINModal
-        visible={showUninstallPin}
-        mode="verify"
-        title="🔒 Uninstall Blocked"
-        subtitle="Enter your PIN to temporarily allow uninstallation"
-        error={pinError}
-        onClose={() => {
-          setShowUninstallPin(false);
-          setPinError(null);
-        }}
-        onSubmit={handlePinSubmit}
-      />
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <SafeAreaProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: "slide_from_right",
+            }}
+          >
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="hub" options={{ headerShown: false }} />
+            <Stack.Screen name="blocked" options={{ headerShown: false }} />
+            <Stack.Screen name="focus-blocked" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" options={{ headerShown: false }} />
+          </Stack>
+          {showSplash ? (
+            <SplashScreen onFinish={() => setShowSplash(false)} />
+          ) : (
+            <>
+              <FirstTimeWalkthroughModal
+                visible={!showSplash && showWalkthrough}
+                onClose={() => setShowWalkthrough(false)}
+              />
+              <MindfulBarrierModal
+                visible={mindfulBarrierVisible}
+                blockedUrl={mindfulBarrierUrl}
+                onClose={() => setMindfulBarrierVisible(false)}
+              />
+            </>
+          )}
+        </SafeAreaProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
