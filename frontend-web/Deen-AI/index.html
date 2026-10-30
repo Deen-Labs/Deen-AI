@@ -420,21 +420,32 @@
       background: rgba(15, 23, 24, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 8px;
-      padding: 2px;
+      padding: 1.5px;
       display: inline-flex;
       align-items: center;
-      gap: 2px;
+      gap: 1px;
     }
     #deen-theme-toggle button {
       border: none;
       background: transparent;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 5px;
+      font-size: 10px;
       line-height: 1;
       color: #94a4a2;
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media (min-width: 640px) {
+      #deen-theme-toggle {
+        padding: 2px;
+        gap: 2px;
+      }
+      #deen-theme-toggle button {
+        padding: 4px 8px;
+        font-size: 11px;
+        border-radius: 6px;
+      }
     }
     #deen-theme-toggle button:hover {
       color: #ffffff;
@@ -463,6 +474,40 @@
     html.light #deen-theme-toggle button.active-theme {
       background: #B87914 !important;
       color: #FFFFFF !important;
+    }
+
+    /* Scroll Prompt Section Styling (Light & Dark Mode) */
+    .scroll-prompt-text {
+      color: rgba(226, 232, 240, 0.85);
+      letter-spacing: 0.22em;
+    }
+    .scroll-prompt-arrow {
+      color: #e2a23b;
+    }
+    .scroll-prompt-anchor:hover .scroll-prompt-text {
+      color: #ffd175;
+    }
+    .scroll-prompt-anchor:hover .scroll-prompt-arrow {
+      color: #ffd175;
+      transform: translateY(2px);
+    }
+
+    html[data-theme="light"] .scroll-prompt-text,
+    html.light .scroll-prompt-text {
+      color: #0F292A !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="light"] .scroll-prompt-arrow,
+    html.light .scroll-prompt-arrow {
+      color: #B87914 !important;
+    }
+    html[data-theme="light"] .scroll-prompt-anchor:hover .scroll-prompt-text,
+    html.light .scroll-prompt-anchor:hover .scroll-prompt-text {
+      color: #B87914 !important;
+    }
+    html[data-theme="light"] .scroll-prompt-line,
+    html.light .scroll-prompt-line {
+      background: linear-gradient(to right, transparent, rgba(184, 121, 20, 0.45), transparent) !important;
     }
 
     /* Headings & Text in Light Mode */
@@ -1006,30 +1051,30 @@
        1. TOP NAVIGATION BAR
        ========================================================================= -->
   <header class="sticky top-0 z-50 w-full backdrop-blur-md bg-[#081315]/90 border-b border-white/10 transition-all duration-200">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+    <div class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-14 sm:h-16 gap-2">
         
-        <!-- Left: Back to Portfolio & Deen-AI Brand -->
-        <div class="flex items-center space-x-2 sm:space-x-4 min-w-0">
-          <a href="/" class="flex items-center text-xs sm:text-sm font-medium text-slate-300 hover:text-white group transition-colors shrink-0">
-            <i class="fa-solid fa-arrow-left mr-1.5 sm:mr-2 group-hover:-translate-x-1 transition-transform"></i>
-            <span class="hidden sm:inline">Deen-Labs Portfolio</span>
-            <span class="sm:hidden">Portfolio</span>
+        <!-- Left: Back to Portfolio & DeenHub Brand Logo -->
+        <div class="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
+          <a href="/" class="flex items-center text-xs sm:text-sm font-medium text-slate-300 hover:text-white group transition-colors shrink-0" title="Back to Portfolio">
+            <i class="fa-solid fa-arrow-left mr-1 sm:mr-2 group-hover:-translate-x-1 transition-transform text-xs sm:text-sm"></i>
+            <span class="hidden md:inline">Deen-Labs Portfolio</span>
+            <span class="md:hidden">Portfolio</span>
           </a>
 
-          <div class="h-4 w-px bg-slate-800 shrink-0"></div>
+          <div class="h-4 w-px bg-slate-800/80 shrink-0"></div>
 
-          <a href="/Deen-AI" class="flex items-center space-x-2 group py-1 shrink-0" title="DeenHub Showcase">
-            <img src="/assets/new-app-icon.png" alt="DeenHub" class="h-10 sm:h-12 w-auto object-contain rounded-xl drop-shadow-[0_0_12px_rgba(16,185,129,0.35)] group-hover:scale-105 transition-all duration-300" />
+          <a href="/DeenHub" class="flex items-center space-x-1.5 group py-1 shrink-0" title="DeenHub Showcase">
+            <img src="/assets/new-app-icon.png" alt="DeenHub" class="h-7 sm:h-10 w-auto object-contain rounded-lg drop-shadow-[0_0_10px_rgba(16,185,129,0.25)] group-hover:scale-105 transition-all duration-300" />
             <span class="hidden sm:inline-flex px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-deen-gold/20 text-deen-gold border border-deen-gold/40 shadow-sm">v3.2.0</span>
           </a>
         </div>
 
-        <!-- Right: Actions (Display Scaling HUD + GitHub + Primary APK CTA) -->
-        <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        <!-- Right: Actions (Theme Toggle + GitHub + Primary APK CTA) -->
+        <div class="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
           
           <!-- Theme Switcher Controls (Dark / Light / Auto) -->
-          <div id="deen-theme-toggle" role="group" aria-label="Theme mode switcher">
+          <div id="deen-theme-toggle" role="group" aria-label="Theme mode switcher" class="shrink-0">
             <button data-theme-btn="dark" type="button" title="Dark Theme">
               <i class="fa-solid fa-moon"></i>
             </button>
@@ -1041,14 +1086,14 @@
             </button>
           </div>
 
-          <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors">
+          <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" class="hidden md:inline-flex items-center px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors shrink-0">
             <i class="fa-brands fa-github text-sm mr-1.5"></i>
             <span>GitHub</span>
           </a>
 
-          <a href="/assets/deen-app-v3.2.0.apk" download="DeenHub-v3.2.0.apk" class="inline-flex items-center px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-deen-gold to-[#ffd175] hover:from-[#c28424] hover:to-deen-gold rounded-lg shadow-md shadow-amber-950/30 transition-all hover:scale-[1.02] whitespace-nowrap">
-            <i class="fa-brands fa-android text-sm mr-1 sm:mr-1.5"></i>
-            <span>Download APK</span>
+          <a href="/assets/deen-app-v3.2.0.apk" download="DeenHub-v3.2.0.apk" class="inline-flex items-center px-2 py-1 sm:px-3.5 sm:py-2 text-[10.5px] sm:text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-deen-gold to-[#ffd175] hover:from-[#c28424] hover:to-deen-gold rounded-lg shadow-md shadow-amber-950/30 transition-all hover:scale-[1.02] whitespace-nowrap shrink-0">
+            <i class="fa-brands fa-android text-xs sm:text-sm mr-1"></i>
+            <span class="hidden sm:inline">Download </span><span>APK</span>
           </a>
         </div>
 
@@ -1104,26 +1149,26 @@
     <!-- Breathing Scroll Down Indicator & Spacious Section Break (Framed with Semi-Transparent Gold Lines) -->
     <div class="mt-8 sm:mt-10 mb-2 flex flex-col items-center justify-center w-full px-4">
       <!-- Semi-transparent yellow line ABOVE the scroll section -->
-      <div class="w-48 sm:w-72 h-[1px] bg-gradient-to-r from-transparent via-deen-gold/40 to-transparent mx-auto mb-3" aria-hidden="true"></div>
+      <div class="scroll-prompt-line w-48 sm:w-72 h-[1px] bg-gradient-to-r from-transparent via-deen-gold/40 to-transparent mx-auto mb-3" aria-hidden="true"></div>
 
       <a 
         href="#phone-container" 
         onclick="event.preventDefault(); (window.innerWidth < 1024 ? document.getElementById('phone-container') : document.querySelector('[data-screen=\'0\']')).scrollIntoView({ behavior: 'smooth' });" 
-        class="group flex flex-col items-center gap-1.5 select-none cursor-pointer text-slate-400/60 hover:text-deen-gold transition-colors duration-300 py-1"
+        class="group scroll-prompt-anchor flex flex-col items-center gap-1.5 select-none cursor-pointer py-1.5 transition-all duration-300"
         title="Scroll down to test-drive DeenHub"
       >
-        <span class="text-[9.5px] font-mono uppercase tracking-[0.22em] text-slate-400/50 group-hover:text-deen-goldsoft transition-colors">
+        <span class="scroll-prompt-text text-xs sm:text-sm font-mono font-bold uppercase tracking-[0.22em] text-slate-300 transition-colors">
           Scroll to Test Drive App
         </span>
         <div class="animate-breathe-arrow flex flex-col items-center">
-          <svg class="w-4 h-6 text-deen-gold/50 group-hover:text-deen-gold transition-colors" fill="none" viewBox="0 0 24 32" stroke="currentColor" stroke-width="1.5">
+          <svg class="scroll-prompt-arrow w-4 h-6 transition-colors" fill="none" viewBox="0 0 24 32" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v20m0 0l-5-5m5 5l5-5" />
           </svg>
         </div>
       </a>
 
       <!-- Semi-transparent yellow line BELOW the scroll section -->
-      <div class="w-48 sm:w-72 h-[1px] bg-gradient-to-r from-transparent via-deen-gold/40 to-transparent mx-auto mt-3" aria-hidden="true"></div>
+      <div class="scroll-prompt-line w-48 sm:w-72 h-[1px] bg-gradient-to-r from-transparent via-deen-gold/40 to-transparent mx-auto mt-3" aria-hidden="true"></div>
     </div>
   </section>
 

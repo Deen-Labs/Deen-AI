@@ -122,9 +122,6 @@ export default function App() {
     {/* Mobile Drawer Overlay Menu */}
     <div id="mobile-menu" className={`md:hidden bg-slate-950/98 border-b border-slate-900 backdrop-blur-xl transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
       <div className="px-3 pt-2 pb-5 space-y-1 sm:px-4">
-        <div className="py-2 px-1 mb-1">
-          <ThemeToggle className="w-full justify-around py-1.5" />
-        </div>
         <a href="#deenhub" onClick={(e) => scrollToSection(e, 'deenhub')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">DeenHub</a>
         <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadowPlane</a>
         <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>
