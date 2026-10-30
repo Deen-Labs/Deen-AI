@@ -1,3 +1,7 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+import DeenAiMotionController from "./DeenAiMotionController.jsx";
+
 /**
  * Deen-AI Interactive Simulator & Scrollytelling Controller
  * Production-ready vanilla JavaScript module for Vite multi-page build.
@@ -1039,6 +1043,13 @@ function runInit() {
   if (!window.location.hash) {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }
+  const motionRoot = document.getElementById("motion-cursor-root");
+  if (motionRoot && !motionRoot.dataset.mounted) {
+    motionRoot.dataset.mounted = "true";
+    const reactRoot = createRoot(motionRoot);
+    reactRoot.render(React.createElement(DeenAiMotionController));
+  }
+
   initDisplayScalingEngine();
   setupScrollSpy();
   setupQuickJumpPills();
