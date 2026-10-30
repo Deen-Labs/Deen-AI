@@ -1,6 +1,10 @@
 {
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/DeenHub", "destination": "/Deen-AI/index.html" },
+    { "source": "/deenhub", "destination": "/Deen-AI/index.html" },
+    { "source": "/DeenHub/", "destination": "/Deen-AI/index.html" },
+    { "source": "/deenhub/", "destination": "/Deen-AI/index.html" },
     { "source": "/Deen-AI", "destination": "/Deen-AI/index.html" },
     { "source": "/deen-ai", "destination": "/Deen-AI/index.html" },
     { "source": "/Deen-AI/", "destination": "/Deen-AI/index.html" },
