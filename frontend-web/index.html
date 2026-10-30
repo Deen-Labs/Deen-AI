@@ -55,6 +55,17 @@
       ::-webkit-scrollbar-thumb:hover { background: #334155; }
       ::selection { background-color: rgba(30, 143, 130, 0.3); color: #ffffff; }
     </style>
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('deen_theme_mode') || 'dark';
+          var isDark = stored === 'light' ? false : (stored === 'system' ? !(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) : true);
+          document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+          document.documentElement.classList.toggle('light', !isDark);
+          document.documentElement.classList.toggle('dark', isDark);
+        } catch(e) {}
+      })();
+    </script>
   </head>
   <body class="font-sans text-slate-100 antialiased min-h-screen flex flex-col">
     <div id="root"></div>

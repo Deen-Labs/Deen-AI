@@ -1036,6 +1036,85 @@ export function initDisplayScalingEngine() {
 }
 
 // ============================================================================
+// ============================================================================
+// 10B. THEME ENGINE (Dark, Light, System Sync matching Mobile APK theme.tsx)
+// ============================================================================
+
+function initThemeEngine() {
+  const THEME_STORAGE_KEY = "deen_theme_mode";
+
+  function getSystemDark() {
+    return !(window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+  }
+
+  function getStoredMode() {
+    try {
+      const mode = localStorage.getItem(THEME_STORAGE_KEY);
+      if (mode === "dark" || mode === "light" || mode === "system") {
+        return mode;
+      }
+    } catch (e) {}
+    return "dark";
+  }
+
+  function applyTheme(mode) {
+    const isDark = mode === "light" ? false : (mode === "system" ? getSystemDark() : true);
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    document.documentElement.classList.toggle("light", !isDark);
+    document.documentElement.classList.toggle("dark", isDark);
+
+    // Update active button indicators
+    const buttons = document.querySelectorAll("[data-theme-btn]");
+    buttons.forEach((btn) => {
+      const btnMode = btn.getAttribute("data-theme-btn");
+      if (btnMode === mode) {
+        btn.classList.add("active-theme");
+      } else {
+        btn.classList.remove("active-theme");
+      }
+    });
+  }
+
+  function setThemeMode(mode) {
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, mode);
+    } catch (e) {}
+    applyTheme(mode);
+  }
+
+  // Bind clicks
+  const buttons = document.querySelectorAll("[data-theme-btn]");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const mode = btn.getAttribute("data-theme-btn");
+      if (mode) {
+        setThemeMode(mode);
+      }
+    });
+  });
+
+  // Listen for storage changes from other tabs or the portfolio page
+  window.addEventListener("storage", (e) => {
+    if (e.key === THEME_STORAGE_KEY) {
+      applyTheme(getStoredMode());
+    }
+  });
+
+  // Listen for system appearance change if currently on 'system' mode
+  if (window.matchMedia) {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
+    mediaQuery.addEventListener("change", () => {
+      if (getStoredMode() === "system") {
+        applyTheme("system");
+      }
+    });
+  }
+
+  // Initial apply
+  applyTheme(getStoredMode());
+}
+
 // 11. INITIALIZATION
 // ============================================================================
 
@@ -1050,6 +1129,7 @@ function runInit() {
     reactRoot.render(React.createElement(DeenAiMotionController));
   }
 
+  initThemeEngine();
   initDisplayScalingEngine();
   setupScrollSpy();
   setupQuickJumpPills();

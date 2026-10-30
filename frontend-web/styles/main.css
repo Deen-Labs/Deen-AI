@@ -87,3 +87,240 @@ a {
     cursor: none !important;
   }
 }
+
+
+/* ==========================================================================
+   LIGHT MODE & DARK MODE THEME OVERRIDES (Matching Deen-AI APK lib/theme.tsx)
+   ========================================================================== */
+
+/* Dark Theme Variables (Obsidian & Islamic Emerald Night) */
+:root,
+html[data-theme="dark"],
+html.dark {
+  --app-bg: #0f1718;
+  --app-surface: #0b2527;
+  --app-card: #0c3033;
+  --app-card-elevated: #123d41;
+  --app-border: rgba(226, 162, 59, 0.22);
+  --app-text: #f3f7f6;
+  --app-text-sec: #d6e2e0;
+  --app-text-muted: #94a4a2;
+  --app-gold: #e2a23b;
+  --app-green: #00ff66;
+}
+
+/* Light Theme Variables (Warm Alabaster Parchment, Warm Sand, & Emerald Charcoal) */
+html[data-theme="light"],
+html.light {
+  --bg: #F7F3E8;
+  --surface: #EFE8D8;
+  --card: #FFFFFF;
+  --panel: #F5EFE0;
+  --ink: #0F292A;
+  --muted: #5C7475;
+  --accent: #B87914;
+  --accent-soft: #0F292A;
+  --edge: rgba(15, 41, 42, 0.12);
+
+  --app-bg: #F7F3E8;
+  --app-surface: #EFE8D8;
+  --app-card: #FFFFFF;
+  --app-card-elevated: #F5EFE0;
+  --app-border: rgba(15, 41, 42, 0.12);
+  --app-text: #0F292A;
+  --app-text-sec: #334E4F;
+  --app-text-muted: #5C7475;
+  --app-gold: #B87914;
+  --app-green: #059669;
+}
+
+html[data-theme="light"] body,
+html.light body {
+  background-color: #F7F3E8 !important;
+  color: #0F292A !important;
+}
+
+/* Ambient Canvas Background in Light Mode */
+html[data-theme="light"] .ambient-bg,
+html.light .ambient-bg {
+  background-color: #F7F3E8 !important;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 15% 5%, rgba(226, 162, 59, 0.16) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 35%, rgba(5, 150, 105, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 70%, rgba(184, 121, 20, 0.1) 0%, transparent 50%),
+    linear-gradient(165deg, #F7F3E8 0%, #EFE8D8 50%, #F5EFE0 100%) !important;
+}
+
+@media (max-width: 768px) {
+  html[data-theme="light"] .ambient-bg,
+  html.light .ambient-bg {
+    background-image: 
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"),
+      radial-gradient(circle at 50% 5%, rgba(226, 162, 59, 0.16) 0%, transparent 55%),
+      radial-gradient(circle at 50% 35%, rgba(5, 150, 105, 0.12) 0%, transparent 55%),
+      radial-gradient(circle at 50% 70%, rgba(184, 121, 20, 0.1) 0%, transparent 55%),
+      linear-gradient(180deg, #F7F3E8 0%, #EFE8D8 50%, #F5EFE0 100%) !important;
+  }
+}
+
+/* Header & Navigation in Light Mode */
+html[data-theme="light"] #navbar,
+html.light #navbar {
+  background: rgba(247, 243, 232, 0.94) !important;
+  border-bottom-color: rgba(15, 41, 42, 0.12) !important;
+}
+
+html[data-theme="light"] #navbar a,
+html.light #navbar a {
+  color: #334E4F;
+}
+html[data-theme="light"] #navbar a:hover,
+html.light #navbar a:hover {
+  color: #0F292A !important;
+}
+
+html[data-theme="light"] #mobile-menu,
+html.light #mobile-menu {
+  background: rgba(247, 243, 232, 0.98) !important;
+  border-bottom-color: rgba(15, 41, 42, 0.12) !important;
+}
+html[data-theme="light"] #mobile-menu a,
+html.light #mobile-menu a {
+  color: #334E4F !important;
+  border-bottom-color: rgba(15, 41, 42, 0.08) !important;
+}
+
+/* Headings & Text in Light Mode */
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3,
+html[data-theme="light"] h4,
+html[data-theme="light"] .font-display,
+html[data-theme="light"] .text-white,
+html[data-theme="light"] .text-slate-100,
+html.light h1,
+html.light h2,
+html.light h3,
+html.light h4,
+html.light .font-display,
+html.light .text-white,
+html.light .text-slate-100 {
+  color: #0F292A !important;
+}
+
+html[data-theme="light"] p,
+html[data-theme="light"] .text-slate-300,
+html[data-theme="light"] .text-slate-400,
+html.light p,
+html.light .text-slate-300,
+html.light .text-slate-400 {
+  color: #334E4F !important;
+}
+
+html[data-theme="light"] .text-slate-500,
+html.light .text-slate-500 {
+  color: #5C7475 !important;
+}
+
+/* Sections & Dividers in Light Mode */
+html[data-theme="light"] #products,
+html.light #products {
+  background-color: rgba(239, 232, 216, 0.45) !important;
+  border-color: rgba(15, 41, 42, 0.1) !important;
+}
+
+html[data-theme="light"] #consulting,
+html.light #consulting {
+  border-color: rgba(15, 41, 42, 0.1) !important;
+}
+
+html[data-theme="light"] #contact,
+html.light #contact {
+  background-color: #EFE8D8 !important;
+  border-color: rgba(15, 41, 42, 0.12) !important;
+}
+
+/* Cards & Surface Containers in Light Mode */
+html[data-theme="light"] article,
+html[data-theme="light"] .bg-slate-950,
+html[data-theme="light"] .bg-zinc-950,
+html[data-theme="light"] .bg-slate-900,
+html[data-theme="light"] .bg-\[\#0a101d\],
+html[data-theme="light"] .bg-\[\#070a13\],
+html[data-theme="light"] .bg-\[\#0c1820\],
+html.light article,
+html.light .bg-slate-950,
+html.light .bg-zinc-950,
+html.light .bg-slate-900,
+html.light .bg-\[\#0a101d\],
+html.light .bg-\[\#070a13\],
+html.light .bg-\[\#0c1820\] {
+  background-color: #FFFFFF !important;
+  border-color: rgba(15, 41, 42, 0.12) !important;
+  box-shadow: 0 4px 20px -2px rgba(15, 41, 42, 0.08) !important;
+}
+
+/* Inner Elevated Boxes in Light Mode */
+html[data-theme="light"] .bg-slate-900\/80,
+html[data-theme="light"] .bg-slate-900\/60,
+html[data-theme="light"] .bg-slate-900\/50,
+html[data-theme="light"] .bg-slate-900\/40,
+html[data-theme="light"] .bg-slate-950\/80,
+html[data-theme="light"] .bg-zinc-900,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-950\/80,
+html.light .bg-zinc-900 {
+  background-color: #F5EFE0 !important;
+  border-color: rgba(15, 41, 42, 0.08) !important;
+}
+
+/* Form Inputs in Light Mode */
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html.light input,
+html.light textarea {
+  background-color: #FFFFFF !important;
+  border-color: rgba(15, 41, 42, 0.18) !important;
+  color: #0F292A !important;
+}
+
+/* Status Badges in Light Mode */
+html[data-theme="light"] .bg-emerald-500\/10,
+html[data-theme="light"] .bg-emerald-500\/20,
+html.light .bg-emerald-500\/10,
+html.light .bg-emerald-500\/20 {
+  background-color: rgba(5, 150, 105, 0.12) !important;
+  border-color: rgba(5, 150, 105, 0.25) !important;
+  color: #059669 !important;
+}
+
+html[data-theme="light"] .text-emerald-400,
+html.light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+html[data-theme="light"] .text-brand-gold,
+html[data-theme="light"] .text-deen-gold,
+html.light .text-brand-gold,
+html.light .text-deen-gold {
+  color: #B87914 !important;
+}
+
+/* Theme Toggle Component Styling in Light Mode */
+html[data-theme="light"] .theme-toggle-container,
+html.light .theme-toggle-container {
+  background: rgba(239, 232, 216, 0.9) !important;
+  border-color: rgba(15, 41, 42, 0.15) !important;
+}
+html[data-theme="light"] .theme-toggle-container button:not(.bg-\[\#e2a23b\]),
+html.light .theme-toggle-container button:not(.bg-\[\#e2a23b\]) {
+  color: #5C7475 !important;
+}
+html[data-theme="light"] .theme-toggle-container button:not(.bg-\[\#e2a23b\]):hover,
+html.light .theme-toggle-container button:not(.bg-\[\#e2a23b\]):hover {
+  color: #0F292A !important;
+}

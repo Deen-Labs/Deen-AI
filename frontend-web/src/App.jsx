@@ -6,6 +6,7 @@ import RotatedSquareCursor from "./components/RotatedSquareCursor";
 import MagneticButton from "./components/MagneticButton";
 import InteractiveProjectCard from "./components/InteractiveProjectCard";
 import DisplayScaleWidget from "./components/DisplayScaleWidget";
+import ThemeToggle from "./components/ThemeToggle";
 
 export default function App() {
   const [formState, setFormState] = useState({ status: 'idle' });
@@ -89,6 +90,7 @@ export default function App() {
           </a>
 
           <DisplayScaleWidget />
+          <ThemeToggle className="mx-1" />
           
           <MagneticButton as="a" href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="ml-3 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-brand-gold to-[#ffd175] hover:from-[#c28424] hover:to-brand-gold rounded-lg shadow-lg shadow-amber-950/20 hover:shadow-amber-900/30 transition-all duration-200">
             Connect With Me
@@ -120,6 +122,9 @@ export default function App() {
     {/* Mobile Drawer Overlay Menu */}
     <div id="mobile-menu" className={`md:hidden bg-slate-950/98 border-b border-slate-900 backdrop-blur-xl transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
       <div className="px-3 pt-2 pb-5 space-y-1 sm:px-4">
+        <div className="py-2 px-1 mb-1">
+          <ThemeToggle className="w-full justify-around py-1.5" />
+        </div>
         <a href="#deen-ai" onClick={(e) => scrollToSection(e, 'deen-ai')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">Deen-AI</a>
         <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadowPlane</a>
         <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>

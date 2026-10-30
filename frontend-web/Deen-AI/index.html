@@ -28,6 +28,19 @@
   <link rel="canonical" href="https://deenlabs.tech/Deen-AI" />
   <link rel="icon" type="image/png" href="/assets/favicon.PNG" />
 
+  <!-- Immediate Theme Engine Initializer (0ms First-Paint Dark/Light Mode) -->
+  <script>
+    (function() {
+      try {
+        var stored = localStorage.getItem('deen_theme_mode') || 'dark';
+        var isDark = stored === 'light' ? false : (stored === 'system' ? !(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) : true);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        document.documentElement.classList.toggle('light', !isDark);
+        document.documentElement.classList.toggle('dark', isDark);
+      } catch(e) {}
+    })();
+  </script>
+
   <!-- Ensure page loads strictly from the Hero top on navigation -->
   <script>
     if ('scrollRestoration' in history) {
@@ -328,6 +341,312 @@
     .phone-modal-overlay.hidden {
       display: none !important;
     }
+    /* ==========================================================================
+       LIGHT MODE & DARK MODE THEME OVERRIDES (Deen-AI Live Simulator)
+       Exact color codes matching mobile-app/lib/theme.tsx
+       ========================================================================== */
+
+    html[data-theme="light"],
+    html.light {
+      --deen-bg: #F7F3E8;
+      --deen-surface: #EFE8D8;
+      --deen-card: #FFFFFF;
+      --deen-card-elevated: #F5EFE0;
+      --deen-card-top-row: #F0E9DA;
+      --deen-border: rgba(15, 41, 42, 0.12);
+      --deen-border-subtle: rgba(15, 41, 42, 0.08);
+      --deen-text: #0F292A;
+      --deen-text-sec: #334E4F;
+      --deen-text-muted: #5C7475;
+      --deen-gold: #B87914;
+      --deen-green: #059669;
+    }
+
+    html[data-theme="light"] body,
+    html.light body {
+      background-color: #F7F3E8 !important;
+      color: #0F292A !important;
+    }
+
+    /* Ambient Glow in Light Mode */
+    html[data-theme="light"] .deen-bg-glow,
+    html.light .deen-bg-glow {
+      background:
+        radial-gradient(ellipse at 15% 15%, rgba(184, 121, 20, 0.1) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 30%, rgba(5, 150, 105, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 40% 90%, rgba(184, 121, 20, 0.08) 0%, transparent 50%),
+        #F7F3E8 !important;
+    }
+
+    /* Header in Light Mode */
+    html[data-theme="light"] header,
+    html.light header {
+      background: rgba(247, 243, 232, 0.94) !important;
+      border-bottom-color: rgba(15, 41, 42, 0.12) !important;
+    }
+    html[data-theme="light"] header a,
+    html.light header a {
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] header a:hover,
+    html.light header a:hover {
+      color: #0F292A !important;
+    }
+
+    /* Theme Toggle Bar */
+    #deen-theme-toggle {
+      background: rgba(15, 23, 24, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    #deen-theme-toggle button {
+      border: none;
+      background: transparent;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      line-height: 1;
+      color: #94a4a2;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #deen-theme-toggle button:hover {
+      color: #ffffff;
+    }
+    #deen-theme-toggle button.active-theme {
+      background: #e2a23b !important;
+      color: #05070e !important;
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    }
+
+    html[data-theme="light"] #deen-theme-toggle,
+    html.light #deen-theme-toggle {
+      background: rgba(239, 232, 216, 0.95) !important;
+      border-color: rgba(15, 41, 42, 0.15) !important;
+    }
+    html[data-theme="light"] #deen-theme-toggle button,
+    html.light #deen-theme-toggle button {
+      color: #5C7475 !important;
+    }
+    html[data-theme="light"] #deen-theme-toggle button:hover,
+    html.light #deen-theme-toggle button:hover {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] #deen-theme-toggle button.active-theme,
+    html.light #deen-theme-toggle button.active-theme {
+      background: #B87914 !important;
+      color: #FFFFFF !important;
+    }
+
+    /* Headings & Text in Light Mode */
+    html[data-theme="light"] h1,
+    html[data-theme="light"] h2,
+    html[data-theme="light"] h3,
+    html[data-theme="light"] h4,
+    html.light h1,
+    html.light h2,
+    html.light h3,
+    html.light h4 {
+      color: #0F292A !important;
+    }
+
+    html[data-theme="light"] p,
+    html[data-theme="light"] .text-slate-300,
+    html[data-theme="light"] .text-slate-400,
+    html.light p,
+    html.light .text-slate-300,
+    html.light .text-slate-400 {
+      color: #334E4F !important;
+    }
+
+    /* Quick jump selector pills */
+    html[data-theme="light"] .quick-jump-pill,
+    html.light .quick-jump-pill {
+      background-color: #EFE8D8 !important;
+      border-color: rgba(15, 41, 42, 0.15) !important;
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] .quick-jump-pill:hover,
+    html.light .quick-jump-pill:hover {
+      border-color: #B87914 !important;
+      color: #B87914 !important;
+      background-color: #F5EFE0 !important;
+    }
+    html[data-theme="light"] .quick-jump-pill.active-pill,
+    html.light .quick-jump-pill.active-pill {
+      background-color: #B87914 !important;
+      border-color: #B87914 !important;
+      color: #FFFFFF !important;
+    }
+
+    /* Technical Feature Deepdive Cards */
+    html[data-theme="light"] .feature-deepdive-card,
+    html.light .feature-deepdive-card {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.12) !important;
+      box-shadow: 0 4px 20px -2px rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card.active-section,
+    html.light .feature-deepdive-card.active-section {
+      border-color: #B87914 !important;
+      background: #FFFFFF !important;
+      box-shadow: 0 10px 30px -5px rgba(184, 121, 20, 0.18) !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card .bg-deen-bg\/90,
+    html[data-theme="light"] .feature-deepdive-card .bg-slate-900\/80,
+    html[data-theme="light"] .feature-deepdive-card .bg-slate-900,
+    html.light .feature-deepdive-card .bg-deen-bg\/90,
+    html.light .feature-deepdive-card .bg-slate-900\/80,
+    html.light .feature-deepdive-card .bg-slate-900 {
+      background-color: #F5EFE0 !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card .text-white,
+    html.light .feature-deepdive-card .text-white {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card .text-slate-400,
+    html.light .feature-deepdive-card .text-slate-400 {
+      color: #5C7475 !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card .text-deen-gold,
+    html.light .feature-deepdive-card .text-deen-gold {
+      color: #B87914 !important;
+    }
+    html[data-theme="light"] .feature-deepdive-card button.bg-slate-900\/80,
+    html.light .feature-deepdive-card button.bg-slate-900\/80 {
+      background-color: #EFE8D8 !important;
+      border-color: rgba(15, 41, 42, 0.15) !important;
+      color: #0F292A !important;
+    }
+
+    /* Mobile Sync Card */
+    html[data-theme="light"] #mobile-sync-card,
+    html.light #mobile-sync-card {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.12) !important;
+      box-shadow: 0 4px 20px -2px rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] #mobile-sync-card .bg-slate-900\/90,
+    html.light #mobile-sync-card .bg-slate-900\/90 {
+      background-color: #F5EFE0 !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+    }
+
+    /* Phone Simulator in Light Mode */
+    html[data-theme="light"] .phone-simulator-frame,
+    html.light .phone-simulator-frame {
+      background: #F7F3E8 !important;
+      border-color: #334E4F !important;
+      box-shadow: 0 25px 60px -12px rgba(15, 41, 42, 0.3), 0 0 30px rgba(15, 41, 42, 0.15) !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport,
+    html.light .phone-screen-viewport {
+      background: #F7F3E8 !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .text-white,
+    html.light .phone-screen-viewport .text-white {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .text-slate-200,
+    html[data-theme="light"] .phone-screen-viewport .text-slate-300,
+    html[data-theme="light"] .phone-screen-viewport .text-slate-400,
+    html.light .phone-screen-viewport .text-slate-200,
+    html.light .phone-screen-viewport .text-slate-300,
+    html.light .phone-screen-viewport .text-slate-400 {
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .text-deen-gold,
+    html.light .phone-screen-viewport .text-deen-gold {
+      color: #B87914 !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .text-emerald-400,
+    html.light .phone-screen-viewport .text-emerald-400 {
+      color: #059669 !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .bg-\[\#0c2326\],
+    html[data-theme="light"] .phone-screen-viewport .bg-\[\#0c2124\],
+    html.light .phone-screen-viewport .bg-\[\#0c2326\],
+    html.light .phone-screen-viewport .bg-\[\#0c2124\] {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.1) !important;
+      box-shadow: 0 2px 10px rgba(15, 41, 42, 0.05) !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .bg-\[\#081517\],
+    html[data-theme="light"] .phone-screen-viewport .bg-\[\#07191b\],
+    html[data-theme="light"] .phone-screen-viewport .bg-slate-900,
+    html.light .phone-screen-viewport .bg-\[\#081517\],
+    html.light .phone-screen-viewport .bg-\[\#07191b\],
+    html.light .phone-screen-viewport .bg-slate-900 {
+      background-color: #F5EFE0 !important;
+      border-color: rgba(15, 41, 42, 0.08) !important;
+    }
+    html[data-theme="light"] .phone-screen-viewport .bg-gradient-to-br,
+    html.light .phone-screen-viewport .bg-gradient-to-br {
+      background: linear-gradient(135deg, #FFFFFF 0%, #F5EFE0 100%) !important;
+      border-color: rgba(184, 121, 20, 0.4) !important;
+    }
+
+    /* Phone Navigation Bar */
+    html[data-theme="light"] #phone-nav-bar,
+    html.light #phone-nav-bar {
+      background-color: #EFE8D8 !important;
+      border-top-color: rgba(15, 41, 42, 0.12) !important;
+    }
+    html[data-theme="light"] .phone-tab-btn,
+    html.light .phone-tab-btn {
+      color: #5C7475 !important;
+    }
+    html[data-theme="light"] .phone-tab-btn.active,
+    html.light .phone-tab-btn.active {
+      color: #B87914 !important;
+    }
+
+    /* Phone Modal Overlays */
+    html[data-theme="light"] .phone-modal-overlay,
+    html.light .phone-modal-overlay {
+      background-color: #F7F3E8 !important;
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] .phone-modal-overlay .bg-\[\#081517\],
+    html[data-theme="light"] .phone-modal-overlay .bg-\[\#0c2326\],
+    html.light .phone-modal-overlay .bg-\[\#081517\],
+    html.light .phone-modal-overlay .bg-\[\#0c2326\] {
+      background-color: #FFFFFF !important;
+      border-color: rgba(15, 41, 42, 0.1) !important;
+    }
+
+    /* Qibla Compass Dial */
+    html[data-theme="light"] .compass-dial-ring,
+    html.light .compass-dial-ring {
+      background-color: #EFE8D8 !important;
+      border-color: rgba(5, 150, 105, 0.45) !important;
+      box-shadow: 0 0 25px rgba(5, 150, 105, 0.15), inset 0 0 15px rgba(5, 150, 105, 0.08) !important;
+    }
+
+    /* Footer in Light Mode */
+    html[data-theme="light"] footer,
+    html.light footer {
+      background-color: #EFE8D8 !important;
+      border-top-color: rgba(15, 41, 42, 0.12) !important;
+    }
+    html[data-theme="light"] footer a,
+    html.light footer a {
+      color: #334E4F !important;
+    }
+    html[data-theme="light"] footer a:hover,
+    html.light footer a:hover {
+      color: #0F292A !important;
+    }
+    html[data-theme="light"] footer p,
+    html.light footer p {
+      color: #5C7475 !important;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-deen-gold/30 selection:text-white">
@@ -361,6 +680,19 @@
         <!-- Right: Actions (Display Scaling HUD + GitHub + Primary APK CTA) -->
         <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
           
+          <!-- Theme Switcher Controls (Dark / Light / Auto) -->
+          <div id="deen-theme-toggle" role="group" aria-label="Theme mode switcher">
+            <button data-theme-btn="dark" type="button" title="Dark Theme">
+              <i class="fa-solid fa-moon"></i>
+            </button>
+            <button data-theme-btn="light" type="button" title="Light Theme">
+              <i class="fa-solid fa-sun"></i>
+            </button>
+            <button data-theme-btn="system" type="button" title="System Theme">
+              <i class="fa-solid fa-circle-half-stroke"></i>
+            </button>
+          </div>
+
           <a href="https://github.com/Deen-Labs/Deen-AI" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors">
             <i class="fa-brands fa-github text-sm mr-1.5"></i>
             <span>GitHub</span>

@@ -81,7 +81,7 @@ export default function RotatedSquareCursor() {
 
       {/* Inner precise dot */}
       <motion.div
-        className="fixed top-0 left-0 w-1.5 h-1.5 bg-white rounded-full pointer-events-none z-[10000]"
+        className="fixed top-0 left-0 w-1.5 h-1.5 bg-white rounded-full pointer-events-none z-[10000] mix-blend-difference"
         style={{ x: mouseX, y: mouseY, marginLeft: '-3px', marginTop: '-3px' }}
       />
     </>
