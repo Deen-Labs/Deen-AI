@@ -12,10 +12,20 @@ export default defineConfig({
         server.middlewares.use((req, res, next) => {
           const rawUrl = req.url || '';
           const urlPath = rawUrl.split('?')[0];
+          if (urlPath.toLowerCase() === '/deen-ai.js') {
+            req.url = '/DeenHub/deen-ai.js';
+            return next();
+          }
           if (
             urlPath.toLowerCase() === '/deen-ai' ||
+            urlPath.toLowerCase() === '/deenhub'
+          ) {
+            res.writeHead(301, { Location: '/DeenHub/' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '') });
+            res.end();
+            return;
+          }
+          if (
             urlPath.toLowerCase() === '/deen-ai/' ||
-            urlPath.toLowerCase() === '/deenhub' ||
             urlPath.toLowerCase() === '/deenhub/'
           ) {
             req.url = '/DeenHub/index.html' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '');
@@ -27,10 +37,20 @@ export default defineConfig({
         server.middlewares.use((req, res, next) => {
           const rawUrl = req.url || '';
           const urlPath = rawUrl.split('?')[0];
+          if (urlPath.toLowerCase() === '/deen-ai.js') {
+            req.url = '/DeenHub/deen-ai.js';
+            return next();
+          }
           if (
             urlPath.toLowerCase() === '/deen-ai' ||
+            urlPath.toLowerCase() === '/deenhub'
+          ) {
+            res.writeHead(301, { Location: '/DeenHub/' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '') });
+            res.end();
+            return;
+          }
+          if (
             urlPath.toLowerCase() === '/deen-ai/' ||
-            urlPath.toLowerCase() === '/deenhub' ||
             urlPath.toLowerCase() === '/deenhub/'
           ) {
             req.url = '/DeenHub/index.html' + (rawUrl.includes('?') ? '?' + rawUrl.split('?')[1] : '');
@@ -54,7 +74,7 @@ export default defineConfig({
     port: 5173,
     host: true,
     watch: {
-      ignored: ['**/*.apk', '**/assets/*.apk', '**/.git/**'],
+      ignored: ['**/*.apk', '**/assets/*.apk', '**/.git/**', '**/*.tmp', '**/~*', '**/*.crdownload'],
     },
   },
   preview: {

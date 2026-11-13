@@ -81,10 +81,10 @@ export default function App() {
         {/* Desktop Navigation Items */}
         <nav className="hidden md:flex items-center space-x-1" aria-label="Main Navigation">
           <a href="#deenhub" onClick={(e) => scrollToSection(e, 'deenhub')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">DeenHub</a>
-          <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadowPlane</a>
+          <a href="#shadoplane" onClick={(e) => scrollToSection(e, 'shadoplane')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ShadoPlane</a>
           <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="px-3.5 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-900/50 border border-transparent hover:border-slate-800/60 transition-all duration-200">ihateATS</a>
           
-          <a id="topbar-deen-preview-btn" href="/DeenHub" className="topbar-deen-preview-btn px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-[#ffd175] hover:text-[#ffe49e] bg-[#059669] hover:bg-[#047857] border border-[#ffd175]/40 hover:border-[#ffd175]/70 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md shadow-emerald-950/30 group">
+          <a id="topbar-deen-preview-btn" href="/DeenHub/" className="topbar-deen-preview-btn px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-[#ffd175] hover:text-[#ffe49e] bg-[#059669] hover:bg-[#047857] border border-[#ffd175]/40 hover:border-[#ffd175]/70 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md shadow-emerald-950/30 group">
             <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-7 h-7 sm:w-8 sm:h-8 shrink-0 object-contain rounded drop-shadow-sm group-hover:scale-105 transition-transform" />
             <span className="text-[#ffd175] font-bold group-hover:text-[#ffe49e] transition-colors">Launch DeenHub Preview &rarr;</span>
           </a>
@@ -123,10 +123,10 @@ export default function App() {
     <div id="mobile-menu" className={`md:hidden bg-slate-950/98 border-b border-slate-900 backdrop-blur-xl transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
       <div className="px-3 pt-2 pb-5 space-y-1 sm:px-4">
         <a href="#deenhub" onClick={(e) => scrollToSection(e, 'deenhub')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">DeenHub</a>
-        <a href="#shadowplane" onClick={(e) => scrollToSection(e, 'shadowplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadowPlane</a>
+        <a href="#shadoplane" onClick={(e) => scrollToSection(e, 'shadoplane')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ShadoPlane</a>
         <a href="#ihateats" onClick={(e) => scrollToSection(e, 'ihateats')} className="block px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-900/80 rounded-lg border-b border-slate-900 transition-colors">ihateATS</a>
         
-        <a href="/DeenHub" className="topbar-deen-preview-btn block px-4 py-3 text-sm font-bold uppercase tracking-wider text-[#ffd175] bg-[#059669] hover:bg-[#047857] rounded-lg border border-[#ffd175]/30 transition-colors flex items-center gap-2.5 shadow-md shadow-emerald-950/20">
+        <a href="/DeenHub/" className="topbar-deen-preview-btn block px-4 py-3 text-sm font-bold uppercase tracking-wider text-[#ffd175] bg-[#059669] hover:bg-[#047857] rounded-lg border border-[#ffd175]/30 transition-colors flex items-center gap-2.5 shadow-md shadow-emerald-950/20">
           <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-7 h-7 shrink-0 object-contain rounded drop-shadow-sm" />
           <span className="text-[#ffd175] font-bold">Launch DeenHub Preview &rarr;</span>
         </a>
@@ -373,7 +373,7 @@ export default function App() {
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <MagneticButton
                   as="a"
-                  href="/DeenHub"
+                  href="/DeenHub/"
                   className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 rounded-xl shadow-lg shadow-teal-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2.5 whitespace-nowrap"
                 >
                   <img src="/assets/new-app-icon.png" alt="DeenHub" className="w-7 h-7 shrink-0 object-contain rounded drop-shadow-sm" />
@@ -419,25 +419,28 @@ export default function App() {
                   
                   {/* Authentic Digital LED Timing Matrix */}
                   <div className="bg-[#080808] border-2 border-[#4a3321] rounded-lg p-2 font-mono text-[9.5px] space-y-1 shadow-inner my-2">
-                    <div className="flex items-center justify-between text-slate-400 border-b border-white/10 pb-0.5 text-[8px] font-bold">
-                      <span>PRAYER</span>
-                      <span className="text-[#00ff66]">ATHAN (GREEN)</span>
-                      <span className="text-[#ff3333]">JAMA'AT (RED)</span>
+                    <div className="grid grid-cols-[1.3fr_1fr_1fr] items-center text-slate-400 border-b border-white/10 pb-1 px-2 text-[8px] font-bold tracking-wider">
+                      <span className="text-left">PRAYER</span>
+                      <span className="text-[#00ff66] text-center">ATHAN (GREEN)</span>
+                      <span className="text-[#ff3333] text-right">JAMA'AT (RED)</span>
                     </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-slate-300 font-bold">FAJR (+25m)</span>
-                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_1.5px_#00ff66]">04:58 AM</span>
-                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_1.5px_#ff3333]">05:23 AM</span>
+                    <div className="grid grid-cols-[1.3fr_1fr_1fr] items-center py-1 px-2 border border-transparent">
+                      <span className="text-slate-300 font-bold text-left">FAJR (+25m)</span>
+                      <span className="text-[#00ff66] font-bold text-center font-mono drop-shadow-[0_0_1.5px_#00ff66]">04:58 AM</span>
+                      <span className="text-[#ff3333] font-bold text-right font-mono drop-shadow-[0_0_1.5px_#ff3333]">05:23 AM</span>
                     </div>
-                    <div className="flex items-center justify-between py-0.5 bg-emerald-950/50 rounded px-1 text-emerald-400 font-bold border border-emerald-500/30">
-                      <span>▶ ASR (CURRENT)</span>
-                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_1.5px_#00ff66]">03:36 PM</span>
-                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_1.5px_#ff3333]">04:15 PM</span>
+                    <div className="grid grid-cols-[1.3fr_1fr_1fr] items-center py-1 px-2 bg-emerald-950/50 rounded text-emerald-400 font-bold border border-emerald-500/30">
+                      <span className="text-emerald-400 font-bold text-left flex items-center gap-1">
+                        <span className="text-[8px] text-emerald-400">▶</span>
+                        <span>ASR (CURRENT)</span>
+                      </span>
+                      <span className="text-[#00ff66] font-bold text-center font-mono drop-shadow-[0_0_1.5px_#00ff66]">03:36 PM</span>
+                      <span className="text-[#ff3333] font-bold text-right font-mono drop-shadow-[0_0_1.5px_#ff3333]">04:15 PM</span>
                     </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-slate-300 font-bold">MAGHRIB</span>
-                      <span className="text-[#00ff66] font-bold drop-shadow-[0_0_1.5px_#00ff66]">05:58 PM</span>
-                      <span className="text-[#ff3333] font-bold drop-shadow-[0_0_1.5px_#ff3333]">06:05 PM</span>
+                    <div className="grid grid-cols-[1.3fr_1fr_1fr] items-center py-1 px-2 border border-transparent">
+                      <span className="text-slate-300 font-bold text-left">MAGHRIB</span>
+                      <span className="text-[#00ff66] font-bold text-center font-mono drop-shadow-[0_0_1.5px_#00ff66]">05:58 PM</span>
+                      <span className="text-[#ff3333] font-bold text-right font-mono drop-shadow-[0_0_1.5px_#ff3333]">06:05 PM</span>
                     </div>
                   </div>
 
@@ -480,9 +483,9 @@ export default function App() {
 </InteractiveProjectCard>
 
         {/* ==========================================
-             SHADOWPLANE PRODUCT SHOWCASE (Row 3)
+             SHADOPLANE PRODUCT SHOWCASE (Row 3)
              ========================================== */}
-        <InteractiveProjectCard id="shadowplane" className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-950/10 group relative overflow-hidden">
+        <InteractiveProjectCard id="shadoplane" className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 sm:p-7 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-950/10 group relative overflow-hidden">
           {/* Top subtle glow line */}
           <div className="absolute -top-6 sm:-top-8 -left-6 sm:-left-8 -right-6 sm:-right-8 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-400"></div>
           
@@ -490,18 +493,17 @@ export default function App() {
             
             {/* Left Column: Copy & Details */}
             <div className="lg:col-span-7 flex flex-col space-y-6">
-              <div className="flex items-center space-x-3.5">
-                <div className="h-12 w-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
-                  <i className="fa-solid fa-shield-halved text-lg"></i>
-                </div>
-                <div>
-                  <h4 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">ShadowPlane</h4>
-                  <p className="text-xs text-slate-400">IaC Containment Firewall & Verification Gateway</p>
-                </div>
+              <div className="flex flex-col items-start space-y-2">
+                <img 
+                  src="/assets/shadoplane-logo.png" 
+                  alt="ShadoPlane" 
+                  className="h-9 sm:h-11 w-auto max-w-[260px] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_20px_rgba(59,130,246,0.3)]" 
+                />
+                <p className="text-xs text-slate-400">IaC Containment Firewall & Verification Gateway</p>
               </div>
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                ShadowPlane is a deterministic IaC containment firewall and verification gateway designed for Agentic DevOps. It intercepts agent-authored Terraform and executes it inside an isolated, rootless <strong>Docker sandbox</strong> with stripped host credentials and network egress restricted to <strong>LocalStack</strong>. Powered by <strong>Change-Risk Intelligence</strong> and fail-closed <strong>Checkov</strong> scanning, it proactively detects destructive state drops (RDS/S3/KMS) and IAM privilege broadening before issuing an immutable <strong>SHA-256 Attestation</strong>.
+                ShadoPlane is a deterministic IaC containment firewall and verification gateway designed for Agentic DevOps. It intercepts agent-authored Terraform and executes it inside an isolated, rootless <strong>Docker sandbox</strong> with stripped host credentials and network egress restricted to <strong>LocalStack</strong>. Powered by <strong>Change-Risk Intelligence</strong> and fail-closed <strong>Checkov</strong> scanning, it proactively detects destructive state drops (RDS/S3/KMS) and IAM privilege broadening before issuing an immutable <strong>SHA-256 Attestation</strong>.
               </p>
 
               {/* Tech badges */}
@@ -521,10 +523,9 @@ export default function App() {
                   href="https://shadowplane.vercel.app"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-300 hover:to-cyan-300 rounded-xl shadow-lg shadow-cyan-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                  className="h-12 px-6 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-300 hover:to-cyan-300 rounded-xl shadow-lg shadow-cyan-950/20 transition-all duration-200 inline-flex items-center justify-center whitespace-nowrap"
                 >
-                  <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                  <span>Launch Live Site</span>
+                  <span>Visit Site</span>
                 </MagneticButton>
 
                 <MagneticButton
@@ -558,12 +559,12 @@ export default function App() {
                 <div className="flex items-center justify-between pb-3 border-b border-slate-900 mb-4">
                   <span className="text-blue-400 font-bold text-[10px] flex items-center space-x-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block animate-pulse"></span>
-                    <span>SHADOWPLANE GATEKEEPER</span>
+                    <span>SHADOPLANE GATEKEEPER</span>
                   </span>
                   <span className="text-[9px] text-slate-500">ENV: SANDBOX</span>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-slate-500">&gt; shadowplane --target-dir ./infra</p>
+                  <p className="text-slate-500">&gt; shadoplane --target-dir ./infra</p>
                   <p className="text-slate-500">[1] Mounting isolated Docker sandbox container...</p>
                   <p className="text-cyan-400">[2] Checkov static analysis: 0 violations (PASS).</p>
                   <p className="text-amber-400">[3] Change-Risk Intelligence: Plan verified (LOW RISK).</p>
@@ -590,14 +591,14 @@ export default function App() {
             
             {/* Left Column: Copy & Details */}
             <div className="lg:col-span-7 flex flex-col space-y-6">
-              <div className="flex items-center space-x-3.5">
-                <div className="h-12 w-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform">
-                  <i className="fa-solid fa-file-invoice text-lg"></i>
-                </div>
-                <div>
-                  <h4 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight">ihateATS</h4>
-                  <p className="text-xs text-slate-400">AI-powered, 100% free ATS resume builder</p>
-                </div>
+              <div className="flex flex-col items-start space-y-2">
+                <img 
+                  src="/assets/ihateats-logo.png" 
+                  alt="ihateATS" 
+                  className="h-9 sm:h-11 w-auto max-w-[260px] object-contain group-hover:scale-105 transition-transform duration-300" 
+                  style={{ filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.95)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6))' }}
+                />
+                <p className="text-xs text-slate-400">AI-powered, 100% free ATS resume builder</p>
               </div>
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
@@ -621,10 +622,9 @@ export default function App() {
                   href="https://ihateats.deenlabs.tech/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-12 px-5 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-300 hover:to-violet-400 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                  className="h-12 px-6 text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-indigo-400 to-violet-500 hover:from-indigo-300 hover:to-violet-400 rounded-xl shadow-lg shadow-indigo-950/20 transition-all duration-200 inline-flex items-center justify-center whitespace-nowrap"
                 >
-                  <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                  <span>Launch Live App</span>
+                  <span>Visit Site</span>
                 </MagneticButton>
 
                 <MagneticButton
@@ -697,7 +697,7 @@ export default function App() {
                 Architecting Resilient CI/CD & Cloud Infrastructure
               </h3>
               <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
-              I am a Multi-Cloud & DevOps Engineer who builds resilient, automated cloud infrastructure. Beyond provisioning backend environments, my full-stack background allows me to build custom developer tools, agentic sandboxes like ShadowPlane, and deployment pipelines from the ground up. I extend this architectural control to the client side, engineering native Android applications with complete end-to-end backend integration.
+              I am a Multi-Cloud & DevOps Engineer who builds resilient, automated cloud infrastructure. Beyond provisioning backend environments, my full-stack background allows me to build custom developer tools, agentic sandboxes like ShadoPlane, and deployment pipelines from the ground up. I extend this architectural control to the client side, engineering native Android applications with complete end-to-end backend integration.
             </p>
     
               {/* Key Pillars */}
